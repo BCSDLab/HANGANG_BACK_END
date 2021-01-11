@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.UserMapper">
+
+    <insert id="signUp">
+        INSERT INTO hangang.user (portal_account, password, nickname)
+        VALUES(#{portal_account}, #{password}, #{nickname})
+    </insert>
+    <update id="setSalt">
+        UPDATE hangang.user SET salt = #{salt} WHERE id=#{user_id}
+    </update>
+    <insert id="setMajor">
+        INSERT INTO hangang.major ( user_id, major)
+        VALUES( #{user_id}, #{major} )
+    </insert>
+
+    <select id="getUserIdFromPortal" resultType="Long">
+        SELECT id FROM hangang.user WHERE portal_account =#{portal_account}
+    </select>
+
+    <select id="getUserByNickName" resultType="String">
+        SELECT nickname FROM hangang.user WHERE nickname = #{nickname}
+    </select>
+
+    <select id="getPasswordFromPortal" resultType="in.hangang.domain.User">
+        SELECT password,nickname,id FROM hangang.user WHERE portal_account = #{portal_account}
+    </select>
+
+    <select id="getSalt" resultType="String">
+        SELECT salt FROM hangang.user WHERE id=#{id}
+    </select>
+
+    <insert id="setAuthNumber">
+        INSERT INTO hangang.auth_number(ip,portal_account, secret,flag, expired_at) VALUES (#{ip},#{portal_account}, #{secret},#{flag}, #{expired_at} )
+    </insert>
+
+    <select id="getSecret" resultType="in.hangang.domain.AuthNumber">
+        SELECT id,ip, secret,flag, expired_at FROM hangang.auth_number WHERE portal_account = #{portal_account} and flag = #{flag}
+    </select>
+    <update id="setIs_authed">
+        UPDATE hangang.auth_number   SET is_authed = #{is_authed} WHERE id=#{id} and flag=#{flag}
+    </update>
+    <select id="getAuthTrue" resultType="in.hangang.domain.AuthNumber">
+        SELECT is_authed FROM hangang.auth_number WHERE is_authed = 1 and portal_account =#{portal_account} and flag=#{flag}
+    </select>
+
+    <delete id="deleteAllAuthNumber">
+        DELETE FROM hangang.auth_number WHERE portal_account=#{portal_account} and flag = #{flag}
+    </delete>
+
+    <update id="findPassword">
+        UPDATE hangang.user set password=#{password} WHERE portal_account=#{portal_account}
+    </update>
+</mapper>

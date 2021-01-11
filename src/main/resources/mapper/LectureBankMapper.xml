@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.LectureBankMapper">
+
+<!--    <select id="getLectureBankList" resultType="in.hangang.domain.LectureBank">-->
+<!--        SELECT-->
+<!--        <include refid="lectureBankColumnList">-->
+<!--            <property name="prefix" value=""/>-->
+<!--            <property name="alias" value="LB."/>-->
+<!--        </include>-->
+<!--        FROM lecture_bank LB-->
+<!--        <if test="!category.get(0).equals('')">-->
+<!--            WHERE-->
+<!--            <foreach collection="category" item="category" open="(" close=")"  separator="or">-->
+<!--                category = #{category}-->
+<!--            </foreach>-->
+<!--        </if>-->
+<!--        order by #{order} desc limit #{cursor}, #{limit}-->
+<!--    </select>-->
+
+
+        <select id="findLectureBankByKeyword" resultMap="searchLectureBank">
+            SELECT
+            <include refid="lectureBankColumnList">
+                <property name="prefix" value=""/>
+                <property name="alias" value="LB."/>
+            </include>,
+            <include refid="UserColumnList">
+                <property name="prefix" value=""/>
+                <property name="alias" value="U."/>
+            </include>,
+            <include refid="lectureColumnList">
+                <property name="prefix" value=""/>
+                <property name="alias" value="L."/>
+            </include>
+            FROM lecture_bank LB, user U, lecture L,
+            (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
+            WHERE
+            (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id)
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(category)">
+                and
+                <foreach collection="category" item="category" open="(" close=")"  separator="or">
+                    LBC.category = #{category}
+                </foreach>
+            </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
+                and
+                (LB.title like concat('%',#{keyword},'%')
+                or L.name like concat('%',#{keyword},'%')
+                or L.professor like concat('%',#{keyword},'%'))
+            </if>
+            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
+                and
+                (L.department = #{department})
+            </if>
+            order by #{order} desc limit #{cursor}, #{limit}
+        </select>
+
+
+        <sql id="lectureBankColumnList">
+            ${alias}id AS ${prefix}id,
+            ${alias}user_id AS ${prefix}user_id,
+            ${alias}lecture_id AS ${prefix}lecture_id,
+            ${alias}title AS ${prefix}title,
+            ${alias}content AS ${prefix}content,
+            ${alias}point_price AS ${prefix}point_price,
+            ${alias}hits AS ${prefix}hits,
+            ${alias}created_at AS ${prefix}created_at,
+            ${alias}updated_at AS ${prefix}updated_at
+        </sql>
+        <sql id="UserColumnList">
+             ${alias}nickname AS ${prefix}nickname
+        </sql>
+        <sql id="lectureColumnList">
+             ${alias}name AS ${prefix}name,
+             ${alias}professor AS ${prefix}professor,
+             ${alias}department AS ${prefix}department
+        </sql>
+
+
+
+        <resultMap id="searchLectureBank" type="in.hangang.domain.LectureBank">
+            <result column="id" property="id"/>
+            <result column="user_id" property="user_id"/>
+            <result column="lecture_id" property="lecture_id"/>
+            <result column="title" property="title"/>
+            <result column="content" property="content"/>
+            <result column="point_price" property="point_price"/>
+            <result column="hits" property="hits"/>
+            <result column="created_at" property="created_at"/>
+            <result column="updated_at" property="updated_at"/>
+            <association property="user" resultMap="user"/>
+            <association property="lecture" resultMap="lecture"/>
+        </resultMap>
+
+
+        <resultMap id="user" type="in.hangang.domain.User">
+            <result column="nickname" property="nickname"/>
+        </resultMap>
+
+        <resultMap id="lecture" type="in.hangang.domain.Lecture">
+            <result column="name" property="name"/>
+            <result column="professor" property="professor"/>
+            <result column="department" property="department"/>
+        </resultMap>
+
+
+    <!--    <insert id="createLectureBank">-->
+<!--        INSERT INTO lecture_bank (user_id, lecture_id, category, title, content, point_price)-->
+<!--        VALUES(#{user_id}, #{lecture_id}, #{category}, #{title}, #{content}, #{point_price})-->
+<!--    </insert>-->
+
+<!--    <insert id="setUpload_file">-->
+<!--        INSERT INTO upload_file (lecture_bank_id, url)-->
+<!--        VALUES(#{lecture_bank_id}, #{url})-->
+<!--    </insert>-->
+        <select id="getCategoryList" resultType="Long">
+            select id, lecture_bank_id, category from lecture_bank_category where lecture_bank_id = #{sdf}
+        </select>
+
+
+
+
+
+
+
+</mapper>
