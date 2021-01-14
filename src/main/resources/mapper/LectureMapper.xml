@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.LectureMapper">
+
+    <select id="getLectureList" resultMap="lectureList">
+        SELECT
+        <include refid="lecture-list">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LEC."/>
+        </include>
+        FROM hangang.lecture LEC
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(hashtag)">
+                ,(SELECT
+                <include refid="HashTagTop3-list">
+                    <property name="prefix" value=""/>
+                    <property name="alias" value="TOP."/>
+                </include>
+                FROM hangang.hash_tag_top3 TOP
+
+                WHERE TOP.hash_tag_id IN(
+                    <foreach collection="hashtag" item="hashtag" separator=",">
+                        #{hashtag}
+                    </foreach>
+                )
+                GROUP BY TOP.lecture_id HAVING ranking <![CDATA[<=]]> 3
+                ) B
+                WHERE LEC.id=B.lecture_id AND LEC.is_deleted = 0
+            </when>
+            <otherwise>
+                WHERE LEC.is_deleted=0
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(classification)">
+                AND
+                <foreach collection="classification" item="classification" open="(" close=")" separator="or">
+                    LEC.classification = #{classification}
+                </foreach>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
+                AND (LEC.name = #{keyword} OR LEC.professor = #{keyword})
+            </when>
+        </choose>
+
+        <choose>
+            <!--해시태그가 있을 때-->
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(hashtag)">
+                ORDER BY B.ranking DESC
+                <!--정렬 옵션이 있을 때-->
+                <if test="sort!=null">
+                    <if test='(sort eq "평점순".toString())'>
+                        ,LEC.total_rating DESC
+                    </if>
+                    <if test='(sort eq "최신순".toString())'>
+                        ,LEC.latest_reviewed_at DESC
+                    </if>
+                    <if test='(sort eq "평가순".toString())'>
+                        ,COUNT(LEC.id) DESC
+                    </if>
+                </if>
+                <!--정렬 옵션이 없을 때-->
+            </when>
+
+            <!--해시태그가 없을 때-->
+            <otherwise>
+                <!--정렬 옵션이 있을 때-->
+                <if test="sort!=null">
+                    ORDER BY
+                    <if test='(sort eq "평점순".toString())'>
+                        LEC.total_rating DESC
+                    </if>
+                    <if test='(sort eq "최신순".toString())'>
+                        LEC.latest_reviewed_at DESC
+                    </if>
+                    <if test='(sort eq "평가순".toString())'>
+                        COUNT(LEC.id) DESC
+                    </if>
+                </if>
+                <!--정렬 옵션이 없을 때-->
+
+            </otherwise>
+        </choose>
+        LIMIT #{cursor}, #{limit}
+    </select>
+
+    <resultMap id="lectureList" type="in.hangang.domain.Lecture">
+        <result column="id" property="id"/>
+        <result column="semester_date" property="semester_data"/>
+        <result column="name" property="name"/>
+        <result column="department" property="department"/>
+        <result column="professor" property="professor"/>
+        <result column="classification" property="classification"/>
+        <result column="total_rating" property="total_rating"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Hash_tag" select="getTop3HashTag"> </collection>
+    </resultMap>
+    
+    <select id="getTop3HashTag" resultType="in.hangang.domain.Hash_tag">
+        SELECT id, tag FROM hash_tag WHERE id = any(SELECT hash_tag_id FROM hangang.hash_tag_top3 WHERE lecture_id = #{id})
+    </select>
+
+    <select id="getLectureIdByReviewId" resultType="Long">
+        select lecture_id FROM hangang.review WHERE id = #{id}
+    </select>
+
+    <sql id="lecture-list">
+        ${alias}id AS ${prefix}id
+		,${alias}semester_date AS ${prefix}semester_date
+		,${alias}name AS ${prefix}name
+		,${alias}department AS ${prefix}department
+		,${alias}professor AS ${prefix}professor
+		,${alias}classification AS ${prefix}classification
+		,${alias}total_rating AS ${prefix}total_rating
+		,${alias}is_deleted AS ${prefix}is_deleted
+        ,${alias}created_at AS ${prefix}created_at
+        ,${alias}updated_at AS ${prefix}updated_at
+        ,${alias}latest_reviewed_at AS ${prefix}latest_reviewed_at
+    </sql>
+
+    <sql id="HashTagTop3-list">
+        ${alias}lecture_id AS ${prefix}lecture_id
+		,count(${alias}lecture_id) AS ${prefix}ranking
+    </sql>
+
+</mapper>
