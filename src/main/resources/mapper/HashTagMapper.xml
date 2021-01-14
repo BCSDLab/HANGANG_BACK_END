@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.HashTagMapper">
+    <insert id="createReview_hash_tag">
+        INSERT INTO hangang.review_hash_tag(review_id, hash_tag_id)
+        VALUES(#{review_id} , #{hash_tag_id})
+    </insert>
+
+    <select id="countHash_tag" resultType="int">
+        SELECT COUNT(*) FROM hangang.hash_tag_count
+        WHERE type = #{type} and lecture_id = #{lecture_id} and hash_tag_id = #{hash_tag_id}
+    </select>
+    <insert id="createLecture_hash_tag">
+        INSERT INTO hangang.hash_tag_count(type, lecture_id, hash_tag_id)
+        VALUES(#{type}, #{lecture_id}, #{hash_tag_id})
+    </insert>
+
+    <update id="countUpHash_tag">
+        UPDATE hangang.hash_tag_count
+        SET count = count + 1
+        WHERE type = #{type} and lecture_id = #{lecture_id} and hash_tag_id = #{hash_tag_id}
+    </update>
+
+    <select id="getCount" resultType="Integer">
+        SELECT hash_tag_id FROM hangang.hash_tag_count
+        WHERE type=#{type} and lecture_id =#{lecture_id} ORDER BY count DESC LIMIT 3
+    </select>
+
+    <select id="getHash_tag" resultType="String">
+        SELECT tag FROM hangang.hash_tag WHERE id=#{id1} OR id=#{id2} OR id=#{id3}
+    </select>
+
+    <select id="getHashTagByReviewId" resultType="in.hangang.domain.Hash_tag">
+        SELECT tag FROM hangang.hash_tag
+        WHERE id = any(SELECT hash_tag_id
+                       FROM( SELECT hash_tag_id FROM hangang.review_hash_tag WHERE review_id = #{review_id}) as temp);
+    </select>
+
+    <select id="getTop3HashTag" resultType="in.hangang.domain.Hash_tag">
+        SELECT id, tag FROM hangang.hash_tag
+        WHERE id = any(SELECT hash_tag_id
+                       FROM(SELECT hash_tag_id FROM hangang.hash_tag_count WHERE type=0 and lecture_id = #{id} ORDER BY count DESC LIMIT 3) as temp)
+    </select>
+
+    <insert id="insertTest">
+        insert into hangang.test(lecture_id, hash_tag_id, count) VALUES(#{lecture_id}, #{hash_tag_id}, #{count});
+    </insert>
+
+    <insert id="updateTop3HashTag">
+        DELETE FROM hash_tag_top3;
+        insert into hangang.hash_tag_top3(lecture_id, hash_tag_id, count)
+        select a.lecture_id, a.hash_tag_id, a.count from
+        ( select lecture_id, hash_tag_id, count ,
+        case when @grp = lecture_id
+        then @rownum:=@rownum + 1
+        else @rownum :=1
+        end as rownum , (@grp := lecture_id)
+        as dum from hangang.hash_tag_count, (select @rownum:=0, @grp:='') r
+        order by lecture_id, count desc ) a where rownum <![CDATA[<=]]> 3;
+    </insert>
+</mapper>
