@@ -5,10 +5,10 @@ import in.hangang.domain.Hash_tag;
 import java.util.ArrayList;
 
 public interface HashTagMapper {
-    void createReview_hash_tag(Long review_id, Integer hash_tag_id);
-    int countHash_tag(Integer type, Long lecture_id, Integer hash_tag_id);
-    void countUpHash_tag(Integer type, Long lecture_id, Integer hash_tag_id);
-    void createLecture_hash_tag(Integer type, Long lecture_id, Integer hash_tag_id);
+    void createReview_hash_tag(Long review_id, Long hash_tag_id);
+    int countHash_tag(Integer type, Long lecture_id, Long hash_tag_id);
+    void countUpHash_tag(Integer type, Long lecture_id, Long hash_tag_id);
+    void createLecture_hash_tag(Integer type, Long lecture_id, Long hash_tag_id);
     ArrayList<Integer> getCount(Integer type, Long lecture_id);
     ArrayList<String> getHash_tag(Integer id1, Integer id2, Integer id3);
     ArrayList<Hash_tag> getHashTagByReviewId(Integer review_id);

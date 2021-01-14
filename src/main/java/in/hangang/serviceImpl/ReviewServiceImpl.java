@@ -35,8 +35,8 @@ public class ReviewServiceImpl implements ReviewService {
         Long lecture_id = review.getLecture_id();
 
         //JSON 객체를 이용하는 방식으로 바꿔야 할 것 같음
-        for(int i = 0; i<review.getHash_tag().size(); i++) {
-            Integer hash_tag_id = review.getHash_tag().get(i);
+        for(int i = 0; i<review.getHash_tags().size(); i++) {
+            Long hash_tag_id = review.getHash_tags().get(i).getId();
             hashtagMapper.createReview_hash_tag(review_id, hash_tag_id);
             if(hashtagMapper.countHash_tag(0,  lecture_id, hash_tag_id)>0) {
                 hashtagMapper.countUpHash_tag(0, lecture_id, hash_tag_id);
@@ -46,7 +46,6 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
 
-        //mybatis 사용해보기
         reviewMapper.update_reviewed_at(lecture_id);
         reviewMapper.update_total_rating(lecture_id);
     }
@@ -68,14 +67,5 @@ public class ReviewServiceImpl implements ReviewService {
         Long lecture_id = lectureMapper.getLectureIdByReviewId(id);
         reviewMapper.deleteReviewById(id);
         reviewMapper.update_total_rating(lecture_id);
-    }
-
-    @Override
-    public void timeTest() throws Exception{
-        for(int lecture_id = 1;  lecture_id<=2000; lecture_id++){
-            for(int hash_tag_id = 1; hash_tag_id<=9; hash_tag_id++) {
-                hashtagMapper.insertTest(lecture_id, hash_tag_id, hash_tag_id);
-            }
-        }
     }
 }

@@ -19,7 +19,7 @@ public class Review {
     private Integer test_times;
     private String comment;
     private ArrayList<Hash_tag> hash_tags;
-    private ArrayList<Integer> hash_tag;
+    //private ArrayList<Integer> hash_tag;
     @ApiModelProperty(hidden = true)
     private Long return_id;
     @ApiModelProperty(hidden = true)
@@ -91,14 +91,6 @@ public class Review {
 
     public void setAttendance_frequency(Integer attendance_frequency) {
         this.attendance_frequency = attendance_frequency;
-    }
-
-    public ArrayList<Integer> getHash_tag() {
-        return hash_tag;
-    }
-
-    public void setHash_tag(ArrayList<Integer> hash_tag) {
-        this.hash_tag = hash_tag;
     }
 
     public ArrayList<Hash_tag> getHash_tags() {
