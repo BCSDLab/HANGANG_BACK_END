@@ -7,6 +7,6 @@ import java.util.ArrayList;
 
 
 public interface LectureService {
-    ArrayList<Lecture> getLectureList(String keyword, ArrayList<String> classification, ArrayList<Long> hashtag, String sort, Criteria criteria) throws Exception;
-    //ArrayList<Lecture> getLectureListTest(ArrayList<String> classification, ArrayList<String> hash_tag, String sort) throws Exception;
+    ArrayList<Lecture> getLectureList(String keyword, ArrayList<String> classification, String department,
+                                      ArrayList<Long> hashtag, String sort, Criteria criteria) throws Exception;
 }

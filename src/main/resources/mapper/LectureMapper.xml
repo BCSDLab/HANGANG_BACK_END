@@ -44,6 +44,12 @@
                 AND (LEC.name = #{keyword} OR LEC.professor = #{keyword})
             </when>
         </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
+                AND LEC.department = #{department}
+            </when>
+        </choose>
+
 
         <choose>
             <!--해시태그가 있을 때-->

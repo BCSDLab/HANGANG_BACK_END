@@ -22,7 +22,8 @@ public class LectureController {
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "classification", required = false) ArrayList<String> classification,
             @RequestParam(value = "hash_tag", required = false) ArrayList<Long> hashtag,
+            @RequestParam(value = "department", required = false) String department,
             @RequestParam(value = "sort", required = false) String sort) throws Exception {
-        return new ResponseEntity (lectureService.getLectureList(keyword, classification, hashtag, sort, criteria), HttpStatus.OK);
+        return new ResponseEntity (lectureService.getLectureList(keyword, classification, department, hashtag, sort, criteria), HttpStatus.OK);
     }
 }

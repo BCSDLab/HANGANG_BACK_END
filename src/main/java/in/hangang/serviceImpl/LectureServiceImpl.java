@@ -17,7 +17,9 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public ArrayList<Lecture>
-    getLectureList(String keyword, ArrayList<String> classification, ArrayList<Long> hashtag, String sort, Criteria criteria) throws Exception {
-        return lectureMapper.getLectureList(keyword, classification, hashtag, sort, criteria.getCursor(), criteria.getLimit());
+    getLectureList(String keyword, ArrayList<String> classification, String department,
+                   ArrayList<Long> hashtag, String sort, Criteria criteria) throws Exception {
+        return lectureMapper.getLectureList(keyword, classification, department,
+                hashtag, sort, criteria.getCursor(), criteria.getLimit());
     }
 }
