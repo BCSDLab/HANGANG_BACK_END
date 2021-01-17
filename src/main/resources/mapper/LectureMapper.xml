@@ -41,7 +41,7 @@
         </choose>
         <choose>
             <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
-                AND (LEC.name = #{keyword} OR LEC.professor = #{keyword})
+                AND ((LEC.name like concat('%',#{keyword},'%')) OR (LEC.professor like concat('%',#{keyword},'%')))
             </when>
         </choose>
         <choose>
@@ -99,20 +99,12 @@
         <result column="department" property="department"/>
         <result column="professor" property="professor"/>
         <result column="classification" property="classification"/>
-        <result column="total_rating" property="total_rating"/>
         <result column="is_deleted" property="is_deleted"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
-        <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Hash_tag" select="getTop3HashTag"> </collection>
+        <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
+                    ofType="in.hangang.domain.Hash_tag" select="in.hangang.mapper.HashTagMapper.getTop3Hashtag"> </collection>
     </resultMap>
-    
-    <select id="getTop3HashTag" resultType="in.hangang.domain.Hash_tag">
-        SELECT id, tag FROM hash_tag WHERE id = any(SELECT hash_tag_id FROM hangang.hash_tag_top3 WHERE lecture_id = #{id})
-    </select>
-
-    <select id="getLectureIdByReviewId" resultType="Long">
-        select lecture_id FROM hangang.review WHERE id = #{id}
-    </select>
 
     <sql id="lecture-list">
         ${alias}id AS ${prefix}id
@@ -121,11 +113,10 @@
 		,${alias}department AS ${prefix}department
 		,${alias}professor AS ${prefix}professor
 		,${alias}classification AS ${prefix}classification
-		,${alias}total_rating AS ${prefix}total_rating
 		,${alias}is_deleted AS ${prefix}is_deleted
         ,${alias}created_at AS ${prefix}created_at
         ,${alias}updated_at AS ${prefix}updated_at
-        ,${alias}latest_reviewed_at AS ${prefix}latest_reviewed_at
+        ,${alias}last_reviewed_at AS ${prefix}last_reviewed_at
     </sql>
 
     <sql id="HashTagTop3-list">
