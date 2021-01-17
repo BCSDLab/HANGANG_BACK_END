@@ -9,4 +9,5 @@ public interface ReviewService {
     void createReview(Review review) throws Exception;
     Review getReview(Long id) throws Exception;
     void deleteReviewById(Long id) throws Exception;
+    void createLikesReview(Long id) throws Exception;
 }

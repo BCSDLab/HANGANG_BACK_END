@@ -20,8 +20,12 @@
         #{grade_portion}, #{attendance_frequency}, #{test_times}, #{comment}, #{lecture_id} )
     </insert>
 
+    <insert id="createLikesReview">
+        INSERT INTO hangang.likes(type, user_id, board_id) VALUES(#{type}, #{user_id}, #{board_id})
+    </insert>
+
     <update id="update_reviewed_at">
-        UPDATE hangang.lecture SET latest_reviewed_at = now() WHERE id = #{lecture_id}
+        UPDATE hangang.lecture SET last_reviewed_at = now() WHERE id = #{lecture_id}
     </update>
 
     <update id="update_total_rating">
@@ -49,12 +53,28 @@
         <result column="is_deleted" property="is_deleted"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
+        <collection property="likes" javaType="Long" column="{board_id=id}" ofType="Long"
+                    select="in.hangang.mapper.LikesMapper.getLikesByReviewId">
+        </collection>
         <collection property="hash_tags" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Hash_tag"
-                    select="in.hangang.mapper.HashTagMapper.getHashTagByReviewId">
+                    select="in.hangang.mapper.HashTagMapper.getHashtagByReviewId">
+        </collection>
+        <collection property="assignment" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Assignment"
+                    select="in.hangang.mapper.ReviewMapper.getAssignmentByReviewId">
         </collection>
     </resultMap>
 
+    <select id="getAssignmentByReviewId" resultType="in.hangang.domain.Assignment">
+        SELECT name FROM hangang.assignment
+        WHERE id = any(SELECT assignment_id
+                       FROM( SELECT assignment_id FROM hangang.review_assignment WHERE review_id = #{review_id}) as temp);
+    </select>
 
+    <insert id="createReviewAssignment">
+        INSERT INTO hangang.review_assignment(review_id, assignment_id) VALUES(#{review_id}, #{assignment_id})
+    </insert>
 
-
+    <select id="getLectureIdByReviewId" resultType="Long">
+        select lecture_id FROM hangang.review WHERE id = #{id}
+    </select>
 </mapper>
