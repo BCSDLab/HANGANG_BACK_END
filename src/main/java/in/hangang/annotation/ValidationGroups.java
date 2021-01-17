@@ -14,7 +14,6 @@ public final class ValidationGroups {
     private ValidationGroups() { }
 
     // Standard groups
-
     public interface Create extends Default {};
     public interface Update extends Default {};
     public interface signUp extends  Default{};
@@ -23,7 +22,6 @@ public final class ValidationGroups {
     public interface configEmail extends Default{}
     public interface findPassword extends Default{};
     // Admin groups
-
     public interface CreateAdmin extends Default {};
     public interface UpdateAdmin extends Default {};
 }

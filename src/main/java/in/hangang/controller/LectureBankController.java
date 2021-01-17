@@ -24,14 +24,14 @@ public class LectureBankController {
 //    ResponseEntity getLectureBanks(@ModelAttribute("criteria") LectureBankCriteria lectureBankCriteria) {
 //        return new ResponseEntity<List<LectureBank>>(lectureBankService.getLectureBanks(lectureBankCriteria), HttpStatus.OK);
 //    }
-/*
+
     @RequestMapping(value = "/lecture-banks/search", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getSearchLectureBanks(@ModelAttribute("criteria") LectureBankCriteria lectureBankCriteria) {
         return new ResponseEntity<List<LectureBank>>(lectureBankService.searchLectureBanks(lectureBankCriteria), HttpStatus.OK);
     }
 
- */
+
 
 //    @RequestMapping(value = "/lecture-banks/files/upload", method = RequestMethod.POST)
 //    public @ResponseBody

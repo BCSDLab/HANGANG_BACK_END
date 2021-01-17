@@ -23,7 +23,7 @@ import java.util.List;
 @RestController("S3SampleController")
 @RequestMapping(value = "/sample/s3")
 public class S3SampleController {
-    /*
+
     @Autowired
     private S3Util s3Util;
 
@@ -86,7 +86,7 @@ public class S3SampleController {
         }
         return new ResponseEntity<List<String>>(result, HttpStatus.CREATED);
     }
-  */
+
 }
 
 

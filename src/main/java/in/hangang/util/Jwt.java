@@ -40,12 +40,12 @@ public class Jwt {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         if( sub.equals("access_token")) {
-            //calendar.add(Calendar.HOUR_OF_DAY, 24); // access token expire 24h later
-            calendar.add(Calendar.MINUTE, 2); // test용 2분
+            calendar.add(Calendar.HOUR_OF_DAY, 24); // access token expire 24h later
+            //calendar.add(Calendar.MINUTE, 2); // test용 2분
         }
         else{
-            calendar.add(Calendar.MINUTE, 4); // test용 4분
-            //calendar.add(Calendar.DAY_OF_YEAR, 14); // refresh token expire 14day later
+            //calendar.add(Calendar.MINUTE, 4); // test용 4분
+            calendar.add(Calendar.DAY_OF_YEAR, 14); // refresh token expire 14day later
         }
         Date exp = calendar.getTime();
 
@@ -98,35 +98,35 @@ public class Jwt {
     // Token의 Payload를 decode해서 반환
     public Map<String, Object> validateFormat(String token,Integer flag) {
         if (token == null && flag == 0) {
-            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_JWT_NULL_POINTER_EXCEPTION);
+            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
         }else if ( token == null && flag == 1){
-            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_JWT_NULL_POINTER_EXCEPTION);
+            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
         }
 
         String[] strings = token.split("\\.");
         if (strings.length != 3 && flag == 0) {
-            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_JWT_FORMAT_EXCEPTION);
+            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
         }
         else if ( strings.length != 3 && flag == 1){
-            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_JWT_FORMAT_EXCEPTION);
+            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
         }
         Map<String, Object> map = null;
         try {
             map = new ObjectMapper().readValue(new String(Base64.decodeBase64(strings[1])), Map.class);
             if (map.get("sub") == null || map.get("id") == null || map.get("exp") == null || map.get("nickname") == null) {
                 if ( flag == 0){
-                    throw new AccessTokenInvalidException(ErrorMessage.ACCESS_JWT_PAYLOAD_EXCEPTION);
+                    throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
                 }
                 else{
-                    throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_JWT_PAYLOAD_EXCEPTION);
+                    throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
                 }
             }
 
         } catch (Exception e) {
             if ( flag == 0) {
-                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_JWT_FORMAT_EXCEPTION);
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }else{
-                throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_JWT_FORMAT_EXCEPTION);
+                throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
         }
         return map;
