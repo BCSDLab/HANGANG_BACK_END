@@ -27,3 +27,37 @@ create table if not exists hangang.auth_number(
     expired_at timestamp not null,
     created_at timestamp default current_timestamp
 )default character set utf8 collate utf8_general_ci;
+
+/*** 강의 테이블
+CREATE TABLE IF NOT EXISTS hangang.lecture (
+    `id` int unsigned NOT NULL AUTO_INCREMENT,
+    `semester_date` varchar(6) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+    `code` varchar(10) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+    `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+    `department` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+    `professor` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+    `professor_number` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+    `classification` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+    `is_deleted` tinyint(1) DEFAULT '0',
+    `last_reviewed_at` timestamp DEFAULT NULL,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin
+ ***/
+
+/*** 종합 평가 테이블
+CREATE TABLE IF NOT EXISTS hangang.total_evaluation(
+     `id` bigint unsigned NOT NULL AUTO_INCREMENT primary key,
+     `lecture_id` bigint unsigned NOT NULL,
+     `rating` float,
+     `assignment_amount` int,
+     `difficulty` float,
+     `grade_portion` float,
+     `attendance_frequency` int,
+     `test_times` int,
+     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)default character set utf8 collate utf8_general_ci;
+***/
+
