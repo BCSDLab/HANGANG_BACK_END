@@ -2,8 +2,11 @@ package in.hangang.serviceImpl;
 
 import in.hangang.domain.Review;
 import in.hangang.domain.User;
+import in.hangang.enums.ErrorMessage;
+import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.HashTagMapper;
 import in.hangang.mapper.LectureMapper;
+import in.hangang.mapper.LikesMapper;
 import in.hangang.mapper.ReviewMapper;
 import in.hangang.service.ReviewService;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Resource
     private HashTagMapper hashtagMapper;
+
+    @Resource
+    private LikesMapper likesMapper;
 
     @Override
     public ArrayList<Review> getReviewList() throws Exception {
@@ -62,7 +68,12 @@ public class ReviewServiceImpl implements ReviewService {
     public void createLikesReview(Long id) throws Exception {
         //FIXME: user_id 받아오는 것은 JWT이용
         Long user_id = 1L;
-        reviewMapper.createLikesReview(0, user_id, id);
+        if(likesMapper.checkIsLikedByUserId(user_id, id)==0) {
+            reviewMapper.createLikesReview(0, user_id, id);
+        }
+        else {
+            throw new RequestInputException(ErrorMessage.REVIEW_ALREADY_LIKED);
+        }
     }
 
     @Override

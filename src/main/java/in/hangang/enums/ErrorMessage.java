@@ -24,7 +24,7 @@ public enum ErrorMessage {
 	EMAIL_SECRET_INVALID_EXCEPTION(19, "이메일 인증 번호를 확인해주세요."),
 	EMAIL_ALREADY_AUTHED(20, "이메일이 이미 인증된 포탈 계정입니다."),
 	NO_USER_EXCEPTION(21, "가입되지 않은 계정입니다."),
-
+	REVIEW_ALREADY_LIKED(22, "이미 추천한 게시글입니다."),
 	/*
 	 * DB_CONSTRAIN INVALID
 	 */
