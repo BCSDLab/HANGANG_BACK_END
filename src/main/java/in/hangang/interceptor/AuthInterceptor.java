@@ -44,7 +44,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
                 }
             }
             else{
-                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_JWT_NULL_POINTER_EXCEPTION); // jwt token이 null이라면
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION); // jwt token이 null이라면
             }
         }
 

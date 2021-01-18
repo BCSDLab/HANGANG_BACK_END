@@ -12,6 +12,7 @@ import in.hangang.util.Parser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -50,10 +51,12 @@ public class GlobalExceptionHandler {
 			baseException = (CriticalException) e;
 			slack=true;
 		}
-
+		if (e instanceof MethodArgumentNotValidException){
+			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.VALIDATION_FAIL_EXCEPTION);
+			baseException.setErrorTrace(e.getStackTrace()[0].toString());
+		}
 		if(baseException == null){
 			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.UNDEFINED_EXCEPTION);
-			baseException.setErrorMessage(e.getMessage());
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 			slack = true;
 		}
@@ -61,7 +64,8 @@ public class GlobalExceptionHandler {
 		if(slack.equals(true)){
 			sendSlackNoti(e,handlerMethod);
 		}
-		return new ResponseEntity<>(baseException,HttpStatus.BAD_REQUEST);
+
+		return new ResponseEntity<>(baseException, baseException.getHttpStatus());
 	}
 
 	private <T extends Throwable> void sendSlackNoti(T e,HandlerMethod handlerMethod) throws IOException {

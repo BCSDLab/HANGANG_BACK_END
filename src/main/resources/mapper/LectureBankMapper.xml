@@ -103,6 +103,7 @@
 
 
     <!--    <insert id="createLectureBank">-->
+<<<<<<< HEAD
     <!--        INSERT INTO lecture_bank (user_id, lecture_id, category, title, content, point_price)-->
     <!--        VALUES(#{user_id}, #{lecture_id}, #{category}, #{title}, #{content}, #{point_price})-->
     <!--    </insert>-->
@@ -113,6 +114,17 @@
     <!--    </insert>-->
 
         <select id="getCategoryList" resultType="Long">
+=======
+<!--        INSERT INTO lecture_bank (user_id, lecture_id, category, title, content, point_price)-->
+<!--        VALUES(#{user_id}, #{lecture_id}, #{category}, #{title}, #{content}, #{point_price})-->
+<!--    </insert>-->
+
+<!--    <insert id="setUpload_file">-->
+<!--        INSERT INTO upload_file (lecture_bank_id, url)-->
+<!--        VALUES(#{lecture_bank_id}, #{url})-->
+<!--    </insert>-->
+        <select id="getCategoryList" resultType="in.hangang.domain.LectureBankCategory">
+>>>>>>> 18e8898d3c04820240ba9994d96c6961ee02445b
             select id, lecture_bank_id, category from lecture_bank_category where lecture_bank_id = #{sdf}
         </select>
 
