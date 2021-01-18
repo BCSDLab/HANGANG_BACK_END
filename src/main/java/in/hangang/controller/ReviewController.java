@@ -18,6 +18,25 @@ public class ReviewController {
     @Resource
     ReviewService reviewService;
 
+    // 전체 리뷰 리스트
+    @RequestMapping(value = "/review", method = RequestMethod.GET)
+    public ResponseEntity getReviewList() throws Exception {
+        return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewList(), HttpStatus.OK);
+    }
+
+    // 리뷰 Read
+    @RequestMapping(value = "/review/{id}", method = RequestMethod.GET)
+    public ResponseEntity getReview(@PathVariable Long id) throws Exception{
+        return new ResponseEntity<Review>(reviewService.getReview(id), HttpStatus.OK);
+    }
+
+    // 해당 강의에 등록된 리뷰 Read
+    @RequestMapping(value = "/review/lecture/{id}")
+    public ResponseEntity getReviewByLectureId(@PathVariable Long id) throws Exception {
+        return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewByLectureId(id), HttpStatus.OK);
+    }
+
+    // 리뷰 Create
     @Auth
     @ApiOperation( value = "" , authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/review", method = RequestMethod.POST)
@@ -26,28 +45,12 @@ public class ReviewController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/review", method = RequestMethod.GET)
-    public ResponseEntity getReviewList() throws Exception {
-        return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewList(), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/review/{id}", method = RequestMethod.GET)
-    public ResponseEntity getReview(@PathVariable Long id) throws Exception{
-        return new ResponseEntity<Review>(reviewService.getReview(id), HttpStatus.OK);
-    }
-
+    // 리뷰 추천수 기능
     @RequestMapping(value = "/review/{id}", method = RequestMethod.POST)
     public ResponseEntity createLikesReview(@PathVariable Long id) throws Exception{
         reviewService.createLikesReview(id);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/review/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteReview(@PathVariable Long id) throws Exception{
-        reviewService.deleteReviewById(id);
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
-
-
+    //TODO : 강의 종합 평가 api 설계
 }

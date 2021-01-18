@@ -10,6 +10,10 @@
         SELECT * FROM hangang.review WHERE id = #{id}
     </select>
 
+    <select id="getReviewByLectureId" resultMap="review">
+        SELECT * FROM hangang.review WHERE lecture_id = #{id}
+    </select>
+
     <insert id="createReview" parameterType="in.hangang.domain.Review">
         <selectKey resultType="Long" keyProperty="return_id" order="AFTER">
             SELECT LAST_INSERT_ID()

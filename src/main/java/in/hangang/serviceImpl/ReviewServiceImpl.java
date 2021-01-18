@@ -33,6 +33,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public Review getReview(Long id) throws Exception {
+        return reviewMapper.getReviewById(id);
+    }
+
+    @Override
+    public ArrayList<Review> getReviewByLectureId(Long id) throws Exception {
+        return reviewMapper.getReviewByLectureId(id);
+    }
+
+    @Override
     public void createReview(Review review) throws Exception {
         reviewMapper.createReview(review);
         Long review_id = review.getReturn_id();
@@ -60,11 +70,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review getReview(Long id) throws Exception {
-        return reviewMapper.getReviewById(id);
-    }
-
-    @Override
     public void createLikesReview(Long id) throws Exception {
         //FIXME: user_id 받아오는 것은 JWT이용
         Long user_id = 1L;
@@ -74,19 +79,5 @@ public class ReviewServiceImpl implements ReviewService {
         else {
             throw new RequestInputException(ErrorMessage.REVIEW_ALREADY_LIKED);
         }
-    }
-
-    @Override
-    public void deleteReviewById(Long id) throws Exception {
-        /*
-        게시글이 삭제될 때
-        1. review is_deleted를 1로 바꿔준다.
-        2. total_rating UPDATE
-        3. review_hash_tag에서 해쉬태그 삭제
-        4. hash_tag_count에서 count--
-         */
-        Long lecture_id = reviewMapper.getLectureIdByReviewId(id);
-        reviewMapper.deleteReviewById(id);
-        reviewMapper.update_total_rating(lecture_id);
     }
 }

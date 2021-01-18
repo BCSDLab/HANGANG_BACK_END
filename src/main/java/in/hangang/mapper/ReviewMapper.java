@@ -13,6 +13,7 @@ public interface ReviewMapper {
     void update_reviewed_at(Long lecture_id);
     void update_total_rating(Long lecture_id);
     Review getReviewById(Long id);
+    ArrayList<Review> getReviewByLectureId(Long id);
     ArrayList<Assignment> getAssignmentByReviewId(Long review_id);
     void deleteReviewById(Long id);
     void createReviewAssignment(Long review_id, Long assignment_id);
