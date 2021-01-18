@@ -1,9 +1,16 @@
 package in.hangang.util;
 
+import in.hangang.service.HashTagService;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 @Component
 public class Scheduler {
+
+    @Resource
+    private HashTagService hashTagService;
     /**
     1초에 한번씩 호출하는 fixedDelay
      */
@@ -22,8 +29,9 @@ public class Scheduler {
      순서대로 초-분-시간-일-월-요일 순이다. 그리고 괄호 안의 숫자 범위 내로 별 대신 입력 할 수도 있다.
      요일에서 0과 7은 일요일이며, 1부터 월요일이고 6이 토요일이다.
      */
-//    @Scheduled(cron = "* * * * * ?")
+
+    @Scheduled(cron = "*/600 * * * * *")
     public void scheduleCronExpressionTask() {
-        System.out.println("Current Thread : "+ Thread.currentThread().getName());
+        hashTagService.updateTop3HashTag();
     }
 }

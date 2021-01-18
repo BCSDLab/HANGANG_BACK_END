@@ -16,7 +16,9 @@ public class HashTagController {
     @Resource
     HashTagService hashTagService;
 
-    @RequestMapping(value = "/Top3HashTag", method = RequestMethod.GET)
+    // 강의의 Top3 해시태그 수동 갱신
+    // Scheduler 10분에 한번식 작동
+    @RequestMapping(value = "/Top3HashTag", method = RequestMethod.PATCH)
     public @ResponseBody
     ResponseEntity testController() throws Exception{
         hashTagService.updateTop3HashTag();

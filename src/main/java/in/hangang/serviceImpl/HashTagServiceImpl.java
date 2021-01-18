@@ -15,5 +15,6 @@ public class HashTagServiceImpl implements HashTagService {
     @Override
     public void updateTop3HashTag() {
         hashtagMapper.updateTop3Hashtag();
+        System.out.println("updateTop3HashTag 완료");
     }
 }
