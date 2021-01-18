@@ -12,6 +12,7 @@ public class Review {
     private Long lecture_id;
     private Long user_id;
     private float rating;
+    private Long likes;
     private Integer assignment_amount;
     private float difficulty;
     private float grade_portion;
@@ -19,7 +20,7 @@ public class Review {
     private Integer test_times;
     private String comment;
     private ArrayList<Hash_tag> hash_tags;
-    //private ArrayList<Integer> hash_tag;
+    private ArrayList<Assignment> assignment;
     @ApiModelProperty(hidden = true)
     private Long return_id;
     @ApiModelProperty(hidden = true)
@@ -51,6 +52,14 @@ public class Review {
 
     public void setUser_id(Long user_id) {
         this.user_id = user_id;
+    }
+
+    public Long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Long likes) {
+        this.likes = likes;
     }
 
     public float getRating() {
@@ -99,6 +108,14 @@ public class Review {
 
     public void setHash_tags(ArrayList<Hash_tag> hash_tags) {
         this.hash_tags = hash_tags;
+    }
+
+    public ArrayList<Assignment> getAssignment() {
+        return assignment;
+    }
+
+    public void setAssignment(ArrayList<Assignment> assignment) {
+        this.assignment = assignment;
     }
 
     public Long getReturn_id() {

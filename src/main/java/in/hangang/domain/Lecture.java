@@ -1,5 +1,6 @@
 package in.hangang.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -7,17 +8,21 @@ import java.util.ArrayList;
 
 @Component
 public class Lecture {
+    @ApiModelProperty(hidden = true)
     private Long id;
     private String semester_data;
-    //private ArrayList<String> hash_tag_name;
     private ArrayList<Hash_tag> top3_hash_tag;
+    private String code;
     private String name;
     private String department;
     private String professor;
     private String classification;
     private Float total_rating;
+    @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
+    @ApiModelProperty(hidden = true)
     private Timestamp created_at;
+    @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
 
 
@@ -109,6 +114,11 @@ public class Lecture {
         this.updated_at = updated_at;
     }
 
+    public String getCode() {
+        return code;
+    }
 
-
+    public void setCode(String code) {
+        this.code = code;
+    }
 }

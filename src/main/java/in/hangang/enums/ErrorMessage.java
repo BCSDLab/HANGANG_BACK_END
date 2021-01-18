@@ -1,5 +1,4 @@
 package in.hangang.enums;
-
 import org.springframework.http.HttpStatus;
 
 public enum ErrorMessage {
@@ -19,7 +18,8 @@ public enum ErrorMessage {
 	EMAIL_SECRET_INVALID_EXCEPTION(13, "이메일 인증 번호를 확인해주세요.",HttpStatus.BAD_REQUEST),
 	EMAIL_ALREADY_AUTHED(14, "이메일이 이미 인증된 포탈 계정입니다.",HttpStatus.BAD_REQUEST),
 	NO_USER_EXCEPTION(15, "가입되지 않은 계정입니다.",HttpStatus.BAD_REQUEST),
-	VALIDATION_FAIL_EXCEPTION(16, "입력값의 조건이 올바르지 않습니다", HttpStatus.BAD_REQUEST);
+	VALIDATION_FAIL_EXCEPTION(16, "입력값의 조건이 올바르지 않습니다", HttpStatus.BAD_REQUEST),
+	REVIEW_ALREADY_LIKED(17, "이미 추천한 게시글입니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

@@ -2,23 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.LectureBankMapper">
 
-<!--    <select id="getLectureBankList" resultType="in.hangang.domain.LectureBank">-->
-<!--        SELECT-->
-<!--        <include refid="lectureBankColumnList">-->
-<!--            <property name="prefix" value=""/>-->
-<!--            <property name="alias" value="LB."/>-->
-<!--        </include>-->
-<!--        FROM lecture_bank LB-->
-<!--        <if test="!category.get(0).equals('')">-->
-<!--            WHERE-->
-<!--            <foreach collection="category" item="category" open="(" close=")"  separator="or">-->
-<!--                category = #{category}-->
-<!--            </foreach>-->
-<!--        </if>-->
-<!--        order by #{order} desc limit #{cursor}, #{limit}-->
-<!--    </select>-->
-
-
         <select id="findLectureBankByKeyword" resultMap="searchLectureBank">
             SELECT
             <include refid="lectureBankColumnList">
@@ -56,6 +39,21 @@
             order by #{order} desc limit #{cursor}, #{limit}
         </select>
 
+    <!--    <select id="getLectureBankList" resultType="in.hangang.domain.LectureBank">-->
+    <!--        SELECT-->
+    <!--        <include refid="lectureBankColumnList">-->
+    <!--            <property name="prefix" value=""/>-->
+    <!--            <property name="alias" value="LB."/>-->
+    <!--        </include>-->
+    <!--        FROM lecture_bank LB-->
+    <!--        <if test="!category.get(0).equals('')">-->
+    <!--            WHERE-->
+    <!--            <foreach collection="category" item="category" open="(" close=")"  separator="or">-->
+    <!--                category = #{category}-->
+    <!--            </foreach>-->
+    <!--        </if>-->
+    <!--        order by #{order} desc limit #{cursor}, #{limit}-->
+    <!--    </select>-->
 
         <sql id="lectureBankColumnList">
             ${alias}id AS ${prefix}id,
@@ -76,7 +74,6 @@
              ${alias}professor AS ${prefix}professor,
              ${alias}department AS ${prefix}department
         </sql>
-
 
 
         <resultMap id="searchLectureBank" type="in.hangang.domain.LectureBank">
