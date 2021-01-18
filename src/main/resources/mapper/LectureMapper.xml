@@ -92,6 +92,12 @@
         LIMIT #{cursor}, #{limit}
     </select>
 
+    <update id="updateTotalRating">
+        INSERT total_evaluation(lecture_id, rating)
+        VALUES (#{lecture_id}, ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{lecture_id}), 2))
+    </update>
+
+
     <resultMap id="lectureList" type="in.hangang.domain.Lecture">
         <result column="id" property="id"/>
         <result column="semester_date" property="semester_data"/>
