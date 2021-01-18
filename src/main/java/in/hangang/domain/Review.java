@@ -1,25 +1,45 @@
 package in.hangang.domain;
 
+import in.hangang.annotation.ValidationGroups;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
 @Component
 public class Review {
+    @ApiModelProperty(hidden = true)
     private Long id;
+    @ApiModelProperty(hidden = true)
     private Long lecture_id;
+    @ApiModelProperty(hidden = true)
     private Long user_id;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "별점 항목은 비워둘 수 없습니다.")
     private float rating;
     private Long likes;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제량 항목은 비워둘 수 없습니다.")
     private Integer assignment_amount;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "난이도 항목은 비워둘 수 없습니다.")
     private float difficulty;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "성적 비율 항목은 비워둘 수 없습니다.")
     private float grade_portion;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "출석 빈도 항목은 비워둘 수 없습니다.")
     private Integer attendance_frequency;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "시험 횟수 항목은 비워둘 수 없습니다.")
     private Integer test_times;
+    @Length(min=10, message = "강의평을 더 성의 있게 작성해주세")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "별점은 비워둘 수 없습니다.")
     private String comment;
+    @Size(min = 1, max = 3, message = "해시태그는 최소 1개 최대 3개까지 선택하실 수 있습니다.")
+    @NotNull(groups = ValidationGroups.createReview.class)
     private ArrayList<Hash_tag> hash_tags;
+    @Size(min = 1, max = 6, message = "과제 정보는 최소 1개 최대 6개까지 선택하실 수 있습니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제 정보 항목은 비워둘 수 없습니다.")
     private ArrayList<Assignment> assignment;
     @ApiModelProperty(hidden = true)
     private Long return_id;
