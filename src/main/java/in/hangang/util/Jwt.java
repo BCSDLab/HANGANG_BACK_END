@@ -96,6 +96,7 @@ public class Jwt {
         }
     }
     // Token의 Payload를 decode해서 반환
+    // flag 0 은 access , 1은 refresh
     public Map<String, Object> validateFormat(String token,Integer flag) {
         if (token == null && flag == 0) {
             throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);

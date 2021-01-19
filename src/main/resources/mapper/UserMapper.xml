@@ -51,4 +51,6 @@
     <update id="findPassword">
         UPDATE hangang.user set password=#{password} WHERE portal_account=#{portal_account}
     </update>
+
+
 </mapper>

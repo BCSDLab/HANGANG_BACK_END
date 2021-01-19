@@ -33,6 +33,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
             if ( accessToken != null) {
                 int result = jwt.isValid(accessToken,0);
+                //고쳐라 미래의 나
                 if (result == 0) { // valid 하다면
                     return true;
                 }
