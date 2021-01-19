@@ -1,6 +1,5 @@
 package in.hangang.serviceImpl;
 
-import in.hangang.annotation.Auth;
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.User;
 import in.hangang.enums.ErrorMessage;
@@ -37,6 +36,8 @@ public class UserServiceImpl implements UserService {
     private Jwt jwt;
     @Value("${refresh.user.name}")
     private String refreshUserName;
+    @Value("${token.user.name}")
+    private String accessTokenName;
     @Resource
     private SesSender sesSender;
     @Resource
@@ -58,6 +59,7 @@ public class UserServiceImpl implements UserService {
         // 로그인이 성공한 경우 , access token, refresh token 반환
         else{
             Map<String, String> token = new HashMap<>();
+            /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
             token.put("access_token", jwt.generateToken(dbUser.getId(), dbUser.getNickname(), "access_token") );
             token.put("refresh_token", jwt.generateToken(dbUser.getId(),dbUser.getNickname(),"refresh_token"));
             return token;
@@ -199,17 +201,22 @@ public class UserServiceImpl implements UserService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MINUTE, 10); // 만료기한 10분
-        System.out.println("a" + calendar);
         authNumber.setExpired_at(new Timestamp( (calendar.getTime()).getTime()));
         authNumber.setIp(this.getClientIp());
-        System.out.println("a" + authNumber.getExpired_at());
 
         userMapper.setAuthNumber(authNumber);
 
 
         // send mail to portal_account email
-        String body = springTemplateEngine.process("mail-sample",context);
-        sesSender.sendMail("no-reply@bcsdlab.com", authNumber.getPortal_account(), "email auth subject TEST", body);
+        String body = null;
+        if ( authNumber.getFlag() == 0) {
+            body = springTemplateEngine.process("signUpEmail", context);
+            sesSender.sendMail("no-reply@bcsdlab.com", authNumber.getPortal_account(), "한강 서비스 회원가입 인증", body);
+        }
+        else if ( authNumber.getFlag() == 1) {
+            body = springTemplateEngine.process("findPassword", context);
+            sesSender.sendMail("no-reply@bcsdlab.com", authNumber.getPortal_account(), "한강서비스 비밀번호 재발급 인증", body);
+        }
 
         return "Email을 발송했습니다.";
     }
@@ -323,5 +330,18 @@ public class UserServiceImpl implements UserService {
         userMapper.deleteAllAuthNumber(authNumber);
 
         userMapper.findPassword(user);
+    }
+
+    // token의 id를 가져와 User를 반환하는 Method
+    public Long getUserIdByToken(){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String token = request.getHeader(accessTokenName);
+        // jwt token의 valid 체크를 해야하는가?
+        // interceptor에서 이미 진행하므로 생략해도 괜찮을 것 같다.
+        // 따라서 해당 method는 @Auth 어노테이션이 붙는 api에서만 사용하여야 적절하다.
+        // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
+        Map<String,Object> payloads = jwt.validateFormat(token,0);
+        Long id = Long.valueOf(String.valueOf( payloads.get("id")));
+        return id;
     }
 }

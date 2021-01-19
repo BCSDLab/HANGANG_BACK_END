@@ -33,13 +33,14 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
             if ( accessToken != null) {
                 int result = jwt.isValid(accessToken,0);
+
                 if (result == 0) { // valid 하다면
                     return true;
                 }
-                else if (result == 1 || result == -2 ){ // refresh라면
+                else if (result == 1 || result == -2 ){ // sub가 refresh라면
                     throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
                 }
-                else if (result == -1 ) { // EXPIRE 된 경우
+                else if (result == -1 ) { // access 가 EXPIRE 된 경우
                     throw new AccessTokenExpireException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_EXPIRE_EXCEPTION); // EXPIRE ERROR 뿜뿜
                 }
             }
