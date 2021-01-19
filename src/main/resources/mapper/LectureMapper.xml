@@ -50,7 +50,6 @@
             </when>
         </choose>
 
-
         <choose>
             <!--해시태그가 있을 때-->
             <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(hashtag)">
@@ -109,7 +108,11 @@
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
         <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
-                    ofType="in.hangang.domain.Hash_tag" select="in.hangang.mapper.HashTagMapper.getTop3Hashtag"> </collection>
+                    ofType="in.hangang.domain.HashTag" select="in.hangang.mapper.HashTagMapper.getTop3HashTag">
+        </collection>
+        <collection property="total_rating" javaType="String" column="id"
+                    select="in.hangang.mapper.TotalEvaluationMapper.getTotalRating">
+        </collection>
     </resultMap>
 
     <sql id="lecture-list">

@@ -9,5 +9,5 @@ public interface ReviewService {
     Review getReview(Long id) throws Exception;
     ArrayList<Review> getReviewByLectureId(Long id) throws Exception;
     void createReview(Review review) throws Exception;
-    void createLikesReview(Long id) throws Exception;
+    void likesReview(Long id) throws Exception;
 }

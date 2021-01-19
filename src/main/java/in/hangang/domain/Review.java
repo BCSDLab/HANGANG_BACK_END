@@ -15,12 +15,11 @@ import java.util.ArrayList;
 public class Review {
     @ApiModelProperty(hidden = true)
     private Long id;
-    @ApiModelProperty(hidden = true)
     private Long lecture_id;
-    @ApiModelProperty(hidden = true)
     private Long user_id;
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "별점 항목은 비워둘 수 없습니다.")
     private float rating;
+    @ApiModelProperty(hidden = true)
     private Long likes;
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제량 항목은 비워둘 수 없습니다.")
     private Integer assignment_amount;
@@ -37,7 +36,7 @@ public class Review {
     private String comment;
     @Size(min = 1, max = 3, message = "해시태그는 최소 1개 최대 3개까지 선택하실 수 있습니다.")
     @NotNull(groups = ValidationGroups.createReview.class)
-    private ArrayList<Hash_tag> hash_tags;
+    private ArrayList<HashTag> hash_tags;
     @Size(min = 1, max = 6, message = "과제 정보는 최소 1개 최대 6개까지 선택하실 수 있습니다.")
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제 정보 항목은 비워둘 수 없습니다.")
     private ArrayList<Assignment> assignment;
@@ -122,11 +121,11 @@ public class Review {
         this.attendance_frequency = attendance_frequency;
     }
 
-    public ArrayList<Hash_tag> getHash_tags() {
+    public ArrayList<HashTag> getHash_tags() {
         return hash_tags;
     }
 
-    public void setHash_tags(ArrayList<Hash_tag> hash_tags) {
+    public void setHash_tags(ArrayList<HashTag> hash_tags) {
         this.hash_tags = hash_tags;
     }
 

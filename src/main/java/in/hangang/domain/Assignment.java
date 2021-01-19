@@ -1,10 +1,12 @@
 package in.hangang.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Assignment {
     Long id;
+    @ApiModelProperty(hidden = true)
     String name;
 
     public Long getId() {

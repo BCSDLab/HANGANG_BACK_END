@@ -1,10 +1,13 @@
 package in.hangang.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Hash_tag {
+public class HashTag {
     Long id;
+
+    @ApiModelProperty(hidden = true)
     String tag;
 
     public Long getId() {

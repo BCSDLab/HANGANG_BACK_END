@@ -55,29 +55,29 @@ public class ReviewServiceImpl implements ReviewService {
 
         for(int i = 0; i<review.getHash_tags().size(); i++) {
             Long hash_tag_id = review.getHash_tags().get(i).getId();
-            hashtagMapper.insertReviewHashtag(review_id, hash_tag_id);
+            hashtagMapper.insertReviewHashTag(review_id, hash_tag_id);
 
             //hash_tag_count 테이블에 insert 하는데,
             //이미 해당 hash_tag_id가 존재한다면 count 1증가, 존재하지 않는다면 새로 만들어준다.
-            if(hashtagMapper.getcountHashtag(0,  lecture_id, hash_tag_id)>0) {
-                hashtagMapper.countUpHashtag(0, lecture_id, hash_tag_id);
+            if(hashtagMapper.getCountHashTag(0,  lecture_id, hash_tag_id)>0) {
+                hashtagMapper.countUpHashTag(0, lecture_id, hash_tag_id);
             }
             else {
-                hashtagMapper.insertHashtagCount(0, lecture_id, hash_tag_id);
+                hashtagMapper.insertHashTagCount(0, lecture_id, hash_tag_id);
             }
         }
-        reviewMapper.update_reviewed_at(lecture_id);
+        reviewMapper.updateReviewedAt(lecture_id);
     }
 
     @Override
-    public void createLikesReview(Long id) throws Exception {
+    public void likesReview(Long id) throws Exception {
         //FIXME: user_id 받아오는 것은 JWT이용
         Long user_id = 1L;
         if(likesMapper.checkIsLikedByUserId(user_id, id)==0) {
-            reviewMapper.createLikesReview(0, user_id, id);
+            likesMapper.createLikesReview(0, user_id, id);
         }
         else {
-            throw new RequestInputException(ErrorMessage.REVIEW_ALREADY_LIKED);
+            likesMapper.deleteLikesReview(0, user_id, id);
         }
     }
 }

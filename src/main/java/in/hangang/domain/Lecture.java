@@ -11,7 +11,7 @@ public class Lecture {
     @ApiModelProperty(hidden = true)
     private Long id;
     private String semester_data;
-    private ArrayList<Hash_tag> top3_hash_tag;
+    private ArrayList<HashTag> top3_hash_tag;
     private String code;
     private String name;
     private String department;
@@ -26,11 +26,11 @@ public class Lecture {
     private Timestamp updated_at;
 
 
-    public ArrayList<Hash_tag> getTop3_hash_tag() {
+    public ArrayList<HashTag> getTop3_hash_tag() {
         return top3_hash_tag;
     }
 
-    public void setTop3_hash_tag(ArrayList<Hash_tag> top3_hash_tag) {
+    public void setTop3_hash_tag(ArrayList<HashTag> top3_hash_tag) {
         this.top3_hash_tag = top3_hash_tag;
     }
 

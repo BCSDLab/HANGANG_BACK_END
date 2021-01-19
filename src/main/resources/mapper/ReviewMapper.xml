@@ -24,15 +24,13 @@
         #{grade_portion}, #{attendance_frequency}, #{test_times}, #{comment}, #{lecture_id} )
     </insert>
 
-    <insert id="createLikesReview">
-        INSERT INTO hangang.likes(type, user_id, board_id) VALUES(#{type}, #{user_id}, #{board_id})
-    </insert>
 
-    <update id="update_reviewed_at">
+
+    <update id="updateReviewedAt">
         UPDATE hangang.lecture SET last_reviewed_at = now() WHERE id = #{lecture_id}
     </update>
 
-    <update id="update_total_rating">
+    <update id="updateTotalRating">
         UPDATE hangang.lecture
         SET total_rating = ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{lecture_id}), 2)
         WHERE id=#{lecture_id}
@@ -60,8 +58,8 @@
         <collection property="likes" javaType="Long" column="{board_id=id}" ofType="Long"
                     select="in.hangang.mapper.LikesMapper.getLikesByReviewId">
         </collection>
-        <collection property="hash_tags" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Hash_tag"
-                    select="in.hangang.mapper.HashTagMapper.getHashtagByReviewId">
+        <collection property="hash_tags" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.HashTag"
+                    select="in.hangang.mapper.HashTagMapper.getHashTagByReviewId">
         </collection>
         <collection property="assignment" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Assignment"
                     select="in.hangang.mapper.ReviewMapper.getAssignmentByReviewId">
