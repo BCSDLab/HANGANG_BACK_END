@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
         // 로그인이 성공한 경우 , access token, refresh token 반환
         else{
             Map<String, String> token = new HashMap<>();
+            /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
             token.put("access_token", jwt.generateToken(dbUser.getId(), dbUser.getNickname(), "access_token") );
             token.put("refresh_token", jwt.generateToken(dbUser.getId(),dbUser.getNickname(),"refresh_token"));
             return token;
@@ -337,6 +338,7 @@ public class UserServiceImpl implements UserService {
         String token = request.getHeader(accessTokenName);
         // jwt token의 valid 체크를 해야하는가?
         // interceptor에서 이미 진행하므로 생략해도 괜찮을 것 같다.
+        // 따라서 해당 method는 @Auth 어노테이션이 붙는 api에서만 사용하여야 적절하다.
         // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
         Map<String,Object> payloads = jwt.validateFormat(token,0);
         Long id = Long.valueOf(String.valueOf( payloads.get("id")));

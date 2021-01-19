@@ -39,6 +39,8 @@ public class Jwt {
         payloads.put("sub", sub);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
+
+        /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
         if( sub.equals("access_token")) {
             calendar.add(Calendar.HOUR_OF_DAY, 24); // access token expire 24h later
             //calendar.add(Calendar.MINUTE, 2); // test용 2분
@@ -55,7 +57,19 @@ public class Jwt {
 
     // token validation check method
     public int isValid(String token, Integer flag){
-        String authToken = token.substring(7); // "Bearer " 제거
+        String authToken = "";
+        if ( token == null && flag == 1 ) { // refresh token이 null로 요청된 경우
+            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+        }
+        else if ( token.length() < 8 && flag == 0  ) { // access token의 길이가 8보다 작은 경우
+            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+        }
+        else if ( token.length() < 8 && flag == 1){ // refresh toekn의 길이가 8보다 작은 경우
+            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+        }
+        else{ // 여기서도 String index bound exception이 발생할 수 있었다.
+            authToken = token.substring(7); // "Bearer " 제거
+        }
         Map<String,Object> payloads = this.validateFormat(authToken,flag);
         String key = userMapper.getSalt(Long.valueOf(String.valueOf( payloads.get("id"))));
         String sub = String.valueOf(payloads.get("sub"));
