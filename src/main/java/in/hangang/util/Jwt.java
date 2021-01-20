@@ -13,6 +13,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Jwts;
 import java.util.Calendar;
@@ -25,6 +26,12 @@ import java.util.Map;
 public class Jwt {
     @Autowired
     private UserMapper userMapper;
+
+    @Value("${token.access}")
+    private String access_token;
+
+    @Value("${token.refresh}")
+    private String refresh_token;
 
     // return generated jwt token method
     public String generateToken(Long id, String nickname , String sub){
@@ -40,8 +47,8 @@ public class Jwt {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
 
-        /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
-        if( sub.equals("access_token")) {
+
+        if( sub.equals(access_token)) {
             calendar.add(Calendar.HOUR_OF_DAY, 24); // access token expire 24h later
             //calendar.add(Calendar.MINUTE, 2); // test용 2분
         }
@@ -58,17 +65,17 @@ public class Jwt {
     // token validation check method
     public int isValid(String token, Integer flag){
         /*
-            if (header == null || !header.startsWith("Bearer "))
+            if (header == null || !token.startsWith("Bearer "))
             return null;
          */
         String authToken = "";
             if ( token == null && flag == 1 ) { // refresh token이 null로 요청된 경우
                 throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
-            else if ( token.length() < 8 && flag == 0  ) { // access token의 길이가 8보다 작은 경우
+            else if ( !token.startsWith("Bearer ") && flag == 0  ) { // access token의 길이가 8보다 작은 경우
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
-            else if ( token.length() < 8 && flag == 1){ // refresh toekn의 길이가 8보다 작은 경우
+            else if ( !token.startsWith("Bearer ") && flag == 1){ // refresh toekn의 길이가 8보다 작은 경우
                 throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
             else{ // 여기서도 String index bound exception이 발생할 수 있었다.
@@ -85,29 +92,24 @@ public class Jwt {
 
             // refresh token이 access로 들어간 경우 pass되는 경우 방지
             // exp.get time 할필요 없음. test후 지울 예정
-            if (exp.getTime() > now.getTime() && sub.equals("access_token")) {
+            if ( sub.equals(access_token)) {
                 return 0; // access, true
             }
-            else if (exp.getTime() > now.getTime() && sub.equals("refresh_token")){
-                return 1; // refresh, true
-            }
-            else if (exp.getTime() <= now.getTime() && sub.equals("access_token")){
-                return -1; // access, false
-            }
             else
-                return -2 ;// refresh, false
+                return 1; // refresh true
+
         }catch (ExpiredJwtException e1){
-            if ( sub.equals("access_token") && flag == 0)
-                throw new AccessTokenExpireException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_EXPIRE_EXCEPTION);
-            else if ( sub.equals("refresh_token") && flag == 1)
-                throw new RefreshTokenExpireException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_EXPIRE_EXCEPTION);
-            else if ( sub.equals("access_token") && flag == 1)
-                throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+            if ( sub.equals(access_token) && flag == 0)
+                throw new AccessTokenExpireException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_EXPIRE_EXCEPTION); // access expire
+            else if ( sub.equals(refresh_token) && flag == 1)
+                throw new RefreshTokenExpireException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_EXPIRE_EXCEPTION); // refresh expire
+            else if ( sub.equals(access_token) && flag == 1)
+                throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION); // access in refresh
             else
-                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION); // refresh in access
         }
         catch(Throwable e2){
-            if ( sub.equals("access_token"))
+            if ( sub.equals(access_token))
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             else {
                 throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
