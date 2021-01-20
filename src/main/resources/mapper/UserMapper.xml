@@ -22,6 +22,10 @@
         SELECT nickname FROM hangang.user WHERE nickname = #{nickname}
     </select>
 
+    <select id="getNickNameByUserId" resultType="String">
+        SELECT nickname FROM hangang.user WHERE id = #{id}
+    </select>
+
     <select id="getPasswordFromPortal" resultType="in.hangang.domain.User">
         SELECT password,nickname,id FROM hangang.user WHERE portal_account = #{portal_account}
     </select>
