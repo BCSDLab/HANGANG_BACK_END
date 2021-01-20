@@ -43,6 +43,11 @@ public class UserServiceImpl implements UserService {
     private SesSender sesSender;
     @Resource
     private SpringTemplateEngine springTemplateEngine;
+    @Value("${token.access}")
+    private String access_token;
+
+    @Value("${token.refresh}")
+    private String refresh_token;
 
 
     public Map<String,String> login(User user) throws Exception{
@@ -61,8 +66,8 @@ public class UserServiceImpl implements UserService {
         else{
             Map<String, String> token = new HashMap<>();
             /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
-            token.put("access_token", jwt.generateToken(dbUser.getId(), dbUser.getNickname(), "access_token") );
-            token.put("refresh_token", jwt.generateToken(dbUser.getId(),dbUser.getNickname(),"refresh_token"));
+            token.put(access_token, jwt.generateToken(dbUser.getId(), dbUser.getNickname(), access_token) );
+            token.put(refresh_token, jwt.generateToken(dbUser.getId(),dbUser.getNickname(),refresh_token));
             return token;
         }
     }
@@ -149,14 +154,11 @@ public class UserServiceImpl implements UserService {
             Long id = Long.valueOf(String.valueOf( payloads.get("id")));
             String nickname = String.valueOf( payloads.get("nickname"));
             Map<String,Object> token = new HashMap<>();
-            token.put("access_token", jwt.generateToken(id, nickname, "access_token") );
-            token.put("refresh_token", jwt.generateToken(id,nickname,"refresh_token"));
+            token.put(access_token, jwt.generateToken(id, nickname, access_token) );
+            token.put(refresh_token, jwt.generateToken(id,nickname,refresh_token));
             return token;
         }
-        else if (result == -2 ){ // refresh expire
-            throw new RefreshTokenExpireException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_EXPIRE_EXCEPTION);
-        }
-        else if ( result == -1 || result == 0){
+        else if (  result == 0 ){
             throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION); // REFRESH 토근에 ACCESS 토근이 들어온 경우
         }
         else{
