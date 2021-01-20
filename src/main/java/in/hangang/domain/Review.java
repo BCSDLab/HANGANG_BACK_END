@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class Review {
     @ApiModelProperty(hidden = true)
     private Long id;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "강의는 ")
     private Long lecture_id;
     private Long user_id;
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "별점 항목은 비워둘 수 없습니다.")

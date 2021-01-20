@@ -9,6 +9,7 @@ import in.hangang.mapper.LectureMapper;
 import in.hangang.mapper.LikesMapper;
 import in.hangang.mapper.ReviewMapper;
 import in.hangang.service.ReviewService;
+import in.hangang.service.UserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,6 +27,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Resource
     private LikesMapper likesMapper;
+
+    @Resource
+    private UserService userService;
 
     @Override
     public ArrayList<Review> getReviewList() throws Exception {
@@ -72,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void likesReview(Long id) throws Exception {
         //FIXME: user_id 받아오는 것은 JWT이용
-        Long user_id = 1L;
+        Long user_id = userService.getUserIdByToken();
         if(likesMapper.checkIsLikedByUserId(user_id, id)==0) {
             likesMapper.createLikesReview(0, user_id, id);
         }

@@ -27,6 +27,7 @@ public class ReviewController {
     }
 
     // 리뷰 Read
+    @Auth
     @RequestMapping(value = "/review/{id}", method = RequestMethod.GET)
     public ResponseEntity getReview(@PathVariable Long id) throws Exception{
         return new ResponseEntity<Review>(reviewService.getReview(id), HttpStatus.OK);
@@ -46,6 +47,8 @@ public class ReviewController {
     }
 
     // 리뷰 추천수 기능
+    @Auth
+    @ApiOperation( value = "강의 리뷰 추천",notes = "강의 리뷰 추천기능입니다. 파라미터로 reviewID를 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/review/{id}", method = RequestMethod.POST)
     public ResponseEntity createLikesReview(@PathVariable Long id) throws Exception{
         reviewService.likesReview(id);
