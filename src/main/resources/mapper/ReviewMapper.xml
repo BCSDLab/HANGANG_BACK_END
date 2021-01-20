@@ -3,24 +3,24 @@
 <mapper namespace="in.hangang.mapper.ReviewMapper">
 
     <select id="getReviewList" resultMap="review">
-        SELECT * FROM hangang.review WHERE is_deleted = 0
+        SELECT * FROM hangang.review WHERE is_deleted = 0 LIMIT #{cursor}, #{limit}
     </select>
 
     <select id="getReviewById" resultMap="review">
-        SELECT * FROM hangang.review WHERE id = #{id}
+        SELECT * FROM hangang.review WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="getReviewByLectureId" resultMap="review">
-        SELECT * FROM hangang.review WHERE lecture_id = #{id}
+        SELECT * FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0 LIMIT #{cursor}, #{limit}
     </select>
 
     <insert id="createReview" parameterType="in.hangang.domain.Review">
         <selectKey resultType="Long" keyProperty="return_id" order="AFTER">
             SELECT LAST_INSERT_ID()
         </selectKey>
-        INSERT INTO hangang.review (user_id, rating, assignment_amount, difficulty,
+        INSERT INTO hangang.review (semester_date, user_id, rating, assignment_amount, difficulty,
         grade_portion, attendance_frequency, test_times, comment, lecture_id)
-        VALUES( #{user_id}, #{rating}, #{assignment_amount}, #{difficulty},
+        VALUES( #{semester_date}, #{user_id}, #{rating}, #{assignment_amount}, #{difficulty},
         #{grade_portion}, #{attendance_frequency}, #{test_times}, #{comment}, #{lecture_id} )
     </insert>
 
@@ -42,6 +42,7 @@
 
     <resultMap id="review" type="in.hangang.domain.Review">
         <result column="id" property="id"/>
+
         <result column="lecture_id" property="lecture_id"/>
         <result column="user_id" property="user_id"/>
         <result column="rating" property="rating"/>
@@ -61,13 +62,20 @@
         <collection property="hash_tags" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.HashTag"
                     select="in.hangang.mapper.HashTagMapper.getHashTagByReviewId">
         </collection>
+        <collection property="nickname" javaType="String" column="{id=user_id}"
+                    select="in.hangang.mapper.UserMapper.getNickNameByUserId">
+        </collection>
         <collection property="assignment" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Assignment"
                     select="in.hangang.mapper.ReviewMapper.getAssignmentByReviewId">
         </collection>
     </resultMap>
 
+    <select id="getReviewByUserIdAndLectureId" resultType="Long">
+        SELECT id FROM hangang.review WHERE lecture_id = #{lecture_id} AND user_id = #{user_id}
+    </select>
+
     <select id="getAssignmentByReviewId" resultType="in.hangang.domain.Assignment">
-        SELECT name FROM hangang.assignment
+        SELECT id, name FROM hangang.assignment
         WHERE id = any(SELECT assignment_id
                        FROM( SELECT assignment_id FROM hangang.review_assignment WHERE review_id = #{review_id}) as temp);
     </select>
