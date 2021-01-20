@@ -92,14 +92,13 @@
     </select>
 
     <update id="updateTotalRating">
-        INSERT total_evaluation(lecture_id, rating)
+        INSERT hangang.total_evaluation(lecture_id, rating)
         VALUES (#{lecture_id}, ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{lecture_id}), 2))
     </update>
 
 
     <resultMap id="lectureList" type="in.hangang.domain.Lecture">
         <result column="id" property="id"/>
-        <result column="semester_date" property="semester_data"/>
         <result column="name" property="name"/>
         <result column="department" property="department"/>
         <result column="professor" property="professor"/>
@@ -107,6 +106,9 @@
         <result column="is_deleted" property="is_deleted"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
+        <collection property="semester_data" ofType="java.lang.String" column="{name=name,professor=professor}"
+                    select="getSemesterDateByNameAndProfessor">
+        </collection>
         <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
                     ofType="in.hangang.domain.HashTag" select="in.hangang.mapper.HashTagMapper.getTop3HashTag">
         </collection>
@@ -115,9 +117,24 @@
         </collection>
     </resultMap>
 
+    <select id="checkLectureExists" resultType="Long">
+        SELECT id FROM hangang.lecture WHERE id = #{id}
+    </select>
+
+    <select id="getProfessorById" resultType="String">
+        SELECT professor FROM hangang.lecture WHERE id = #{id}
+    </select>
+
+    <select id="getNameById" resultType="String">
+        SELECT name FROM hangang.lecture WHERE id = #{id}
+    </select>
+
+    <select id="getSemesterDateByNameAndProfessor" resultType="String">
+        SELECT semester FROM hangang.semester_date
+        WHERE id IN(SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)
+    </select>
     <sql id="lecture-list">
         ${alias}id AS ${prefix}id
-		,${alias}semester_date AS ${prefix}semester_date
 		,${alias}name AS ${prefix}name
 		,${alias}department AS ${prefix}department
 		,${alias}professor AS ${prefix}professor
