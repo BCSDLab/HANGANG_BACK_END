@@ -10,8 +10,8 @@ import java.util.ArrayList;
 public class Lecture {
     @ApiModelProperty(hidden = true)
     private Long id;
-    private String semester_data;
-    private ArrayList<Hash_tag> top3_hash_tag;
+    private ArrayList<String> semester_data;
+    private ArrayList<HashTag> top3_hash_tag;
     private String code;
     private String name;
     private String department;
@@ -25,15 +25,6 @@ public class Lecture {
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
 
-
-    public ArrayList<Hash_tag> getTop3_hash_tag() {
-        return top3_hash_tag;
-    }
-
-    public void setTop3_hash_tag(ArrayList<Hash_tag> top3_hash_tag) {
-        this.top3_hash_tag = top3_hash_tag;
-    }
-
     public Long getId() {
         return id;
     }
@@ -42,12 +33,28 @@ public class Lecture {
         this.id = id;
     }
 
-    public String getSemester_data() {
+    public ArrayList<String> getSemester_data() {
         return semester_data;
     }
 
-    public void setSemester_data(String semester_data) {
+    public void setSemester_data(ArrayList<String> semester_data) {
         this.semester_data = semester_data;
+    }
+
+    public ArrayList<HashTag> getTop3_hash_tag() {
+        return top3_hash_tag;
+    }
+
+    public void setTop3_hash_tag(ArrayList<HashTag> top3_hash_tag) {
+        this.top3_hash_tag = top3_hash_tag;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -112,13 +119,5 @@ public class Lecture {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 }

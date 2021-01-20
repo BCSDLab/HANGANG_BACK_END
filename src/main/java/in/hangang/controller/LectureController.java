@@ -15,6 +15,7 @@ public class LectureController {
     @Resource
     LectureService lectureService;
 
+    //강의 리스트 검색
     @RequestMapping(value = "/lecture", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getReviewList(

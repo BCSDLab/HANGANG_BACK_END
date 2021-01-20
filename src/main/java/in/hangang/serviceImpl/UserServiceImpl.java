@@ -1,10 +1,10 @@
 package in.hangang.serviceImpl;
 
-import in.hangang.annotation.Auth;
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.User;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Major;
+import in.hangang.exception.AccessTokenInvalidException;
 import in.hangang.exception.RefreshTokenExpireException;
 import in.hangang.exception.RefreshTokenInvalidException;
 import in.hangang.exception.RequestInputException;
@@ -37,10 +37,17 @@ public class UserServiceImpl implements UserService {
     private Jwt jwt;
     @Value("${refresh.user.name}")
     private String refreshUserName;
+    @Value("${token.user.name}")
+    private String accessTokenName;
     @Resource
     private SesSender sesSender;
     @Resource
     private SpringTemplateEngine springTemplateEngine;
+    @Value("${token.access}")
+    private String access_token;
+
+    @Value("${token.refresh}")
+    private String refresh_token;
 
 
     public Map<String,String> login(User user) throws Exception{
@@ -58,8 +65,9 @@ public class UserServiceImpl implements UserService {
         // 로그인이 성공한 경우 , access token, refresh token 반환
         else{
             Map<String, String> token = new HashMap<>();
-            token.put("access_token", jwt.generateToken(dbUser.getId(), dbUser.getNickname(), "access_token") );
-            token.put("refresh_token", jwt.generateToken(dbUser.getId(),dbUser.getNickname(),"refresh_token"));
+            /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
+            token.put(access_token, jwt.generateToken(dbUser.getId(), dbUser.getNickname(), access_token) );
+            token.put(refresh_token, jwt.generateToken(dbUser.getId(),dbUser.getNickname(),refresh_token));
             return token;
         }
     }
@@ -117,7 +125,7 @@ public class UserServiceImpl implements UserService {
         //회원가입후 user의 가입된 id를 구함
         Long user_id = userMapper.getUserIdFromPortal(user.getPortal_account());
 
-        // n개의 전공을 삽입
+         // n개의 전공을 삽입
         for ( int i=0; i< user.getMajor().size(); i++){
             setMajor(user.getMajor().get(i), user_id);
         }
@@ -129,6 +137,7 @@ public class UserServiceImpl implements UserService {
         String salt = user_id.toString() + calendar.getTime();
         salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
         userMapper.setSalt(salt,user_id);
+
         // 인증 테이블에 해당 portal 계정 모두 삭제
         AuthNumber authNumber = new AuthNumber();
         authNumber.setPortal_account(user.getPortal_account());
@@ -145,14 +154,11 @@ public class UserServiceImpl implements UserService {
             Long id = Long.valueOf(String.valueOf( payloads.get("id")));
             String nickname = String.valueOf( payloads.get("nickname"));
             Map<String,Object> token = new HashMap<>();
-            token.put("access_token", jwt.generateToken(id, nickname, "access_token") );
-            token.put("refresh_token", jwt.generateToken(id,nickname,"refresh_token"));
+            token.put(access_token, jwt.generateToken(id, nickname, access_token) );
+            token.put(refresh_token, jwt.generateToken(id,nickname,refresh_token));
             return token;
         }
-        else if (result == -2 ){ // refresh expire
-            throw new RefreshTokenExpireException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_EXPIRE_EXCEPTION);
-        }
-        else if ( result == -1 || result == 0){
+        else if (  result == 0 ){
             throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION); // REFRESH 토근에 ACCESS 토근이 들어온 경우
         }
         else{
@@ -199,17 +205,22 @@ public class UserServiceImpl implements UserService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MINUTE, 10); // 만료기한 10분
-        System.out.println("a" + calendar);
         authNumber.setExpired_at(new Timestamp( (calendar.getTime()).getTime()));
         authNumber.setIp(this.getClientIp());
-        System.out.println("a" + authNumber.getExpired_at());
 
         userMapper.setAuthNumber(authNumber);
 
 
         // send mail to portal_account email
-        String body = springTemplateEngine.process("mail-sample",context);
-        sesSender.sendMail("no-reply@bcsdlab.com", authNumber.getPortal_account(), "email auth subject TEST", body);
+        String body = null;
+        if ( authNumber.getFlag() == 0) {
+            body = springTemplateEngine.process("signUpEmail", context);
+            sesSender.sendMail("no-reply@bcsdlab.com", authNumber.getPortal_account(), "한강 서비스 회원가입 인증", body);
+        }
+        else if ( authNumber.getFlag() == 1) {
+            body = springTemplateEngine.process("findPassword", context);
+            sesSender.sendMail("no-reply@bcsdlab.com", authNumber.getPortal_account(), "한강서비스 비밀번호 재발급 인증", body);
+        }
 
         return "Email을 발송했습니다.";
     }
@@ -323,5 +334,25 @@ public class UserServiceImpl implements UserService {
         userMapper.deleteAllAuthNumber(authNumber);
 
         userMapper.findPassword(user);
+    }
+
+    // token의 id를 가져와 User를 반환하는 Method
+    public User getLoginUser() throws Exception{
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String token = request.getHeader(accessTokenName);
+        if ( token == null){
+            return null;
+        }
+        else {
+            // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
+            if ( jwt.isValid(token,0) ==0 ) {
+                Map<String, Object> payloads = jwt.validateFormat(token, 0);
+                Long id = Long.valueOf(String.valueOf(payloads.get("id")));
+                return userMapper.getMe(id);
+            }
+            else{
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+            }
+        }
     }
 }

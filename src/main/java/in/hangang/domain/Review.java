@@ -1,26 +1,63 @@
 package in.hangang.domain;
 
+import in.hangang.annotation.ValidationGroups;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
 @Component
 public class Review {
+    @ApiModelProperty(hidden = true)
     private Long id;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "선택된 강의가 없습니다.")
     private Long lecture_id;
+    @ApiModelProperty(hidden = true)
     private Long user_id;
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "수강 학기는 비워둘 수 없습니다.")
+    private String semester_date;
+    @ApiModelProperty(hidden = true)
+    private String nickname;
+
+    @DecimalMax(groups = {ValidationGroups.createReview.class}, value = "5.0", message = "별점의 최대값은 5.0입니다.")
+    @DecimalMin(groups = {ValidationGroups.createReview.class}, value = "0.5", message = "별점의 최소값은 0.5입니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "별점 항목은 비워둘 수 없습니다.")
     private float rating;
+    @ApiModelProperty(hidden = true)
     private Long likes;
+    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "과제량은 1에서 3사이여야 합니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제량 항목은 비워둘 수 없습니다.")
     private Integer assignment_amount;
+    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "난이도는 1에서 3사이여야 합니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "난이도 항목은 비워둘 수 없습니다.")
     private float difficulty;
+    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "성적 비율은 1에서 3사이여야 합니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "성적 비율 항목은 비워둘 수 없습니다.")
     private float grade_portion;
+    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "출첵 빈도는 1에서 3사이여야 합니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "출석 빈도 항목은 비워둘 수 없습니다.")
     private Integer attendance_frequency;
+    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "시험 횟수는 1에서 3사이여야 합니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "시험 횟수 항목은 비워둘 수 없습니다.")
     private Integer test_times;
+    @Length(groups = {ValidationGroups.createReview.class}, min=10, message = "강의평을 더 성의 있게 작성해주세요.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "별점은 비워둘 수 없습니다.")
     private String comment;
-    private ArrayList<Hash_tag> hash_tags;
+    @Size(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "해시태그는 최소 1개 최대 3개까지 선택하실 수 있습니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "해시태그 항목은 비워둘 수 없습니다.")
+    private ArrayList<HashTag> hash_tags;
+    @Size(min = 1, max = 4, message = "과제 정보는 최소 1개 최대 4개까지 선택하실 수 있습니다.")
+    @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제 정보 항목은 비워둘 수 없습니다.")
     private ArrayList<Assignment> assignment;
+
     @ApiModelProperty(hidden = true)
     private Long return_id;
     @ApiModelProperty(hidden = true)
@@ -52,6 +89,22 @@ public class Review {
 
     public void setUser_id(Long user_id) {
         this.user_id = user_id;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getSemester_date() {
+        return semester_date;
+    }
+
+    public void setSemester_date(String semester_date) {
+        this.semester_date = semester_date;
     }
 
     public Long getLikes() {
@@ -102,11 +155,11 @@ public class Review {
         this.attendance_frequency = attendance_frequency;
     }
 
-    public ArrayList<Hash_tag> getHash_tags() {
+    public ArrayList<HashTag> getHash_tags() {
         return hash_tags;
     }
 
-    public void setHash_tags(ArrayList<Hash_tag> hash_tags) {
+    public void setHash_tags(ArrayList<HashTag> hash_tags) {
         this.hash_tags = hash_tags;
     }
 

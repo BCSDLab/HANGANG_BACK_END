@@ -8,4 +8,12 @@
     <select id="checkIsLikedByUserId" resultType="Long">
         SELECT count(*) FROM hangang.likes WHERE user_id = #{user_id} AND board_id = #{board_id}
     </select>
+
+    <insert id="createLikesReview">
+        INSERT INTO hangang.likes(type, user_id, board_id) VALUES(#{type}, #{user_id}, #{board_id})
+    </insert>
+
+    <delete id="deleteLikesReview">
+        DELETE FROM hangang.likes WHERE user_id = #{user_id} AND board_id = #{board_id}
+    </delete>
 </mapper>

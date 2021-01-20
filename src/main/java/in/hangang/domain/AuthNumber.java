@@ -5,9 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.springframework.stereotype.Component;
 
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.sql.Timestamp;
 
 @Component
@@ -25,6 +23,8 @@ public class AuthNumber {
     @NotNull( groups = ValidationGroups.configEmail.class, message = "인증 키 값은 null일 수 없습니다.")
     private String secret;
     @NotNull( groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "flag 값은 필수입니다.")
+    @Min( value = 0,groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "이메일 인증의 flag는 0 보다 작을 수 없습니다.")
+    @Max(value = 1,groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "이메일 인증의 flag는 1 보다 클 수 없습니다.")
     private Integer flag;
 
     @ApiModelProperty(hidden = true)

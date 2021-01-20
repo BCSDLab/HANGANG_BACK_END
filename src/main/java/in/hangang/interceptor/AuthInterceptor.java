@@ -20,7 +20,9 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
     @Autowired
     private Jwt jwt;
-
+    /*
+    token.user.name
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!(handler instanceof HandlerMethod)) return true;
@@ -32,20 +34,17 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             String accessToken = request.getHeader("Authorization");
 
             if ( accessToken != null) {
-                int result = jwt.isValid(accessToken,0);
+                int result = jwt.isValid(accessToken,0); // flag 0 -> access / 1 refresh
+
                 if (result == 0) { // valid 하다면
                     return true;
                 }
-                else if (result == 1 || result == -2 ){ // refresh라면
+                else
                     throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
-                }
-                else if (result == -1 ) { // EXPIRE 된 경우
-                    throw new AccessTokenExpireException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_EXPIRE_EXCEPTION); // EXPIRE ERROR 뿜뿜
-                }
             }
             else{
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION); // jwt token이 null이라면
-            }
+        }
         }
 
 

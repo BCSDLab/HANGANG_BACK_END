@@ -5,13 +5,18 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.stereotype.Component;
 
-@Component
-public class Assignment {
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
-    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 4, message = "강의 정보 id는 1~4 사이의 숫자입니다.")
+@Component
+public class HashTag {
+
+    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 9, message = "해시태그의 id는 1~9의 숫자입니다.")
     Long id;
+
     @ApiModelProperty(hidden = true)
-    String name;
+    String tag;
 
     public Long getId() {
         return id;
@@ -21,11 +26,11 @@ public class Assignment {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTag() {
+        return tag;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

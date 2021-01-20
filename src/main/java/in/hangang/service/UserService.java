@@ -13,4 +13,5 @@ public interface UserService {
     boolean configEmail(AuthNumber authNumber) throws Exception;
     boolean checkNickname(String nickname);
     void findPassword(User user)throws  Exception;
+    User getLoginUser() throws Exception;
 }

@@ -21,6 +21,7 @@ public final class ValidationGroups {
     public interface sendEmail extends Default{}
     public interface configEmail extends Default{}
     public interface findPassword extends Default{};
+    public interface createReview extends Default{};
     // Admin groups
     public interface CreateAdmin extends Default {};
     public interface UpdateAdmin extends Default {};
