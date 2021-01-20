@@ -77,7 +77,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setUser_id(user.getId());
 
         ArrayList<String> semester = getSemesterDateByLectureId(review.getLecture_id());
-        //입력된 학깆 정보가 강의가 개설된 학기에 포함되어있늕지 확인.
+        //입력된 학기 정보가 강의가 개설된 학기에 포함되어있늕지 확인.
         if(!semester.contains(review.getSemester_date()))
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
@@ -106,6 +106,7 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
         reviewMapper.updateReviewedAt(lectureId);
+        lectureMapper.updateTotalRatingById(lectureId);
     }
 
     @Override

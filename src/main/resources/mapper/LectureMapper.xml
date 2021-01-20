@@ -91,9 +91,8 @@
         LIMIT #{cursor}, #{limit}
     </select>
 
-    <update id="updateTotalRating">
-        INSERT hangang.total_evaluation(lecture_id, rating)
-        VALUES (#{lecture_id}, ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{lecture_id}), 2))
+    <update id="updateTotalRatingById">
+        update lecture SET total_rating = (select rating from total_evaluation where lecture_id = #{id}) where id = #{id}
     </update>
 
 
