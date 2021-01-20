@@ -15,6 +15,7 @@ public interface UserMapper {
     void signUp(User user);
     Long getUserIdFromPortal(String portal_account);
     String getUserByNickName(String nickname);
+    String getNickNameByUserId(Long id);
     User getPasswordFromPortal(String portal_account);
     String getSalt(Long id);
 
