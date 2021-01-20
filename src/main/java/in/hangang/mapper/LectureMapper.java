@@ -13,5 +13,6 @@ public interface LectureMapper {
     ArrayList<String> getSemesterDateByNameAndProfessor(String name, String professor);
     Long checkLectureExists(Long id);
     String getProfessorById(Long id);
+    void updateTotalRatingById(Long id);
     String getNameById(Long id);
 }
