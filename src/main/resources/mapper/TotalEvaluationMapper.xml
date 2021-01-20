@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TotalEvaluationMapper">
     <select id="getTotalRating" resultType="float">
-        SELECT rating FROM total_evaluation WHERE lecture_id = #{id}
+        SELECT rating FROM hangang.total_evaluation WHERE lecture_id = #{id}
     </select>
 
     <update id="updateTotalRating">
@@ -11,6 +11,6 @@
         <!-- 종합 평가 api설계 하면서 꼭 지워주어야 한다 -->
 
         INSERT INTO total_evaluation(lecture_id, rating)
-        SELECT lecture_id, ROUND(AVG(rating), 2) FROM review GROUP BY lecture_id;
+        SELECT lecture_id, ROUND(AVG(rating), 2) FROM hangang.review GROUP BY lecture_id;
     </update>
 </mapper>
