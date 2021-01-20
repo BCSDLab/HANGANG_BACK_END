@@ -76,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void likesReview(Long id) throws Exception {
         //FIXME: user_id 받아오는 것은 JWT이용
-        Long user_id = userService.getUserIdByToken();
+        Long user_id = 1L;
         if(likesMapper.checkIsLikedByUserId(user_id, id)==0) {
             likesMapper.createLikesReview(0, user_id, id);
         }

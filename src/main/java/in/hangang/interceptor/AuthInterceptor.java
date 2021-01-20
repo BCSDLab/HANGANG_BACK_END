@@ -20,7 +20,9 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
     @Autowired
     private Jwt jwt;
-
+    /*
+    token.user.name
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!(handler instanceof HandlerMethod)) return true;
@@ -32,7 +34,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
             String accessToken = request.getHeader("Authorization");
 
             if ( accessToken != null) {
-                int result = jwt.isValid(accessToken,0);
+                int result = jwt.isValid(accessToken,0); // flag 0 -> access / 1 refresh
 
                 if (result == 0) { // valid 하다면
                     return true;

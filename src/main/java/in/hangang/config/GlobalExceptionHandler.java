@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
 
 		if(baseException == null){
 			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.UNDEFINED_EXCEPTION);
-			baseException.setErrorMessage(e.getMessage()); // 죄송합니다 빛통일님 - 정수현
+			baseException.setErrorMessage(e.getMessage()); // 죄송합니다 빛통일님ㅠㅠㅠ - 정수현
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 			slack = true;
 		}
