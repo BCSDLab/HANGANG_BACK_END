@@ -51,6 +51,46 @@
     <update id="findPassword">
         UPDATE hangang.user set password=#{password} WHERE portal_account=#{portal_account}
     </update>
+    <select id="getMajor" resultType="String">
+        SELECT major FROM hangang.major WHERE user_id = #{id}
+
+    </select>
+
+    <select id="getMe" resultMap="userAll">
+        SELECT
+        <include refid="user-all">
+            <property name="prefix" value=""/>
+            <property name="alias" value=""/>
+        </include>
+        FROM hangang.user
+        WHERE id = #{id}
+    </select>
+
+    <resultMap id="userAll" type="in.hangang.domain.User">
+        <result column="id" property="id"/>
+        <result column="portal_account" property="portal_account"/>
+        <result column="nickname" property="nickname"/>
+        <result column="profile_image_url" property="profile_image_url"/>
+        <result column="point" property="point"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <collection  column="id" property="major" javaType="java.util.ArrayList"  ofType="String" select="getMajor"> </collection>
+    </resultMap>
+
+
+    <sql id="user-all">
+        ${alias}id AS ${prefix}id
+		,${alias}portal_account AS ${prefix}portal_account
+		,${alias}nickname AS ${prefix}nickname
+		,${alias}profile_image_url AS ${prefix}profile_image_url
+		,${alias}point AS ${prefix}point
+		,${alias}is_deleted AS ${prefix}is_deleted
+        ,${alias}created_at AS ${prefix}created_at
+        ,${alias}updated_at AS ${prefix}updated_at
+
+    </sql>
+
 
 
 </mapper>

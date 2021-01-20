@@ -4,6 +4,7 @@ import in.hangang.domain.AuthNumber;
 import in.hangang.domain.User;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Major;
+import in.hangang.exception.AccessTokenInvalidException;
 import in.hangang.exception.RefreshTokenExpireException;
 import in.hangang.exception.RefreshTokenInvalidException;
 import in.hangang.exception.RequestInputException;
@@ -119,7 +120,7 @@ public class UserServiceImpl implements UserService {
         //회원가입후 user의 가입된 id를 구함
         Long user_id = userMapper.getUserIdFromPortal(user.getPortal_account());
 
-        // n개의 전공을 삽입
+         // n개의 전공을 삽입
         for ( int i=0; i< user.getMajor().size(); i++){
             setMajor(user.getMajor().get(i), user_id);
         }
@@ -131,6 +132,7 @@ public class UserServiceImpl implements UserService {
         String salt = user_id.toString() + calendar.getTime();
         salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
         userMapper.setSalt(salt,user_id);
+
         // 인증 테이블에 해당 portal 계정 모두 삭제
         AuthNumber authNumber = new AuthNumber();
         authNumber.setPortal_account(user.getPortal_account());
@@ -333,15 +335,22 @@ public class UserServiceImpl implements UserService {
     }
 
     // token의 id를 가져와 User를 반환하는 Method
-    public Long getUserIdByToken(){
+    public User getLoginUser() throws Exception{
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = request.getHeader(accessTokenName);
-        // jwt token의 valid 체크를 해야하는가?
-        // interceptor에서 이미 진행하므로 생략해도 괜찮을 것 같다.
-        // 따라서 해당 method는 @Auth 어노테이션이 붙는 api에서만 사용하여야 적절하다.
-        // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
-        Map<String,Object> payloads = jwt.validateFormat(token,0);
-        Long id = Long.valueOf(String.valueOf( payloads.get("id")));
-        return id;
+        if ( token == null){
+            return null;
+        }
+        else {
+            // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
+            if ( jwt.isValid(token,0) ==0 ) {
+                Map<String, Object> payloads = jwt.validateFormat(token, 0);
+                Long id = Long.valueOf(String.valueOf(payloads.get("id")));
+                return userMapper.getMe(id);
+            }
+            else{
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+            }
+        }
     }
 }

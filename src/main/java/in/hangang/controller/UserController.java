@@ -46,7 +46,7 @@ public class UserController {
     @Auth
     @ApiOperation( value = "유저 인증 여부 확인",notes = "유저 인증 여부 확인을 위한 test api입니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/auth-test" , method =  RequestMethod.GET)
-    public ResponseEntity test(){
+    public ResponseEntity test() throws Exception{
         return new ResponseEntity("test success",HttpStatus.OK);
     }
 

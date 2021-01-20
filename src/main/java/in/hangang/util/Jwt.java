@@ -57,18 +57,22 @@ public class Jwt {
 
     // token validation check method
     public int isValid(String token, Integer flag){
+        /*
+            if (header == null || !header.startsWith("Bearer "))
+            return null;
+         */
         String authToken = "";
-        if ( token == null && flag == 1 ) { // refresh token이 null로 요청된 경우
-            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
-        }
-        else if ( token.length() < 8 && flag == 0  ) { // access token의 길이가 8보다 작은 경우
-            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
-        }
-        else if ( token.length() < 8 && flag == 1){ // refresh toekn의 길이가 8보다 작은 경우
-            throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
-        }
-        else{ // 여기서도 String index bound exception이 발생할 수 있었다.
-            authToken = token.substring(7); // "Bearer " 제거
+            if ( token == null && flag == 1 ) { // refresh token이 null로 요청된 경우
+                throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+            }
+            else if ( token.length() < 8 && flag == 0  ) { // access token의 길이가 8보다 작은 경우
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+            }
+            else if ( token.length() < 8 && flag == 1){ // refresh toekn의 길이가 8보다 작은 경우
+                throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+            }
+            else{ // 여기서도 String index bound exception이 발생할 수 있었다.
+                authToken = token.substring(7); // "Bearer " 제거
         }
         Map<String,Object> payloads = this.validateFormat(authToken,flag);
         String key = userMapper.getSalt(Long.valueOf(String.valueOf( payloads.get("id"))));
@@ -80,6 +84,7 @@ public class Jwt {
             Date now = new Date();
 
             // refresh token이 access로 들어간 경우 pass되는 경우 방지
+            // exp.get time 할필요 없음. test후 지울 예정
             if (exp.getTime() > now.getTime() && sub.equals("access_token")) {
                 return 0; // access, true
             }
@@ -112,11 +117,13 @@ public class Jwt {
     // Token의 Payload를 decode해서 반환
     // flag 0 은 access , 1은 refresh
     public Map<String, Object> validateFormat(String token,Integer flag) {
+
         if (token == null && flag == 0) {
             throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
         }else if ( token == null && flag == 1){
             throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION);
         }
+
 
         String[] strings = token.split("\\.");
         if (strings.length != 3 && flag == 0) {

@@ -24,4 +24,6 @@ public interface UserMapper {
     ArrayList<AuthNumber> getAuthTrue(String portal_account, Integer flag);
     void deleteAllAuthNumber(AuthNumber authNumber);
     void findPassword(User user);
+
+    User getMe(Long id);
 }
