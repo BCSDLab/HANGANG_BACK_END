@@ -12,7 +12,7 @@
     </insert>
 
     <select id="getHashTagByReviewId" resultType="in.hangang.domain.HashTag">
-        SELECT tag FROM hangang.hash_tag
+        SELECT id, tag FROM hangang.hash_tag
         WHERE id = any(SELECT hash_tag_id
                        FROM( SELECT hash_tag_id FROM hangang.review_hash_tag WHERE review_id = #{review_id}) as temp);
     </select>
@@ -23,7 +23,7 @@
     </select>
 
     <select id="getTop3HashTag" resultType="in.hangang.domain.HashTag">
-        SELECT id, tag FROM hash_tag WHERE id = any(SELECT hash_tag_id FROM hangang.hash_tag_top3 WHERE lecture_id = #{lecture_id})
+        SELECT id, tag FROM hangang.hash_tag WHERE id = any(SELECT hash_tag_id FROM hangang.hash_tag_top3 WHERE lecture_id = #{lecture_id})
     </select>
 
     <update id="countUpHashTag">

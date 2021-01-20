@@ -1,6 +1,8 @@
 package in.hangang.controller;
 
 import in.hangang.service.HashTagService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +18,10 @@ public class HashTagController {
     @Resource
     HashTagService hashTagService;
 
-    // 강의의 Top3 해시태그 수동 갱신
-    // Scheduler 10분에 한번식 작동
+    @ApiOperation( value = "해시태그 순위 갱신", notes = "Top3 해시태그를 수동으로 갱신합니다. (강의에 노출되는 Top3 해시태그는 10분마다 자동으 갱신됩니다.)")
     @RequestMapping(value = "/Top3HashTag", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity testController() throws Exception{
+    ResponseEntity updateTop3HashTag() throws Exception{
         hashTagService.updateTop3HashTag();
         return new ResponseEntity(HttpStatus.OK);
     }
