@@ -60,10 +60,10 @@
                         ,LEC.total_rating DESC
                     </if>
                     <if test='(sort eq "최신순".toString())'>
-                        ,LEC.latest_reviewed_at DESC
+                        ,LEC.last_reviewed_at DESC
                     </if>
                     <if test='(sort eq "평가순".toString())'>
-                        ,COUNT(LEC.id) DESC
+                        ,LEC.review_count DESC
                     </if>
                 </if>
                 <!--정렬 옵션이 없을 때-->
@@ -78,10 +78,10 @@
                         LEC.total_rating DESC
                     </if>
                     <if test='(sort eq "최신순".toString())'>
-                        LEC.latest_reviewed_at DESC
+                        LEC.last_reviewed_at DESC
                     </if>
                     <if test='(sort eq "평가순".toString())'>
-                        COUNT(LEC.id) DESC
+                        LEC.review_count DESC
                     </if>
                 </if>
                 <!--정렬 옵션이 없을 때-->
@@ -92,7 +92,7 @@
     </select>
 
     <update id="updateTotalRatingById">
-        update lecture SET total_rating = (select rating from total_evaluation where lecture_id = #{id}) where id = #{id}
+        UPDATE lecture SET total_rating = (SELECT ROUND(AVG(rating), 2) FROM hangang.review WHERE lecture_id = #{id}) WHERE id = #{id}
     </update>
 
 
@@ -101,19 +101,24 @@
         <result column="name" property="name"/>
         <result column="department" property="department"/>
         <result column="professor" property="professor"/>
+        <result column="total_rating" property="total_rating"/>
         <result column="classification" property="classification"/>
         <result column="is_deleted" property="is_deleted"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
+        <result column="last_reviewed_at" property="last_reviewed_at"/>
+        <result column="review_count" property="review_count"/>
         <collection property="semester_data" ofType="java.lang.String" column="{name=name,professor=professor}"
                     select="getSemesterDateByNameAndProfessor">
         </collection>
         <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
                     ofType="in.hangang.domain.HashTag" select="in.hangang.mapper.HashTagMapper.getTop3HashTag">
         </collection>
+        <!--
         <collection property="total_rating" javaType="String" column="id"
                     select="in.hangang.mapper.TotalEvaluationMapper.getTotalRating">
         </collection>
+        -->
     </resultMap>
 
     <select id="checkLectureExists" resultType="Long">
@@ -127,6 +132,16 @@
     <select id="getNameById" resultType="String">
         SELECT name FROM hangang.lecture WHERE id = #{id}
     </select>
+
+    <update id="updateReviewCountById">
+        UPDATE lecture SET review_count = review_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="updateReviewCount">
+        update lecture, (select lecture_id, count(*) as count from review group by lecture_id) REV
+        SET lecture.review_count = REV.count
+        WHERE lecture.id = REV.lecture_id
+    </update>
 
     <select id="getSemesterDateByNameAndProfessor" resultType="String">
         SELECT semester FROM hangang.semester_date
@@ -142,6 +157,8 @@
         ,${alias}created_at AS ${prefix}created_at
         ,${alias}updated_at AS ${prefix}updated_at
         ,${alias}last_reviewed_at AS ${prefix}last_reviewed_at
+        ,${alias}total_rating AS ${prefix}total_rating
+        ,${alias}review_count AS ${prefix}review_count
     </sql>
 
     <sql id="HashTagTop3-list">

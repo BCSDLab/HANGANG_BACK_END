@@ -14,5 +14,7 @@ public interface LectureMapper {
     Long checkLectureExists(Long id);
     String getProfessorById(Long id);
     void updateTotalRatingById(Long id);
+    void updateReviewCountById(Long id);
+    void updateReviewCount();
     String getNameById(Long id);
 }

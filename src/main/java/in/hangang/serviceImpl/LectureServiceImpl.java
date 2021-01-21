@@ -22,4 +22,9 @@ public class LectureServiceImpl implements LectureService {
         return lectureMapper.getLectureList(keyword, classification, department,
                 hashtag, sort, criteria.getCursor(), criteria.getLimit());
     }
+
+    @Override
+    public void updateReviewCount() {
+        lectureMapper.updateReviewCount();
+    }
 }

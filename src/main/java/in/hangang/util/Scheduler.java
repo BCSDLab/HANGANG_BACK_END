@@ -1,6 +1,8 @@
 package in.hangang.util;
 
+import in.hangang.mapper.LectureMapper;
 import in.hangang.service.HashTagService;
+import in.hangang.service.LectureService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,10 @@ public class Scheduler {
 
     @Resource
     private HashTagService hashTagService;
+
+    @Resource
+    private LectureService lectureService;
+
     /**
     1초에 한번씩 호출하는 fixedDelay
      */
@@ -31,7 +37,10 @@ public class Scheduler {
      */
 
     @Scheduled(cron = "0 */10 * * * *")
-    public void scheduleCronExpressionTask() {
+    public void updateTop3HashTag() {
         hashTagService.updateTop3HashTag();
     }
+
+    @Scheduled(cron = "0 0 0 */1 * *")
+    public void updateReviewCount() {lectureService.updateReviewCount();}
 }

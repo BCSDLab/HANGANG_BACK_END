@@ -105,7 +105,9 @@ public class ReviewServiceImpl implements ReviewService {
                 hashtagMapper.insertHashTagCount(0, lectureId, hashTagId);
             }
         }
+        //TODO : 속도 향상을 위해 서비스 호출 줄여보기.
         reviewMapper.updateReviewedAt(lectureId);
+        lectureMapper.updateReviewCountById(lectureId);
         lectureMapper.updateTotalRatingById(lectureId);
     }
 

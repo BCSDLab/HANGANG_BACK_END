@@ -9,7 +9,6 @@
         <!-- 종합 평가 api설계 하면서 꼭 지워주어야 한다 -->
         DELETE FROM total_evaluation;
         <!-- 종합 평가 api설계 하면서 꼭 지워주어야 한다 -->
-
         INSERT INTO total_evaluation(lecture_id, rating)
         SELECT lecture_id, ROUND(AVG(rating), 2) FROM hangang.review GROUP BY lecture_id;
     </update>

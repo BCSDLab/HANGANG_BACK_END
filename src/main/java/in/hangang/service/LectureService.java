@@ -9,4 +9,5 @@ import java.util.ArrayList;
 public interface LectureService {
     ArrayList<Lecture> getLectureList(String keyword, ArrayList<String> classification, String department,
                                       ArrayList<Long> hashtag, String sort, Criteria criteria) throws Exception;
+    void updateReviewCount();
 }
