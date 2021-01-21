@@ -1,6 +1,8 @@
 package in.hangang.criteria;
 
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -9,6 +11,8 @@ public class Criteria {
     private Integer page = 1;
     @ApiParam(required = false, defaultValue = "10")
     private Integer limit = 10;
+    @ApiModelProperty(hidden = true)
+    private Integer cursor;
 
     public Integer getLimit() {
         return limit;
