@@ -19,9 +19,9 @@
             SELECT LAST_INSERT_ID()
         </selectKey>
         INSERT INTO hangang.review (semester_date, user_id, rating, assignment_amount, difficulty,
-        grade_portion, attendance_frequency, test_times, comment, lecture_id)
+        grade_portion, attendance_frequency, comment, lecture_id)
         VALUES( #{semester_date}, #{user_id}, #{rating}, #{assignment_amount}, #{difficulty},
-        #{grade_portion}, #{attendance_frequency}, #{test_times}, #{comment}, #{lecture_id} )
+        #{grade_portion}, #{attendance_frequency}, #{comment}, #{lecture_id} )
     </insert>
 
 
@@ -50,7 +50,6 @@
         <result column="difficulty" property="difficulty"/>
         <result column="grade_portion" property="grade_portion"/>
         <result column="attendance_frequency" property="attendance_frequency"/>
-        <result column="test_times" property="test_times"/>
         <result column="comment" property="comment"/>
         <result column="return_id" property="return_id"/>
         <result column="is_deleted" property="is_deleted"/>

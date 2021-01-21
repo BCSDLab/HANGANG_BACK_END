@@ -45,8 +45,9 @@ public class Review {
     @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "출첵 빈도는 1에서 3사이여야 합니다.")
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "출석 빈도 항목은 비워둘 수 없습니다.")
     private Integer attendance_frequency;
-    @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "시험 횟수는 1에서 3사이여야 합니다.")
-    @NotNull(groups = {ValidationGroups.createReview.class}, message = "시험 횟수 항목은 비워둘 수 없습니다.")
+    //@Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 3, message = "시험 횟수는 1에서 3사이여야 합니다.")
+    //@NotNull(groups = {ValidationGroups.createReview.class}, message = "시험 횟수 항목은 비워둘 수 없습니다.")
+    @ApiModelProperty(hidden = true)
     private Integer test_times;
     @Length(groups = {ValidationGroups.createReview.class}, min=10, message = "강의평을 더 성의 있게 작성해주세요.")
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "별점은 비워둘 수 없습니다.")

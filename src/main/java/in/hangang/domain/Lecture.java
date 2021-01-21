@@ -18,6 +18,8 @@ public class Lecture {
     private String professor;
     private String classification;
     private Float total_rating;
+    private Timestamp last_reviewed_at;
+    private Long review_count;
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
     @ApiModelProperty(hidden = true)
@@ -95,6 +97,22 @@ public class Lecture {
 
     public void setTotal_rating(Float total_rating) {
         this.total_rating = total_rating;
+    }
+
+    public Timestamp getLast_reviewed_at() {
+        return last_reviewed_at;
+    }
+
+    public Long getReview_count() {
+        return review_count;
+    }
+
+    public void setReview_count(Long review_count) {
+        this.review_count = review_count;
+    }
+
+    public void setLast_reviewed_at(Timestamp last_reviewed_at) {
+        this.last_reviewed_at = last_reviewed_at;
     }
 
     public Boolean getIs_deleted() {

@@ -22,6 +22,7 @@ public class ReviewController {
     ReviewService reviewService;
 
     // 전체 후기 리스트
+    @ApiOperation( value = "모든 강의 후기 읽기", notes = "등록된 모든 강의 후기를 읽어옵니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/review", method = RequestMethod.GET)
     public ResponseEntity getReviewList(@ModelAttribute Criteria criteria) throws Exception {
         return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewList(criteria), HttpStatus.OK);
@@ -29,7 +30,7 @@ public class ReviewController {
 
     // 후기 Read
     @Auth
-    @ApiOperation( value = "강의 후기 읽기", notes = "강의 구분 없이 강의 후기를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "강의 후기 읽기", notes = "하나의 강의 후기를 확인할 수 있습니다. 강의 후기 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/review/{id}", method = RequestMethod.GET)
     public ResponseEntity getReview(@PathVariable Long id) throws Exception{
         return new ResponseEntity<Review>(reviewService.getReview(id), HttpStatus.OK);
@@ -37,7 +38,7 @@ public class ReviewController {
 
     // 해당 강의에 등록된 후기 Read
     @Auth
-    @ApiOperation( value = "강의에 등록된 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "강의에 등록된 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.\n강의 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/review/lecture/{id}", method = RequestMethod.GET)
     public ResponseEntity getReviewByLectureId(@PathVariable Long id, @ModelAttribute Criteria criteria) throws Exception {
         return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewByLectureId(id, criteria), HttpStatus.OK);
@@ -45,7 +46,10 @@ public class ReviewController {
 
     // 후기 Create
     @Auth
-    @ApiOperation( value = "강의 후기 작성", notes = "강의 후기 작성 성기능입니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "강의 후기 작성", notes = "강의 후기 작성 성기능입니다." +
+            "\nassignment : 과제 정보 ID\nassignment_amount : 과제량 (3:상, 2:중, 1:하)\nattendance_frequency : 출첵 빈도 (3:상, 2:중, 1:하)\ncomment : 강의 후기 (10글자 이상)" +
+            "\ndifficulty : 난이도 (3:상, 2:중, 1:하)\ngrade_portion : 성적 비율 (3:상, 2:중, 1:하)\nhash_tag : 해시태그 ID\nlecture_id : 강의 ID" +
+            "\nrating : 평점 (0.5이상 5.0이하)\nsemester_date : 학기 정보 ( 20191, 20192, 20201, 20202 )", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/review", method = RequestMethod.POST)
     public ResponseEntity createReview(@RequestBody @Validated(ValidationGroups.createReview.class) Review review) throws Exception {
         reviewService.createReview(review);
