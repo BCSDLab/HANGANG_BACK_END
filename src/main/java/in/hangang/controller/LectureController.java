@@ -21,7 +21,7 @@ public class LectureController {
     @ApiOperation(value = "강의 목록 조회", notes = "강의 목록 조회 기능입니다.\nclassification : 이수구분\ndepartment : 개설 학부\nhash_tag : 해시태그 ID" +
             "\nkeyword : 검색어 (강의 혹은 교수명)\nsort : 정렬 기준 (평점순, 평가순, 최신순)\nlimit, page : 페이지네이션\n이수구분과 해시태그는 다중선택이 가능합니다." +
             "\n\nTop3 해시태그는 10분마다 갱신됩니다. 수동으로 갱신하고 싶다면 hash-tag-controller에서 /Top3HashTag를 호출해주세요.")
-    @RequestMapping(value = "/lecture", method = RequestMethod.GET)
+    @RequestMapping(value = "/lectures", method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity getReviewList(
             @ModelAttribute Criteria criteria,
