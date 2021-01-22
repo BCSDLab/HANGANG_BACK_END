@@ -121,6 +121,9 @@ public class ReviewServiceImpl implements ReviewService {
         Long userId = user.getId();
         Long isLiked = likesMapper.checkIsLikedByUserId(userId, id);
 
+        if (isLiked == null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
         if(isLiked == 0)
             likesMapper.createLikesReview(0, userId, id);
         else if (isLiked == 1)

@@ -14,7 +14,6 @@ public class HashTag {
 
     @Range(groups = {ValidationGroups.createReview.class}, min = 1, max = 9, message = "해시태그의 id는 1~9의 숫자입니다.")
     Long id;
-
     @ApiModelProperty(hidden = true)
     String tag;
 
