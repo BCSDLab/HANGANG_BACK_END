@@ -69,6 +69,7 @@
         </collection>
     </resultMap>
 
+
     <select id="getReviewByUserIdAndLectureId" resultType="Long">
         SELECT id FROM hangang.review WHERE lecture_id = #{lecture_id} AND user_id = #{user_id}
     </select>

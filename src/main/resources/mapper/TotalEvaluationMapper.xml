@@ -5,11 +5,48 @@
         SELECT rating FROM hangang.total_evaluation WHERE lecture_id = #{id}
     </select>
 
+    <!--
     <update id="updateTotalRating">
-        <!-- 종합 평가 api설계 하면서 꼭 지워주어야 한다 -->
         DELETE FROM total_evaluation;
-        <!-- 종합 평가 api설계 하면서 꼭 지워주어야 한다 -->
         INSERT INTO total_evaluation(lecture_id, rating)
         SELECT lecture_id, ROUND(AVG(rating), 2) FROM hangang.review GROUP BY lecture_id;
     </update>
+    -->
+
+    <select id="getTotalEvaluationByLectureId" resultMap="total_evaluation">
+        select lecture_id from review where lecture_id = #{id} group by lecture_id;
+    </select>
+
+    <resultMap id="total_evaluation" type="in.hangang.domain.Review">
+        <result column="lecture_id" property="lecture_id"/>
+        <collection property="attendance_frequency" column="{id=lecture_id}"
+                    select="getAttendanceFrequency">
+        </collection>
+        <collection property="difficulty" column="{id=lecture_id}"
+                    select="getDifficulty">
+        </collection>
+        <collection property="assignment_amount" column="{id=lecture_id}"
+                    select="getAssignmentAmount">
+        </collection>
+        <collection property="grade_portion" column="{id=lecture_id}"
+                    select="getGradePortion">
+        </collection>
+    </resultMap>
+
+    <select id="getAttendanceFrequency" resultType="Integer">
+        select attendance_frequency from review where lecture_id = #{id} group by attendance_frequency order by count(*) DESC LIMIT 1;
+    </select>
+    <select id="getDifficulty" resultType="Integer">
+        select difficulty from review where lecture_id = #{id} group by difficulty order by count(*) DESC LIMIT 1;
+    </select>
+    <select id="getAssignmentAmount" resultType="Integer">
+        select assignment_amount from review where lecture_id = #{id} group by assignment_amount order by count(*) DESC LIMIT 1;
+    </select>
+    <select id="getGradePortion" resultType="Integer">
+        select grade_portion from review where lecture_id = #{id} group by grade_portion order by count(*) DESC LIMIT 1;
+    </select>
+
+    <select id="getRatingCountByLectureId" resultType="java.util.HashMap">
+        select rating, count(rating) as count from review where lecture_id = #{id} group by rating order by rating DESC
+    </select>
 </mapper>
