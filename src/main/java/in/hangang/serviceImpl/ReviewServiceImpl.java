@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 @Service
@@ -143,5 +144,14 @@ public class ReviewServiceImpl implements ReviewService {
         String professor = lectureMapper.getProfessorById(id);
 
         return lectureMapper.getSemesterDateByNameAndProfessor(name, professor);
+    }
+
+    @Override
+    public ArrayList<HashMap<String, String>> getClassByLectureId(Long id) throws Exception {
+        //해당 강의가 존재하는지 확인.
+        if(lectureMapper.checkLectureExists(id)==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        return reviewMapper.getClassByLectureId(id);
     }
 }

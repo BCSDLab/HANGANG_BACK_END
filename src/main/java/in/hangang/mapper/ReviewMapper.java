@@ -5,6 +5,8 @@ import in.hangang.domain.Review;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public interface ReviewMapper {
@@ -19,5 +21,6 @@ public interface ReviewMapper {
     void deleteReviewById(Long id);
     void createReviewAssignment(Long review_id, Long assignment_id);
     Long getLectureIdByReviewId(Long lecture_id);
+    ArrayList<HashMap<String, String>> getClassByLectureId(Long lecture_id);
 
 }
