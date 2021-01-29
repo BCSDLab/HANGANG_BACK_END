@@ -20,16 +20,16 @@ public class TotalEvaluationController {
     TotalEvaluationService totalEvaluationService;
 
     @Auth
-    @ApiOperation( value = "강의 종합평가 보기,", notes = "해당 강의의 종합평가를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "강의 종합평가 보기", notes = "해당 강의의 종합평가를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/evaluation/total/{id}", method = RequestMethod.GET)
-    public ResponseEntity getTotalEvaluation(@RequestParam Long id){
+    public ResponseEntity getTotalEvaluation(@RequestParam Long id) throws Exception {
         return new ResponseEntity(totalEvaluationService.getTotalEvaluation(id), HttpStatus.OK);
     }
 
     @Auth
-    @ApiOperation( value = "평점 그래프 보기.", notes = "해당 강의에 등록된 평점의 분포를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "평점 그래프 보기", notes = "해당 강의에 등록된 평점의 분포를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/evaluation/rating{id}", method = RequestMethod.GET)
-    public ResponseEntity getrating(@RequestParam Long id){
+    public ResponseEntity getrating(@RequestParam Long id) throws Exception {
         return new ResponseEntity(totalEvaluationService.getRatingCountByLectureId(id), HttpStatus.OK);
     }
 }

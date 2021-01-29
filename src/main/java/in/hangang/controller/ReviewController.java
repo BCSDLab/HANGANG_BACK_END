@@ -65,6 +65,13 @@ public class ReviewController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    //분반 정보 조회
+    @RequestMapping(value = "/reviews/class/{id}", method = RequestMethod.GET)
+    public ResponseEntity getClassByLectureId(@PathVariable Long id) throws Exception{
+        return new ResponseEntity(reviewService.getClassByLectureId(id), HttpStatus.OK);
+
+    }
+
     @ApiOperation( value = "개설 학기 조회", notes = "강의 id를 통해 해당 강의가 개설 되었던 학기를 조회합니다.")
     @RequestMapping(value = "/semesterdates/{id}", method = RequestMethod.GET)
     public ResponseEntity getSemesterDateByLectureId(@PathVariable Long id) throws Exception{
