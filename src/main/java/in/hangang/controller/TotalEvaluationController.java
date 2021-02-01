@@ -27,8 +27,8 @@ public class TotalEvaluationController {
     }
 
     @Auth
-    @ApiOperation( value = "평점 그래프 보기", notes = "해당 강의에 등록된 평점의 분포를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/evaluation/rating{id}", method = RequestMethod.GET)
+    @ApiOperation( value = "평점 분포 보기", notes = "해당 강의에 등록된 평점의 분포를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/evaluation/rating/{id}", method = RequestMethod.GET)
     public ResponseEntity getrating(@RequestParam Long id) throws Exception {
         return new ResponseEntity(totalEvaluationService.getRatingCountByLectureId(id), HttpStatus.OK);
     }
