@@ -69,6 +69,10 @@
         </collection>
     </resultMap>
 
+    <select id="getClassByLectureId" resultType="java.util.HashMap">
+        select id, class, target from lecture_timetable where name = (select name from lecture where id = #{lecture_id}) and professor = (select professor from lecture where id = #{lecture_id}) and semester_date = 5 order by class
+    </select>
+
     <select id="getReviewByUserIdAndLectureId" resultType="Long">
         SELECT id FROM hangang.review WHERE lecture_id = #{lecture_id} AND user_id = #{user_id}
     </select>

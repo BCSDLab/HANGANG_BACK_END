@@ -65,7 +65,17 @@ public class ReviewController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @ApiOperation( value = "개설 학기 조회", notes = "강의 id를 통해 해당 강의가 개설 되었던 학기를 조회합니다.")
+    //분반 정보 조회
+    @Auth
+    @ApiOperation(value = "분반 확인 기능", notes = "강의 id를 통해 해당 강의의 모든 분반 정보를 조회합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/reviews/class/{id}", method = RequestMethod.GET)
+    public ResponseEntity getClassByLectureId(@PathVariable Long id) throws Exception{
+        return new ResponseEntity(reviewService.getClassByLectureId(id), HttpStatus.OK);
+
+    }
+
+    @Auth
+    @ApiOperation( value = "개설 학기 조회", notes = "강의 id를 통해 해당 강의가 개설 되었던 학기를 조회합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/semesterdates/{id}", method = RequestMethod.GET)
     public ResponseEntity getSemesterDateByLectureId(@PathVariable Long id) throws Exception{
         return new ResponseEntity<ArrayList<String>>(reviewService.getSemesterDateByLectureId(id), HttpStatus.OK);
