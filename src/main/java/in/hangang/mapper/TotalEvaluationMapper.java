@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface TotalEvaluationMapper {
-    float getTotalRating(Long id);
-    //void updateTotalRating();
     Review getTotalEvaluationByLectureId(Long id);
     ArrayList<HashMap<String, String>> getRatingCountByLectureId(Long id);
 }

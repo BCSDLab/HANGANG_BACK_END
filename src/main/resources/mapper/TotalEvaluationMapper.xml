@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TotalEvaluationMapper">
-    <select id="getTotalRating" resultType="float">
-        SELECT rating FROM hangang.total_evaluation WHERE lecture_id = #{id}
-    </select>
-
-    <!--
-    <update id="updateTotalRating">
-        DELETE FROM total_evaluation;
-        INSERT INTO total_evaluation(lecture_id, rating)
-        SELECT lecture_id, ROUND(AVG(rating), 2) FROM hangang.review GROUP BY lecture_id;
-    </update>
-    -->
 
     <select id="getTotalEvaluationByLectureId" resultMap="total_evaluation">
         select lecture_id from review where lecture_id = #{id} group by lecture_id;
@@ -31,19 +20,29 @@
         <collection property="grade_portion" column="{id=lecture_id}"
                     select="getGradePortion">
         </collection>
+        <collection property="rating" column="{id=lecture_id}"
+                    select="getTotalRating">
+        </collection>
     </resultMap>
 
     <select id="getAttendanceFrequency" resultType="Integer">
         select attendance_frequency from review where lecture_id = #{id} group by attendance_frequency order by count(*) DESC LIMIT 1;
     </select>
+
     <select id="getDifficulty" resultType="Integer">
         select difficulty from review where lecture_id = #{id} group by difficulty order by count(*) DESC LIMIT 1;
     </select>
+
     <select id="getAssignmentAmount" resultType="Integer">
         select assignment_amount from review where lecture_id = #{id} group by assignment_amount order by count(*) DESC LIMIT 1;
     </select>
+
     <select id="getGradePortion" resultType="Integer">
         select grade_portion from review where lecture_id = #{id} group by grade_portion order by count(*) DESC LIMIT 1;
+    </select>
+
+    <select id="getTotalRating" resultType="float">
+        SELECT total_rating FROM hangang.lecture WHERE id = #{id};
     </select>
 
     <select id="getRatingCountByLectureId" resultType="java.util.HashMap">
