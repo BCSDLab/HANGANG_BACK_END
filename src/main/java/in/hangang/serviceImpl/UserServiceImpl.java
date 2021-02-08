@@ -65,7 +65,6 @@ public class UserServiceImpl implements UserService {
         // 로그인이 성공한 경우 , access token, refresh token 반환
         else{
             Map<String, String> token = new HashMap<>();
-            /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
             token.put(access_token, jwt.generateToken(dbUser.getId(), dbUser.getNickname(), access_token) );
             token.put(refresh_token, jwt.generateToken(dbUser.getId(),dbUser.getNickname(),refresh_token));
             return token;
