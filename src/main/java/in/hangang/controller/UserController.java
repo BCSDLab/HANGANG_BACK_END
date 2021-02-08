@@ -96,4 +96,11 @@ public class UserController {
         userService.findPassword(user);
         return new ResponseEntity( new BaseResponse("비밀번호 재설정에 성공했습니다.", HttpStatus.OK), HttpStatus.OK);
     }
+
+    @Xss
+    @RequestMapping( value ="/me" , method = RequestMethod.GET)
+    @ApiOperation(value ="유저의 현재정보" , notes = "유재의 현재 정보를 반환한다, 로그인 하지 않은 경우 null을 return한다." ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity getMe() throws Exception{
+        return new ResponseEntity( userService.getLoginUser(), HttpStatus.OK);
+    }
 }
