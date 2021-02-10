@@ -18,8 +18,8 @@ public class AuthNumber {
     @Email( groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "포탈계정은 이메일 형식입니다.")
     @NotNull( groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "포탈계정은 null일 수 없습니다.")
     private String portal_account;
-    // size min은 이상, max는 초과이다.
-    @Size( min=20, max = 21,groups = ValidationGroups.configEmail.class, message = "인증 키 값은 20글자입니다.")
+    // size min은 이상, max는 이하이다..
+    @Size( min=6, max = 6,groups = ValidationGroups.configEmail.class, message = "인증 키 값은 6글자입니다.")
     @NotNull( groups = ValidationGroups.configEmail.class, message = "인증 키 값은 null일 수 없습니다.")
     private String secret;
     @NotNull( groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "flag 값은 필수입니다.")

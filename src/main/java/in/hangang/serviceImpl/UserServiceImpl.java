@@ -191,8 +191,9 @@ public class UserServiceImpl implements UserService {
         //get random string for secret String
         Random rnd = new Random();
         String secret = "";
-        for( int i=0; i<20; i++){
-            secret += String.valueOf((char) ((int) (rnd.nextInt(26)) + 97));
+        for( int i=0; i<6; i++){
+            //secret += String.valueOf((char) ((int) (rnd.nextInt(26)) + 97)); // 6글자의 random string
+            secret  += rnd.nextInt(10);// 글자의 random numbers
         }
         Context context = new Context();
         context.setVariable("secret",secret );
