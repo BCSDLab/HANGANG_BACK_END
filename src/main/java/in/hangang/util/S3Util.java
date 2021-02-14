@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,9 +67,7 @@ public class S3Util {
 
     public org.springframework.core.io.Resource getObject(String path, String savedName) throws IOException {
         S3Object s3Object = amazonS3.getObject(new GetObjectRequest(bucket+"/" + path,savedName));
-        S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
-        byte[] bytes = IOUtils.toByteArray(s3ObjectInputStream);
-        org.springframework.core.io.Resource resource = new ByteArrayResource(bytes);
+        org.springframework.core.io.Resource resource = new InputStreamResource(s3Object.getObjectContent());
         return resource;
     }
 }
