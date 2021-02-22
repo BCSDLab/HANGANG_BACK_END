@@ -65,7 +65,6 @@ public class UserServiceImpl implements UserService {
         // 로그인이 성공한 경우 , access token, refresh token 반환
         else{
             Map<String, String> token = new HashMap<>();
-            /** HAVE TO FIX : 해당 sub를 properties file로 관리하자.**/
             token.put(access_token, jwt.generateToken(dbUser.getId(), dbUser.getNickname(), access_token) );
             token.put(refresh_token, jwt.generateToken(dbUser.getId(),dbUser.getNickname(),refresh_token));
             return token;
@@ -192,8 +191,9 @@ public class UserServiceImpl implements UserService {
         //get random string for secret String
         Random rnd = new Random();
         String secret = "";
-        for( int i=0; i<20; i++){
-            secret += String.valueOf((char) ((int) (rnd.nextInt(26)) + 97));
+        for( int i=0; i<6; i++){
+            //secret += String.valueOf((char) ((int) (rnd.nextInt(26)) + 97)); // 6글자의 random string
+            secret  += rnd.nextInt(10);// 글자의 random numbers
         }
         Context context = new Context();
         context.setVariable("secret",secret );

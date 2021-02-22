@@ -71,7 +71,7 @@ public class UserController {
     @Xss
     @RequestMapping( value ="/email/config", method = RequestMethod.POST)
     @ApiOperation(value ="이메일 인증" , notes = "이메일 인증번호 인증을 위한 api 입니다. flag 0은 회원가입전용, 1은 비밀번호 찾기 전용 입니다. \n 이메일 전송이 선행되어야합니다.")
-    public ResponseEntity configEmail(@Validated(ValidationGroups.configEmail.class)  @RequestBody @ApiParam(examples = @Example(value = {@ExampleProperty(mediaType = "application/json", value = "{'test':'test'}")} )) AuthNumber authNumber)throws Exception{
+    public ResponseEntity configEmail(@Validated(ValidationGroups.configEmail.class)  @RequestBody AuthNumber authNumber )throws Exception{
         boolean result = userService.configEmail(authNumber);
         if (result)
             return new ResponseEntity( new BaseResponse("메일인증에 성공했습니다.", HttpStatus.OK),HttpStatus.OK);
@@ -95,5 +95,12 @@ public class UserController {
     public ResponseEntity passwordFind(@RequestBody User user)throws  Exception{
         userService.findPassword(user);
         return new ResponseEntity( new BaseResponse("비밀번호 재설정에 성공했습니다.", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Xss
+    @RequestMapping( value ="/me" , method = RequestMethod.GET)
+    @ApiOperation(value ="유저의 현재정보" , notes = "유재의 현재 정보를 반환한다, 로그인 하지 않은 경우 null을 return한다." ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity getMe() throws Exception{
+        return new ResponseEntity( userService.getLoginUser(), HttpStatus.OK);
     }
 }
