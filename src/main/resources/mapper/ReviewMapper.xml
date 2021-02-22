@@ -70,7 +70,11 @@
     </resultMap>
 
     <select id="getClassByLectureId" resultType="java.util.HashMap">
-        select id, class, target from lecture_timetable where name = (select name from lecture where id = #{lecture_id}) and professor = (select professor from lecture where id = #{lecture_id}) and semester_date = 5 order by class
+        SELECT id, class, target FROM lecture_timetable
+        WHERE name = (SELECT name FROM lecture WHERE id = #{lecture_id})
+        AND professor = (SELECT professor FROM lecture WHERE id = #{lecture_id})
+        AND semester_date = 5
+        ORDER BY class
     </select>
 
     <select id="getReviewByUserIdAndLectureId" resultType="Long">
@@ -88,6 +92,6 @@
     </insert>
 
     <select id="getLectureIdByReviewId" resultType="Long">
-        select lecture_id FROM hangang.review WHERE id = #{id}
+        SELECT lecture_id FROM hangang.review WHERE id = #{id}
     </select>
 </mapper>
