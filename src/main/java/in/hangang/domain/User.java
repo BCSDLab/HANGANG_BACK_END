@@ -27,6 +27,8 @@ public class User {
     private String password;
     @NotNull(groups = {ValidationGroups.signUp.class} , message = "닉네임은 비워둘 수 없습니다.")
     private String nickname;
+
+    @NotNull(groups = {ValidationGroups.signUp.class} , message = "전공은 비워둘 수 없습니다.")
     private ArrayList<
             @Length(min=4, max=15, groups = {ValidationGroups.signUp.class}, message = "전공은 4글자 이상 15글자 이하입니다.")
             @NotNull(groups = {ValidationGroups.signUp.class}, message = "전공은 비워둘 수 없습니다") String> major;

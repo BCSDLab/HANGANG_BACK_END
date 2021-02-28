@@ -27,7 +27,7 @@ public class S3Util {
     @Value("${s3.custom-domain}")
     private String customDomain;
 
-    public String uploadObject(MultipartFile multipartFile, String uploadPath) throws IOException {
+    public String uploadObject(MultipartFile multipartFile) throws IOException {
         String fileName = multipartFile.getOriginalFilename();
 
         int index = fileName.lastIndexOf(".");
@@ -44,11 +44,11 @@ public class S3Util {
         omd.setContentType(multipartFile.getContentType());
         omd.setContentLength(multipartFile.getSize());
 
-        amazonS3.putObject(new PutObjectRequest(bucket+ uploadPath+date,
+        amazonS3.putObject(new PutObjectRequest(bucket + "/"+ date,
                 savedName, multipartFile.getInputStream(), omd)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        return customDomain + uploadPath + date + "/" + savedName;
+        return customDomain +"/" + date + "/" + savedName;
     }
 
     public void deleteObject(String path,String savedName,boolean isHard) throws AmazonServiceException {

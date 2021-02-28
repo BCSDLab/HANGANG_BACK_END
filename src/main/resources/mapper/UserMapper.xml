@@ -22,10 +22,6 @@
         SELECT nickname FROM hangang.user WHERE nickname = #{nickname}
     </select>
 
-    <select id="getNickNameByUserId" resultType="String">
-        SELECT nickname FROM hangang.user WHERE id = #{id}
-    </select>
-
     <select id="getPasswordFromPortal" resultType="in.hangang.domain.User">
         SELECT password,nickname,id FROM hangang.user WHERE portal_account = #{portal_account}
     </select>
@@ -39,26 +35,34 @@
     </insert>
 
     <select id="getSecret" resultType="in.hangang.domain.AuthNumber">
-        SELECT id,ip, secret,flag, expired_at FROM hangang.auth_number WHERE portal_account = #{portal_account} and flag = #{flag}
+        SELECT id,ip, secret,flag, expired_at FROM hangang.auth_number WHERE portal_account = #{portal_account} and flag = #{flag} and is_deleted = 0
     </select>
     <update id="setIs_authed">
         UPDATE hangang.auth_number   SET is_authed = #{is_authed} WHERE id=#{id} and flag=#{flag}
     </update>
     <select id="getAuthTrue" resultType="in.hangang.domain.AuthNumber">
-        SELECT is_authed FROM hangang.auth_number WHERE is_authed = 1 and portal_account =#{portal_account} and flag=#{flag}
+        SELECT is_authed FROM hangang.auth_number WHERE is_authed = 1 and portal_account =#{portal_account} and flag=#{flag} and is_deleted = 0
     </select>
-
-    <delete id="deleteAllAuthNumber">
-        DELETE FROM hangang.auth_number WHERE portal_account=#{portal_account} and flag = #{flag}
-    </delete>
 
     <update id="findPassword">
         UPDATE hangang.user set password=#{password} WHERE portal_account=#{portal_account}
     </update>
     <select id="getMajor" resultType="String">
         SELECT major FROM hangang.major WHERE user_id = #{id}
-
     </select>
+
+    <select id="authNumberAllSoftDeleteAfterUse" resultType="Integer" >
+        SELECT COUNT(*) FROM hangang.auth_number WHERE portal_account = #{portal_account} and ip = #{ip} and created_at BETWEEN #{start} AND #{end}
+    </select>
+
+    <update id ="expirePastAuthNumber">
+        UPDATE hangang.auth_number SET expired_at = #{expired_at}, is_deleted = 1
+        WHERE portal_account = #{portal_account} and ip = #{ip} and flag=#{flag} and is_deleted = 0
+    </update>
+
+    <update id="authNumberSoftDelete">
+        UPDATE hangang.auth_number SET is_deleted = 1 WHERE id=#{id}
+    </update>
 
     <select id="getMe" resultMap="userAll">
         SELECT
@@ -92,9 +96,11 @@
 		,${alias}is_deleted AS ${prefix}is_deleted
         ,${alias}created_at AS ${prefix}created_at
         ,${alias}updated_at AS ${prefix}updated_at
-
     </sql>
 
+    <update id="setProfile">
+        UPDATE hangang.user SET profile_image_url = #{url} WHERE id = #{id} and is_deleted=0
+    </update>
 
 
 </mapper>
