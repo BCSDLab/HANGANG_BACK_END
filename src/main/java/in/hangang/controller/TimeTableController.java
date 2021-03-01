@@ -32,20 +32,22 @@ public class TimeTableController {
     @RequestMapping(value = "/timetable", method = RequestMethod.POST)
     public ResponseEntity creatTable(@Validated(ValidationGroups.createUserTimetable.class)
                                          @RequestBody UserTimetable userTimetable) throws Exception{
-        return new ResponseEntity(timetableService.createTimetable(userTimetable), HttpStatus.OK);
+        timetableService.createTimetable(userTimetable);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @Auth
-    @ApiOperation( value = "시간표 삭", notes = "자신의 시간표를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "시간표 삭제", notes = "자신의 시간표를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable", method = RequestMethod.DELETE)
     public ResponseEntity deleteTimeTable(Long timeTableId) throws Exception{
         timetableService.deleteTimetable(timeTableId);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/timetable/{timeTableId}/lecture/{lectureId}", method = RequestMethod.POST)
-    public ResponseEntity createLectureOnTable (@PathVariable Long timeTableId, @PathVariable Long lectureId) throws Exception{
-        return new ResponseEntity(timetableService.createLectureOnTimeTable(timeTableId, lectureId), HttpStatus.OK);
+    @RequestMapping(value = "/timetable/lecture", method = RequestMethod.POST)
+    public ResponseEntity createLectureOnTable (@RequestBody TimeTable timeTable) throws Exception{
+        timetableService.createLectureOnTimeTable(timeTable);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 }

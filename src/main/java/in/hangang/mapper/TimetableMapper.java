@@ -8,8 +8,12 @@ public interface TimetableMapper {
     ArrayList<UserTimetable> getTableListByUserId(Long user_id);
     void createTimetable(Long user_id, Long semester_date_id, String name);
     void deleteTimetable(Long timeTableId);
-    String getClassTime(Long lectureId);
+    void createLectureOnTimeTable(Long timeTableId, Long lectureId);
+    ArrayList<String> getClassTimeByLectureId(Long lectureId);
+    Long isAlreadyExists(Long timeTableId, Long lectureId);
+    Long isExists(Long lectureId);
     Long getUserIdByTimeTableId(Long timeTableId);
     String getNameByTimeTableId(Long timeTableId);
-    ArrayList<String> getClassTimeList(Long timeTableId);
+    ArrayList<String> getClassTimeByTimeTable(Long timeTableId);
+    Long getSemesterDateId(Long semesterDateId);
 }

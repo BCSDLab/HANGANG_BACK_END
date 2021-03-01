@@ -1,14 +1,20 @@
 package in.hangang.domain;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.sql.Time;
 import java.sql.Timestamp;
 
 public class TimeTable {
+    @ApiModelProperty(hidden = true)
     private Long id;
     private Long user_timetable_id;
     private Long lecture_id;
+    @ApiModelProperty(hidden = true)
     private boolean is_deleted;
+    @ApiModelProperty(hidden = true)
     private Timestamp created_at;
+    @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
 
     public Long getId() {
