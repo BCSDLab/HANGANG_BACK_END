@@ -26,13 +26,22 @@ public class AuthNumber {
     @Min( value = 0,groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "이메일 인증의 flag는 0 보다 작을 수 없습니다.")
     @Max(value = 1,groups = { ValidationGroups.configEmail.class,  ValidationGroups.sendEmail.class}, message = "이메일 인증의 flag는 1 보다 클 수 없습니다.")
     private Integer flag;
-
+    @ApiModelProperty(hidden = true)
+    private boolean is_deleted;
     @ApiModelProperty(hidden = true)
     private boolean is_authed;
     @ApiModelProperty(hidden = true)
     private Timestamp expired_at;
     @ApiModelProperty(hidden = true)
     private Timestamp created_at;
+
+    public boolean isIs_deleted() {
+        return is_deleted;
+    }
+
+    public void setIs_deleted(boolean is_deleted) {
+        this.is_deleted = is_deleted;
+    }
 
     public Integer getFlag() {
         return flag;

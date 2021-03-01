@@ -11,6 +11,7 @@ import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.UserMapper;
 import in.hangang.service.UserService;
 import in.hangang.util.Jwt;
+import in.hangang.util.S3Util;
 import in.hangang.util.SesSender;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
@@ -43,6 +45,9 @@ public class UserServiceImpl implements UserService {
     private SesSender sesSender;
     @Resource
     private SpringTemplateEngine springTemplateEngine;
+    @Resource
+    private S3Util s3Util;
+
     @Value("${token.access}")
     private String access_token;
 
@@ -120,6 +125,16 @@ public class UserServiceImpl implements UserService {
         user.setPassword( BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()) );
         userMapper.signUp(user); // 회원가입
 
+        // 회원가입 완료 시  phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴
+        AuthNumber authNumber = new AuthNumber();
+        authNumber.setIp(this.getClientIp());
+        authNumber.setPortal_account(user.getPortal_account());
+        authNumber.setFlag(0); // 회원가입 인증
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_YEAR, -1); // 현재시간 빼기 하루
+        authNumber.setExpired_at(new Timestamp(calendar.getTimeInMillis()));
+        userMapper.expirePastAuthNumber(authNumber);
 
         //회원가입후 user의 가입된 id를 구함
         Long user_id = userMapper.getUserIdFromPortal(user.getPortal_account());
@@ -131,17 +146,11 @@ public class UserServiceImpl implements UserService {
 
         // user salt = timestamp + user_id + BCrypt
         // salt 삽입
-        Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         String salt = user_id.toString() + calendar.getTime();
         salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
         userMapper.setSalt(salt,user_id);
 
-        // 인증 테이블에 해당 portal 계정 모두 삭제
-        AuthNumber authNumber = new AuthNumber();
-        authNumber.setPortal_account(user.getPortal_account());
-        authNumber.setFlag(0);
-        userMapper.deleteAllAuthNumber(authNumber);
     }
 
     public Map<String,Object> refresh()throws Exception{
@@ -184,8 +193,30 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // 포탈계정 기준 재요청이라면 이전 내용 전부 삭제
-        userMapper.deleteAllAuthNumber(authNumber);
+        // 1일 5회 요청제한을 넘겼는지
+        String ip = this.getClientIp();
+        Calendar calendar = Calendar.getInstance(); // 싱글톤 객체라긔
+        calendar.setTime(new Date());
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        calendar.set(year,month,day,0,0 ,0); // 해당 날짜의 00시 00분 00초
+        Timestamp start =  new Timestamp(calendar.getTimeInMillis());
+        calendar.set(year,month,day,23,59 ,59); // 해당 날짜의 23시 59분 59초
+        Timestamp end =  new Timestamp(calendar.getTimeInMillis());
+        Integer count = userMapper.authNumberAllSoftDeleteAfterUse(authNumber.getPortal_account(),ip,start, end);
+        System.out.println(count);
+        if ( count >= 5 ){
+            throw new RequestInputException(ErrorMessage.EMAIL_COUNT_EXCEED_EXCEPTION); // 요청한 날의 요청횟수가 5번을 초과한경우
+        }
+
+        // 재전송의 경우 phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴
+        authNumber.setIp(ip);
+        calendar.setTime(new Date()); // 다시 현재시간
+        calendar.add(Calendar.DAY_OF_YEAR, -1); // 현재시간 빼기 하루
+        authNumber.setExpired_at(new Timestamp(calendar.getTimeInMillis()));
+        userMapper.expirePastAuthNumber(authNumber);
+
 
 
         //get random string for secret String
@@ -202,7 +233,6 @@ public class UserServiceImpl implements UserService {
         //set auth_number to database
         authNumber.setSecret(secret);
 
-        Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MINUTE, 10); // 만료기한 10분
         authNumber.setExpired_at(new Timestamp( (calendar.getTime()).getTime()));
@@ -243,7 +273,7 @@ public class UserServiceImpl implements UserService {
                throw new RequestInputException(ErrorMessage.NO_USER_EXCEPTION);
            }
        }
-        //portal account, flag 값으로 select 해옴
+        //portal account, flag, is_deleted = 0 값으로 select 해옴
         ArrayList<AuthNumber> list = userMapper.getSecret(authNumber);
 
         //메일로 보낸적 없다면 email인증을 신청하라고 알림
@@ -260,8 +290,8 @@ public class UserServiceImpl implements UserService {
                 break;
             }
         }
-        // ip가 다른경우도 처리해야함, 현재는 공통으로 처리 수정 필요
 
+        // ip가 다른경우도 따로 처리해야함, 현재는 공통으로 invalid 처리
         // portal으로 가져왔으나 secret 값이 다르다면 인증번호를 확인하라는 알림
         if ( dbAuthNumber == null){
             throw new RequestInputException(ErrorMessage.EMAIL_SECRET_INVALID_EXCEPTION);
@@ -273,6 +303,7 @@ public class UserServiceImpl implements UserService {
         System.out.println(exp );
         System.out.println(now );
         if( exp.getTime() < now.getTime()) {
+            userMapper.authNumberSoftDelete(dbAuthNumber.getId()); // 만료시 soft delete
             throw new RequestInputException(ErrorMessage.EMAIL_EXPIRED_AUTH_EXCEPTION);
         }
         // 만료되지않았고 / secret 같고 // portal 같고 / ip 같다면 ==> is_authed = 1
@@ -327,11 +358,16 @@ public class UserServiceImpl implements UserService {
         // 비밀번호 암호화
         user.setPassword( BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()) );
 
-        // 인증 테이블에 해당 portal 계정 모두 삭제
+        // 비밀번호 찾기 완료 시  phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴
         AuthNumber authNumber = new AuthNumber();
+        authNumber.setIp(this.getClientIp());
         authNumber.setPortal_account(user.getPortal_account());
-        authNumber.setFlag(1);
-        userMapper.deleteAllAuthNumber(authNumber);
+        authNumber.setFlag(1); // 비밀번호 찾기 인증
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_YEAR, -1); // 현재시간 빼기 하루
+        authNumber.setExpired_at(new Timestamp(calendar.getTimeInMillis()));
+        userMapper.expirePastAuthNumber(authNumber);
 
         userMapper.findPassword(user);
     }
@@ -354,5 +390,27 @@ public class UserServiceImpl implements UserService {
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
         }
+    }
+
+    @Override
+    public String setProfile(MultipartFile multipartFile) throws Exception{
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String token = request.getHeader(accessTokenName);
+        if ( token == null){
+            return "로그인을 해주세요";
+        }
+        else {
+            // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
+            if ( jwt.isValid(token,0) ==0 ) {
+                Map<String, Object> payloads = jwt.validateFormat(token, 0);
+                Long id = Long.valueOf(String.valueOf(payloads.get("id")));
+                String url = s3Util.uploadObject(multipartFile);
+                userMapper.setProfile(id, url);
+            }
+            else{
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+            }
+        }
+        return "프로필 사진이 설정되었습니다";
     }
 }

@@ -3,6 +3,8 @@ package in.hangang.service;
 
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.User;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Map;
 
 public interface UserService {
@@ -14,4 +16,5 @@ public interface UserService {
     boolean checkNickname(String nickname);
     void findPassword(User user)throws  Exception;
     User getLoginUser() throws Exception;
+    String setProfile(MultipartFile multipartFile) throws Exception;
 }

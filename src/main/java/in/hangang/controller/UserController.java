@@ -5,15 +5,14 @@ import in.hangang.annotation.ValidationGroups;
 import in.hangang.annotation.Xss;
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.User;
-import in.hangang.mapper.UserMapper;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.UserService;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -22,6 +21,7 @@ import javax.validation.constraints.NotNull;
 @RequestMapping("/user")
 @RestController
 public class UserController {
+
 
     @Resource
     private UserService userService;
@@ -102,5 +102,11 @@ public class UserController {
     @ApiOperation(value ="유저의 현재정보" , notes = "유재의 현재 정보를 반환한다, 로그인 하지 않은 경우 null을 return한다." ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity getMe() throws Exception{
         return new ResponseEntity( userService.getLoginUser(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/profile")
+    @ApiOperation(value ="프로필 사진 설정" , notes = "프로필 사진을 설정합니다")
+    public ResponseEntity setProfile(@RequestBody MultipartFile multiPartFile) throws Exception{
+        return new ResponseEntity( new BaseResponse(userService.setProfile(multiPartFile), HttpStatus.OK), HttpStatus.OK);
     }
 }

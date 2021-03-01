@@ -20,11 +20,11 @@ public enum ErrorMessage {
 	NO_USER_EXCEPTION(15, "가입되지 않은 계정입니다.",HttpStatus.BAD_REQUEST),
 	VALIDATION_FAIL_EXCEPTION(16, "입력값의 조건이 올바르지 않습니다", HttpStatus.BAD_REQUEST),
 	INVALID_RECOMMENDATION(17, "추천은 1회만 가능합니다.", HttpStatus.BAD_REQUEST),
-	INVALID_ACCESS_EXCEPTION(18, "존재하지 않는 정보이거나 잘못된 접근입니다.", HttpStatus.BAD_REQUEST),
+	INVALID_ACCESS_EXCEPTION(18, "존재하지 않는 게시글이거나 잘못된 접근입니다.", HttpStatus.BAD_REQUEST),
 	INVALID_USER_EXCEPTION(19, "회원 정보가 존재하지 않습니다", HttpStatus.BAD_REQUEST),
 	INVALID_SEMESTER_DATE_EXCEPTION(20, "잘못된 수강 학기입니다.", HttpStatus.BAD_REQUEST),
 	PROHIBITED_ATTEMPT(21, "수강 후기는 한 과목에 하나만 작성 가능합니다.", HttpStatus.BAD_REQUEST),
-	TIME_LIST_CONFLICT(22, "기존 강의와 시간이 중복됩니다.", HttpStatus.BAD_REQUEST);
+	EMAIL_COUNT_EXCEED_EXCEPTION(22, "이메일 인증은 하루에 5회만 가능합니다.", HttpStatus.BAD_REQUEST);
 
 
 
