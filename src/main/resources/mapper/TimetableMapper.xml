@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.TimetableMapper">
+    <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimetable">
+        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{user_id} AND is_deleted = 0;
+    </select>
+
+    <select id="getClassTimeByLectureId" resultType="String">
+        SELECT class_time FROM hangang.lecture_timetable WHERE id = #{lectureId};
+    </select>
+
+    <select id="getClassTimeByTimeTable" resultType="String">
+        SELECT class_time FROM hangang.lecture_timetable
+        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId});
+    </select>
+
+    <select id="getUserIdByTimeTableId" resultType="Long">
+        SELECT user_id FROM user_timetables WHERE id = #{timeTableId} AND is_deleted=0;
+    </select>
+
+    <select id="getNameByTimeTableId" resultType="String">
+        SELECT name FROM user_timetables WHERE id = #{timeTableId} AND is_deleted=0;
+    </select>
+
+    <select id="getLectureListByTimeTableId" resultType="in.hangang.domain.LectureTimeTable">
+        SELECT * FROM hangang.lecture_timetable
+        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId});
+    </select>
+
+    <select id="isAlreadyExists" resultType="Long">
+        SELECT id FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0
+    </select>
+
+    <select id="isExists" resultType="Long">
+        SELECT id FROM hangang.lecture_timetable WHERE id = #{lectureId}
+    </select>
+
+    <insert id="createLectureOnTimeTable">
+        INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId})
+    </insert>
+
+    <insert id="createTimetable">
+        INSERT INTO hangang.user_timetables(user_id, semester_date_id, name) VALUES(#{user_id}, #{semester_date_id}, #{name});
+    </insert>
+
+    <update id="deleteTimetable">
+        UPDATE user_timetables SET is_deleted = 1 WHERE id = #{timeTableId};
+    </update>
+
+    <select id="getSemesterDateId" resultType="Long">
+        SELECT id FROM semester_date WHERE id = #{semesterDateId}
+    </select>
+
+    <delete id="deleteLectureOnTimeTable">
+        DELETE FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
+    </delete>
+
+    <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
+        <result column="id" property="name"/>
+        <result column="semester_date" property="semester_date"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="classification" property="classification"/>
+        <result column="grades" property="grades"/>
+        <result column="class" property="class_time"/>
+        <result column="regular_number" property="regular_number"/>
+        <result column="department" property="department"/>
+        <result column="target" property="target"/>
+        <result column="professor" property="professor"/>
+        <result column="is_english" property="is_english"/>
+        <result column="design_score" property="design_score"/>
+        <result column="is_elearning" property="is_elearning"/>
+        <result column="class_time" property="class_time"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+    </resultMap>
+</mapper>
