@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,7 @@ public class S3Util {
     @Value("${s3.custom-domain}")
     private String customDomain;
 
-    public String uploadObject(MultipartFile multipartFile, String uploadPath) throws IOException {
+    public String uploadObject(MultipartFile multipartFile) throws IOException {
         String fileName = multipartFile.getOriginalFilename();
 
         int index = fileName.lastIndexOf(".");
@@ -43,11 +44,11 @@ public class S3Util {
         omd.setContentType(multipartFile.getContentType());
         omd.setContentLength(multipartFile.getSize());
 
-        amazonS3.putObject(new PutObjectRequest(bucket+ uploadPath+date,
+        amazonS3.putObject(new PutObjectRequest(bucket + "/"+ date,
                 savedName, multipartFile.getInputStream(), omd)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        return customDomain + uploadPath + date + "/" + savedName;
+        return customDomain +"/" + date + "/" + savedName;
     }
 
     public void deleteObject(String path,String savedName,boolean isHard) throws AmazonServiceException {
@@ -66,9 +67,7 @@ public class S3Util {
 
     public org.springframework.core.io.Resource getObject(String path, String savedName) throws IOException {
         S3Object s3Object = amazonS3.getObject(new GetObjectRequest(bucket+"/" + path,savedName));
-        S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
-        byte[] bytes = IOUtils.toByteArray(s3ObjectInputStream);
-        org.springframework.core.io.Resource resource = new ByteArrayResource(bytes);
+        org.springframework.core.io.Resource resource = new InputStreamResource(s3Object.getObjectContent());
         return resource;
     }
 }

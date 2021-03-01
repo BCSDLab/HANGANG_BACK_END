@@ -19,10 +19,9 @@ import javax.sql.DataSource;
 public class DatabaseConfig {
 
 	public class DatabaseConfiguration {
-		@Bean
-		public DataSourceTransactionManager mybatisTransactionManager(DataSource dataSource) {
-			return new DataSourceTransactionManager(dataSource);
-		}
+	@Bean
+	public DataSourceTransactionManager mybatisTransactionManager(DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
 	}
-
+}
 }

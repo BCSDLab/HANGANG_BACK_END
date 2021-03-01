@@ -32,7 +32,7 @@ public class S3SampleController {
     public @ResponseBody
     ResponseEntity uploadFile(@ApiParam(required = true) @RequestBody MultipartFile file) throws Exception {
 
-        return new ResponseEntity<String>(s3Util.uploadObject(file, "/test/"), HttpStatus.CREATED);
+        return new ResponseEntity<String>(s3Util.uploadObject(file), HttpStatus.CREATED);
     }
 
 
@@ -54,7 +54,7 @@ public class S3SampleController {
             contentType = "application/octet-stream";
         }
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + savedName)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + savedName +"\"")
                 .body(resource);
     }
 
@@ -82,7 +82,7 @@ public class S3SampleController {
 
 //        System.out.println(new ObjectMapper().writeValueAsString(files));
         for(MultipartFile file : files){
-            result.add(s3Util.uploadObject(file,"/test/"));
+            result.add(s3Util.uploadObject(file));
         }
         return new ResponseEntity<List<String>>(result, HttpStatus.CREATED);
     }

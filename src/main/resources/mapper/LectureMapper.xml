@@ -147,6 +147,7 @@
         SELECT semester FROM hangang.semester_date
         WHERE id IN(SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)
     </select>
+
     <sql id="lecture-list">
         ${alias}id AS ${prefix}id
 		,${alias}name AS ${prefix}name

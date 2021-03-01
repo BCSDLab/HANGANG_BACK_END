@@ -5,12 +5,13 @@
         SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{user_id} AND is_deleted = 0;
     </select>
 
-    <select id="getClassTime" resultType="String">
+    <select id="getClassTimeByLectureId" resultType="String">
         SELECT class_time FROM hangang.lecture_timetable WHERE id = #{lectureId};
     </select>
 
-    <select id="getClassTimeList" resultType="String">
-        SELECT class_time FROM lecture_timetable WHERE id = ANY(select lecture_id from timetables where user_timetable_id = 1);
+    <select id="getClassTimeByTimeTable" resultType="String">
+        SELECT class_time FROM hangang.lecture_timetable
+        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId});
     </select>
 
     <select id="getUserIdByTimeTableId" resultType="Long">
@@ -21,6 +22,18 @@
         SELECT name FROM user_timetables WHERE id = #{timeTableId} AND is_deleted=0;
     </select>
 
+    <select id="isAlreadyExists" resultType="Long">
+        SELECT id FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0
+    </select>
+
+    <select id="isExists" resultType="Long">
+        SELECT id FROM hangang.lecture_timetable WHERE id = #{lectureId}
+    </select>
+
+    <insert id="createLectureOnTimeTable">
+        INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId})
+    </insert>
+
     <insert id="createTimetable">
         INSERT INTO hangang.user_timetables(user_id, semester_date_id, name) VALUES(#{user_id}, #{semester_date_id}, #{name});
     </insert>
@@ -28,4 +41,8 @@
     <update id="deleteTimetable">
         UPDATE user_timetables SET is_deleted = 1 WHERE id = #{timeTableId};
     </update>
+
+    <select id="getSemesterDateId" resultType="Long">
+        SELECT id FROM semester_date WHERE id = #{semesterDateId}
+    </select>
 </mapper>
