@@ -62,7 +62,7 @@ public class TimeTableController {
     }
 
     @Auth
-    @ApiOperation( value = "강의 삭", notes = "시간표에 등록된 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "강의 삭제", notes = "시간표에 등록된 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture", method = RequestMethod.DELETE)
     public ResponseEntity deleteLectureOnTimeTable(@RequestBody TimeTable timeTable, @RequestParam Long lectureId) throws Exception{
         timetableService.deleteLectureOnTimeTable(timeTable, lectureId);
