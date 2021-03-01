@@ -42,7 +42,6 @@
 
     <resultMap id="review" type="in.hangang.domain.Review">
         <result column="id" property="id"/>
-
         <result column="lecture_id" property="lecture_id"/>
         <result column="user_id" property="user_id"/>
         <result column="rating" property="rating"/>
@@ -62,12 +61,16 @@
                     select="in.hangang.mapper.HashTagMapper.getHashTagByReviewId">
         </collection>
         <collection property="nickname" javaType="String" column="{id=user_id}"
-                    select="in.hangang.mapper.UserMapper.getNickNameByUserId">
+                    select="getNickNameByUserId">
         </collection>
         <collection property="assignment" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Assignment"
                     select="in.hangang.mapper.ReviewMapper.getAssignmentByReviewId">
         </collection>
     </resultMap>
+
+    <select id="getNickNameByUserId" resultType="String">
+        SELECT nickname FROM hangang.user WHERE id = #{id}
+    </select>
 
     <select id="getClassByLectureId" resultType="java.util.HashMap">
         SELECT id, class, target FROM lecture_timetable

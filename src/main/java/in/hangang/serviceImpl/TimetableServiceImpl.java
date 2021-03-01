@@ -1,6 +1,5 @@
 package in.hangang.serviceImpl;
-
-import in.hangang.domain.Lecture;
+import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.TimeTable;
 import in.hangang.domain.User;
 import in.hangang.domain.UserTimetable;
@@ -12,7 +11,6 @@ import in.hangang.service.UserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.sql.Time;
 import java.util.ArrayList;
 
 @Service
@@ -59,7 +57,6 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.deleteTimetable(timeTableId);
     }
 
-    //TODO : 강의 시간이 겹치는 것을 어떻게 처리할지
     @Override
     public void createLectureOnTimeTable(TimeTable timeTable) throws Exception {
         Long lectureId = timeTable.getLecture_id();
@@ -72,6 +69,8 @@ public class TimetableServiceImpl implements TimetableService {
         if(timetableMapper.isAlreadyExists(timeTableId, lectureId)!=null)
             throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
 
+        //TODO : 해당 시간표가 존재하는지 확인
+
         //기존 시간표 시간 정보, 새로 넣을 강의의 시간 정보 가져오기
         ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
         ArrayList<Integer> timeListByLecture = getClassTimeArrayList(timetableMapper.getClassTimeByLectureId(lectureId));
@@ -81,6 +80,16 @@ public class TimetableServiceImpl implements TimetableService {
                 throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
         }
         timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
+    }
+
+    @Override
+    public void deleteLectureOnTimeTable(TimeTable timeTable, Long lectureId) throws Exception {
+        timetableMapper.deleteLectureOnTimeTable(timeTable.getUser_timetable_id(), lectureId);
+    }
+
+    @Override
+    public ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception {
+        return timetableMapper.getLectureListByTimeTableId(timeTableId);
     }
 
     public ArrayList<Integer> getClassTimeArrayList(ArrayList<String> classTimeList){
