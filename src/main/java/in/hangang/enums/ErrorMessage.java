@@ -24,7 +24,8 @@ public enum ErrorMessage {
 	INVALID_USER_EXCEPTION(19, "회원 정보가 존재하지 않습니다", HttpStatus.BAD_REQUEST),
 	INVALID_SEMESTER_DATE_EXCEPTION(20, "잘못된 수강 학기입니다.", HttpStatus.BAD_REQUEST),
 	PROHIBITED_ATTEMPT(21, "수강 후기는 한 과목에 하나만 작성 가능합니다.", HttpStatus.BAD_REQUEST),
-	EMAIL_COUNT_EXCEED_EXCEPTION(22, "이메일 인증은 하루에 5회만 가능합니다.", HttpStatus.BAD_REQUEST);
+	EMAIL_COUNT_EXCEED_EXCEPTION(22, "이메일 인증은 하루에 5회만 가능합니다.", HttpStatus.BAD_REQUEST),
+	TIME_LIST_CONFLICT(23, "기존 강의 시간과 중복됩니다.", HttpStatus.BAD_REQUEST);
 
 
 
