@@ -2,11 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TimetableMapper">
     <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimetable">
-        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{user_id} AND is_deleted = 0;
+        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0;
     </select>
 
     <select id="getClassTimeByLectureId" resultType="String">
         SELECT class_time FROM hangang.lecture_timetable WHERE id = #{lectureId};
+    </select>
+
+    <select id="getSemesterDateByLectureId" resultType="Long">
+        SELECT semester_date FROM hangang.lecture_timetable WHERE id = #{lectureId};
+    </select>
+
+    <select id="getSemesterDateByTimeTableId" resultType="Long">
+        SELECT semester_date_id FROM hangang.user_timetables WHERE id =  #{timeTableId}
     </select>
 
     <select id="getClassTimeByTimeTable" resultType="String">
@@ -22,7 +30,7 @@
         SELECT name FROM user_timetables WHERE id = #{timeTableId} AND is_deleted=0;
     </select>
 
-    <select id="getLectureListByTimeTableId" resultType="in.hangang.domain.LectureTimeTable">
+    <select id="getLectureListByTimeTableId" resultMap="lectureTimeTableList">
         SELECT * FROM hangang.lecture_timetable
         WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId});
     </select>
@@ -51,18 +59,18 @@
         SELECT id FROM semester_date WHERE id = #{semesterDateId}
     </select>
 
-    <delete id="deleteLectureOnTimeTable">
-        DELETE FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
-    </delete>
+    <update id="deleteLectureOnTimeTable">
+        UPDATE hangang.timetables SET is_deleted = 1 WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
+    </update>
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
-        <result column="id" property="name"/>
+        <result column="id" property="id"/>
         <result column="semester_date" property="semester_date"/>
         <result column="code" property="code"/>
         <result column="name" property="name"/>
         <result column="classification" property="classification"/>
         <result column="grades" property="grades"/>
-        <result column="class" property="class_time"/>
+        <result column="class" property="classNumber"/>
         <result column="regular_number" property="regular_number"/>
         <result column="department" property="department"/>
         <result column="target" property="target"/>

@@ -19,10 +19,10 @@ public class HashTagController {
     HashTagService hashTagService;
 
     @ApiOperation( value = "해시태그 순위 갱신", notes = "Top3 해시태그를 수동으로 갱신합니다. (강의에 노출되는 Top3 해시태그는 10분마다 자동으 갱신됩니다.)")
-    @RequestMapping(value = "/Top3HashTag", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/hashtag", method = RequestMethod.PATCH)
     public @ResponseBody
-    ResponseEntity updateTop3HashTag() throws Exception{
+    ResponseEntity<String> updateTop3HashTag() throws Exception{
         hashTagService.updateTop3HashTag();
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<String>("refresh completed", HttpStatus.OK);
     }
 }

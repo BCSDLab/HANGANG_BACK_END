@@ -5,10 +5,10 @@ import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.TimeTable;
 import in.hangang.domain.UserTimetable;
+import in.hangang.response.BaseResponse;
 import in.hangang.service.TimetableService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import io.swagger.models.auth.In;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -35,15 +35,15 @@ public class TimeTableController {
     public ResponseEntity creatTable(@Validated(ValidationGroups.createUserTimetable.class)
                                          @RequestBody UserTimetable userTimetable) throws Exception{
         timetableService.createTimetable(userTimetable);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity( new BaseResponse("시간표가 생성되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
     @Auth
     @ApiOperation( value = "시간표 삭제", notes = "자신의 시간표를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable", method = RequestMethod.DELETE)
-    public ResponseEntity deleteTimeTable(Long timeTableId) throws Exception{
-        timetableService.deleteTimetable(timeTableId);
-        return new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity deleteTimeTable(@RequestBody TimeTable timeTable) throws Exception{
+        timetableService.deleteTimetable(timeTable);
+        return new ResponseEntity( new BaseResponse("시간표가 삭제되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
     @Auth
@@ -58,15 +58,15 @@ public class TimeTableController {
     @RequestMapping(value = "/timetable/lecture", method = RequestMethod.POST)
     public ResponseEntity createLectureOnTable (@RequestBody TimeTable timeTable) throws Exception{
         timetableService.createLectureOnTimeTable(timeTable);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
     }
 
     @Auth
     @ApiOperation( value = "강의 삭제", notes = "시간표에 등록된 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture", method = RequestMethod.DELETE)
-    public ResponseEntity deleteLectureOnTimeTable(@RequestBody TimeTable timeTable, @RequestParam Long lectureId) throws Exception{
-        timetableService.deleteLectureOnTimeTable(timeTable, lectureId);
-        return new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity deleteLectureOnTimeTable(@RequestBody TimeTable timeTable) throws Exception{
+        timetableService.deleteLectureOnTimeTable(timeTable);
+        return new ResponseEntity( new BaseResponse("해당 강의가 삭제되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
 
