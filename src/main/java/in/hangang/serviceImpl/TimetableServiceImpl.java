@@ -52,7 +52,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long timeTableId = timeTable.getUser_timetable_id();
         //id가 비어있다면 에러
         if(timeTableId == null)
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -74,7 +74,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long timeTableId = timeTable.getUser_timetable_id();
         //값이 하나라도 비어있다면 에러
         if(lectureId==null || timeTableId==null)
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
         //해당 강의가 존재하는지 확인
         if(timetableMapper.isExists(lectureId)==null)
@@ -106,7 +106,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long lectureId = timeTable.getLecture_id();
         //값이 하나라도 비어있다면 에러
         if(lectureId==null || timeTableId==null)
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -121,6 +121,20 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception {
+        if(timeTableId==null)
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        //해당 테이블의 유저가 로그인 정보와 일치하는지 확인
+        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(timeTableId)))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        //해당 시간표가 존재하는지 확인
+        if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
         return timetableMapper.getLectureListByTimeTableId(timeTableId);
     }
 
