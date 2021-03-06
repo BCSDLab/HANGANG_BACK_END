@@ -25,33 +25,44 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public ArrayList<UserTimetable> getTableListByUserId() throws Exception {
         User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
+
         return timetableMapper.getTableListByUserId(userId);
     }
 
     @Override
     public void createTimetable(UserTimetable userTimetable) throws Exception {
         User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
+        //입력된 학기가 존재하지 않을 경우 예외 처리
         if(timetableMapper.getSemesterDateId(userTimetable.getSemester_date_id())==null)
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
+
         timetableMapper.createTimetable(userId, userTimetable.getSemester_date_id(), userTimetable.getName());
     }
 
     @Override
-    public void deleteTimetable(Long timeTableId) throws Exception {
+    public void deleteTimetable(TimeTable timeTable) throws Exception {
+        Long timeTableId = timeTable.getUser_timetable_id();
+        //id가 비어있다면 에러
+        if(timeTableId == null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
         User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
-
         //삭제하고자 하는 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         //해당 시간표를 삭제할 권한이 있는지 확인
-       if(timetableMapper.getUserIdByTimeTableId(timeTableId)!=userId)
+       if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         timetableMapper.deleteTimetable(timeTableId);
@@ -61,6 +72,9 @@ public class TimetableServiceImpl implements TimetableService {
     public void createLectureOnTimeTable(TimeTable timeTable) throws Exception {
         Long lectureId = timeTable.getLecture_id();
         Long timeTableId = timeTable.getUser_timetable_id();
+        //값이 하나라도 비어있다면 에러
+        if(lectureId==null || timeTableId==null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
 
         //해당 강의가 존재하는지 확인
         if(timetableMapper.isExists(lectureId)==null)
@@ -68,8 +82,12 @@ public class TimetableServiceImpl implements TimetableService {
         //해당 강의가 이미 있는지 확인
         if(timetableMapper.isAlreadyExists(timeTableId, lectureId)!=null)
             throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
-
-        //TODO : 해당 시간표가 존재하는지 확인
+        //해당 시간표가 존재하는지 확인
+        if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        //시간표의 학기 정보와 강의의 학기 정보가 일치하는지 확인
+        if(!timetableMapper.getSemesterDateByLectureId(lectureId).equals(timetableMapper.getSemesterDateByTimeTableId(timeTableId)))
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
 
         //기존 시간표 시간 정보, 새로 넣을 강의의 시간 정보 가져오기
         ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
@@ -83,8 +101,22 @@ public class TimetableServiceImpl implements TimetableService {
     }
 
     @Override
-    public void deleteLectureOnTimeTable(TimeTable timeTable, Long lectureId) throws Exception {
-        timetableMapper.deleteLectureOnTimeTable(timeTable.getUser_timetable_id(), lectureId);
+    public void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception {
+        Long timeTableId = timeTable.getUser_timetable_id();
+        Long lectureId = timeTable.getLecture_id();
+        //값이 하나라도 비어있다면 에러
+        if(lectureId==null || timeTableId==null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        //해당 테이블의 유저가 로그인 정보와 일치하는지 확인
+        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(timeTableId)))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        timetableMapper.deleteLectureOnTimeTable(timeTableId, lectureId);
     }
 
     @Override
@@ -92,6 +124,8 @@ public class TimetableServiceImpl implements TimetableService {
         return timetableMapper.getLectureListByTimeTableId(timeTableId);
     }
 
+
+    //String으로 처리된 '강의시간' 정보들을 배열로 바꾸어준다
     public ArrayList<Integer> getClassTimeArrayList(ArrayList<String> classTimeList){
         ArrayList<Integer> classTimeArrayList = new ArrayList<Integer>();
         for (String s : classTimeList) {
