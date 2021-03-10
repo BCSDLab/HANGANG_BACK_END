@@ -1,7 +1,6 @@
 package in.hangang.mapper;
 
 import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.Memo;
 import in.hangang.domain.UserTimeTable;
 
 import java.util.ArrayList;
