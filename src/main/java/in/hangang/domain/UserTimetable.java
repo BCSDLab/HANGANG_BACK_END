@@ -18,7 +18,7 @@ public class UserTimetable {
     @NotNull(groups = {ValidationGroups.createUserTimetable.class}, message = "학기 정보를 비워둘 수 없습니다.")
     private Long semester_date_id;
     @NotNull(groups = {ValidationGroups.createUserTimetable.class}, message = "시간표 이름은 비워둘 수 없습니다.")
-    @Length(groups = {ValidationGroups.createUserTimetable.class}, min=1, max =10, message = "시간표 이름은 1글자 이상 10글자 이하입니다.")
+    @Length(groups = {ValidationGroups.createUserTimetable.class}, min=1, max =20, message = "시간표 이름은 1글자 이상 20글자 이하입니다.")
     private String name;
     @ApiModelProperty(hidden = true)
     private boolean is_deleted;
