@@ -3,7 +3,6 @@ package in.hangang.controller;
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.Memo;
 import in.hangang.domain.TimeTable;
 import in.hangang.domain.UserTimeTable;
 import in.hangang.response.BaseResponse;
