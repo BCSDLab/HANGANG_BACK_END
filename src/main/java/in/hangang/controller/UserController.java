@@ -4,8 +4,10 @@ import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.annotation.Xss;
 import in.hangang.domain.AuthNumber;
+import in.hangang.domain.Review;
 import in.hangang.domain.User;
 import in.hangang.response.BaseResponse;
+import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 
 @RequestMapping("/user")
 @RestController
@@ -25,6 +28,9 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private ReviewService reviewService;
 
     // 로그인
     @Xss
@@ -108,5 +114,12 @@ public class UserController {
     @ApiOperation(value ="프로필 사진 설정" , notes = "프로필 사진을 설정합니다")
     public ResponseEntity setProfile(@RequestBody MultipartFile multiPartFile) throws Exception{
         return new ResponseEntity( new BaseResponse(userService.setProfile(multiPartFile), HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "자신이 쓴 강의후기 불러오기",notes = "해당 유저가 작성한 게시글들을 불러옵니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping( value = "/review", method = RequestMethod.GET)
+    public ResponseEntity<ArrayList<Review>> getReview() throws Exception{
+        return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewListByUserId(), HttpStatus.OK);
     }
 }

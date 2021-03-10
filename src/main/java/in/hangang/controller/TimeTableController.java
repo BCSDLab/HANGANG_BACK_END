@@ -25,8 +25,8 @@ public class TimeTableController {
     @Auth
     @ApiOperation( value = "시간표 확인", notes = "해당 유저가 생성한 시간표를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<UserTimetable>> getTableListByUserId() throws Exception{
-        return new ResponseEntity<ArrayList<UserTimetable>>(timetableService.getTableListByUserId(), HttpStatus.OK);
+    public ResponseEntity<ArrayList<UserTimetable>> getTableListByUserId(@RequestParam(required = false) Long semesterDateId) throws Exception{
+        return new ResponseEntity<ArrayList<UserTimetable>>(timetableService.getTableListByUserId(semesterDateId), HttpStatus.OK);
     }
 
     @Auth

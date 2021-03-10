@@ -6,7 +6,7 @@ import in.hangang.domain.UserTimetable;
 import java.util.ArrayList;
 
 public interface TimetableService {
-    ArrayList<UserTimetable> getTableListByUserId() throws Exception;
+    ArrayList<UserTimetable> getTableListByUserId(Long semesterDateId) throws Exception;
     void createTimetable(UserTimetable userTimetable) throws Exception;
     void deleteTimetable(TimeTable timeTable) throws Exception;
     void createLectureOnTimeTable(TimeTable timeTable) throws Exception;

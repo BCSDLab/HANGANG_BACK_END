@@ -53,6 +53,17 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public ArrayList<Review> getReviewListByUserId() throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 있는지 확인.
+        if(user == null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        return reviewMapper.getReviewListByUserId(userId);
+    }
+
+    @Override
     public ArrayList<Review> getReviewByLectureId(Long id, Criteria criteria) throws Exception {
         if(lectureMapper.checkLectureExists(id)==null)
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);

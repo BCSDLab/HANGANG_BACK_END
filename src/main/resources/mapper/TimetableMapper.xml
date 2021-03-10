@@ -2,7 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TimetableMapper">
     <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimetable">
-        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0;
+        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(semesterDateId)">
+                    AND semester_date_id = #{semesterDateId}
+            </when>
+        </choose>
     </select>
 
     <select id="getClassTimeByLectureId" resultType="String">
