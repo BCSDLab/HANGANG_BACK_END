@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TimetableMapper">
-    <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimetable">
-        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0;
+    <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimeTable">
+        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(semesterDateId)">
+                    AND semester_date_id = #{semesterDateId}
+            </when>
+        </choose>
     </select>
 
     <select id="getClassTimeByLectureId" resultType="String">
@@ -32,7 +37,15 @@
 
     <select id="getLectureListByTimeTableId" resultMap="lectureTimeTableList">
         SELECT * FROM hangang.lecture_timetable
-        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId});
+        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
+    </select>
+
+    <select id="getCountSemesterDate" resultType="Long">
+        SELECT count(*) FROM hangang.user_timetables WHERE user_id = #{userId} AND semester_date_id = #{semesterDateId} AND is_deleted = 0
+    </select>
+
+    <select id="getCountTimeTable" resultType="Long">
+        SELECT count(*) FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0
     </select>
 
     <select id="isAlreadyExists" resultType="Long">
@@ -51,8 +64,12 @@
         INSERT INTO hangang.user_timetables(user_id, semester_date_id, name) VALUES(#{user_id}, #{semester_date_id}, #{name});
     </insert>
 
+    <update id="updateTimeTable">
+        UPDATE hangang.user_timetables SET name = #{name}, updated_at = now() WHERE id = #{timeTableId}
+    </update>
+
     <update id="deleteTimetable">
-        UPDATE user_timetables SET is_deleted = 1 WHERE id = #{timeTableId};
+        UPDATE user_timetables SET is_deleted = 1, updated_at = now() WHERE id = #{timeTableId};
     </update>
 
     <select id="getSemesterDateId" resultType="Long">
@@ -60,7 +77,7 @@
     </select>
 
     <update id="deleteLectureOnTimeTable">
-        UPDATE hangang.timetables SET is_deleted = 1 WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
+        UPDATE hangang.timetables SET is_deleted = 1, updated_at = now() WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
     </update>
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">

@@ -14,6 +14,10 @@
         SELECT * FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0 LIMIT #{cursor}, #{limit}
     </select>
 
+    <select id="getReviewListByUserId" resultMap="review">
+        SELECT * FROM hangang.review WHERE user_id = #{userId}
+    </select>
+
     <insert id="createReview" parameterType="in.hangang.domain.Review">
         <selectKey resultType="Long" keyProperty="return_id" order="AFTER">
             SELECT LAST_INSERT_ID()

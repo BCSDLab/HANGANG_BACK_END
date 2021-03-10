@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public interface ReviewService {
     ArrayList<Review> getReviewList(Criteria criteria) throws Exception;
+    ArrayList<Review> getReviewListByUserId() throws Exception;
     Review getReview(Long id) throws Exception;
     ArrayList<Review> getReviewByLectureId(Long id, Criteria criteria) throws Exception;
     void createReview(Review review) throws Exception;

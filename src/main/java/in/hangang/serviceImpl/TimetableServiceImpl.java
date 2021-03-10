@@ -2,7 +2,7 @@ package in.hangang.serviceImpl;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.TimeTable;
 import in.hangang.domain.User;
-import in.hangang.domain.UserTimetable;
+import in.hangang.domain.UserTimeTable;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.TimetableMapper;
@@ -23,18 +23,18 @@ public class TimetableServiceImpl implements TimetableService {
     UserService userService;
 
     @Override
-    public ArrayList<UserTimetable> getTableListByUserId() throws Exception {
+    public ArrayList<UserTimeTable> getTableListByUserId(Long semesterDateId) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        return timetableMapper.getTableListByUserId(userId);
+        return timetableMapper.getTableListByUserId(userId, semesterDateId);
     }
 
     @Override
-    public void createTimetable(UserTimetable userTimetable) throws Exception {
+    public void createTimetable(UserTimeTable userTimetable) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -44,7 +44,32 @@ public class TimetableServiceImpl implements TimetableService {
         if(timetableMapper.getSemesterDateId(userTimetable.getSemester_date_id())==null)
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
+        if(timetableMapper.getCountSemesterDate(userId, userTimetable.getSemester_date_id())>=5 ||
+        timetableMapper.getCountTimeTable(userId)>=50)
+            throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT);
+
         timetableMapper.createTimetable(userId, userTimetable.getSemester_date_id(), userTimetable.getName());
+    }
+
+    @Override
+    public void updateTimeTable(UserTimeTable userTimeTable) throws Exception {
+        Long timeTableId = userTimeTable.getId();
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        //id가 입력되지 않은 경우 예외 처리
+        if(userTimeTable.getId()==null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+        //수정하고자 하는 시간표가 존재하는지 확인
+        if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        //해당 시간표를 수정할 권한이 있는지 확인
+        if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        timetableMapper.updateTimeTable(timeTableId, userTimeTable.getName());
     }
 
     @Override
@@ -52,7 +77,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long timeTableId = timeTable.getUser_timetable_id();
         //id가 비어있다면 에러
         if(timeTableId == null)
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -74,7 +99,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long timeTableId = timeTable.getUser_timetable_id();
         //값이 하나라도 비어있다면 에러
         if(lectureId==null || timeTableId==null)
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
         //해당 강의가 존재하는지 확인
         if(timetableMapper.isExists(lectureId)==null)
@@ -87,7 +112,7 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         //시간표의 학기 정보와 강의의 학기 정보가 일치하는지 확인
         if(!timetableMapper.getSemesterDateByLectureId(lectureId).equals(timetableMapper.getSemesterDateByTimeTableId(timeTableId)))
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.NOT_MATCH_SEMESTER_DATE);
 
         //기존 시간표 시간 정보, 새로 넣을 강의의 시간 정보 가져오기
         ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
@@ -106,7 +131,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long lectureId = timeTable.getLecture_id();
         //값이 하나라도 비어있다면 에러
         if(lectureId==null || timeTableId==null)
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -121,6 +146,20 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception {
+        if(timeTableId==null)
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        //해당 테이블의 유저가 로그인 정보와 일치하는지 확인
+        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(timeTableId)))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        //해당 시간표가 존재하는지 확인
+        if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
         return timetableMapper.getLectureListByTimeTableId(timeTableId);
     }
 
