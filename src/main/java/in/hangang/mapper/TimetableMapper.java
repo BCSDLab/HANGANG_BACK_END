@@ -6,7 +6,7 @@ import in.hangang.domain.UserTimetable;
 import java.util.ArrayList;
 
 public interface TimetableMapper {
-    ArrayList<UserTimetable> getTableListByUserId(Long userId);
+    ArrayList<UserTimetable> getTableListByUserId(Long userId, Long semesterDateId);
     void createTimetable(Long user_id, Long semester_date_id, String name);
     void deleteTimetable(Long timeTableId);
     void createLectureOnTimeTable(Long timeTableId, Long lectureId);

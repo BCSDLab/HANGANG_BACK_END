@@ -23,14 +23,14 @@ public class TimetableServiceImpl implements TimetableService {
     UserService userService;
 
     @Override
-    public ArrayList<UserTimetable> getTableListByUserId() throws Exception {
+    public ArrayList<UserTimetable> getTableListByUserId(Long semesterDateId) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        return timetableMapper.getTableListByUserId(userId);
+        return timetableMapper.getTableListByUserId(userId, semesterDateId);
     }
 
     @Override

@@ -11,6 +11,7 @@ import java.util.Map;
 @Repository
 public interface ReviewMapper {
     ArrayList<Review> getReviewList(int cursor, int limit);
+    ArrayList<Review> getReviewListByUserId(Long userId);
     Long createReview(Review review);
     void updateReviewedAt(Long lecture_id);
     void updateTotalRating(Long lecture_id);
