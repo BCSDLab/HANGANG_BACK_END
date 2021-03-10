@@ -22,7 +22,9 @@ public final class ValidationGroups {
     public interface configEmail extends Default{}
     public interface findPassword extends Default{};
     public interface createReview extends Default{};
-    public interface createUserTimetable extends Default{};
+    public interface createUserTimeTable extends Default{};
+    public interface updateUserTimeTable extends Default{};
+    public interface createMemo extends Default{};
     // Admin groups
     public interface CreateAdmin extends Default {};
     public interface UpdateAdmin extends Default {};
