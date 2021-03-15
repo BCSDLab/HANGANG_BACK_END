@@ -1,6 +1,8 @@
 package in.hangang.util;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.HttpMethod;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -69,5 +72,45 @@ public class S3Util {
         S3Object s3Object = amazonS3.getObject(new GetObjectRequest(bucket+"/" + path,savedName));
         org.springframework.core.io.Resource resource = new InputStreamResource(s3Object.getObjectContent());
         return resource;
+    }
+
+    public URL getPrivateObjectURL(String objectKey) throws IOException{
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 60;    //1 hour
+        expiration.setTime(expTimeMillis);
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                new GeneratePresignedUrlRequest(bucket, objectKey)
+                        .withMethod(HttpMethod.GET)
+                        .withExpiration(expiration);
+
+        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+
+        return url;
+    }
+
+    public String privateUpload(MultipartFile multipartFile) throws IOException {
+        String fileName = multipartFile.getOriginalFilename();
+
+        int index = fileName.lastIndexOf(".");
+        String fileExt = fileName.substring(index+1);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        String date = dateFormat.format(new Date());
+
+        UUID uid = UUID.randomUUID();
+
+        String savedName = uid.toString() + "-" + System.currentTimeMillis() + "." + fileExt;
+
+        ObjectMetadata omd = new ObjectMetadata();
+        omd.setContentType(multipartFile.getContentType());
+        omd.setContentLength(multipartFile.getSize());
+
+        amazonS3.putObject(new PutObjectRequest(bucket + "/"+ date,
+                savedName, multipartFile.getInputStream(), omd)
+                .withCannedAcl(CannedAccessControlList.Private));
+
+        return date + "/" + savedName;
     }
 }

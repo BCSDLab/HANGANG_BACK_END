@@ -2,11 +2,12 @@ package in.hangang.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiParam;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
+@Component
 public class LectureBankCriteria {
     @ApiParam(required = false, defaultValue = "1")
     private Integer page = 1;
