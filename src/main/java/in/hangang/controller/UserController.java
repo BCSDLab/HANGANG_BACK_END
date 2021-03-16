@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 
@@ -53,7 +52,7 @@ public class UserController {
     @Auth
     @ApiOperation( value = "유저 인증 여부 확인",notes = "유저 인증 여부 확인을 위한 test api입니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/auth-test" , method =  RequestMethod.GET)
-    public ResponseEntity test() throws Exception{
+    public ResponseEntity test2() throws Exception{
         return new ResponseEntity( new BaseResponse("테스트 성공했습니다.", HttpStatus.OK),HttpStatus.OK);
     }
 
@@ -122,4 +121,23 @@ public class UserController {
     public ResponseEntity<ArrayList<Review>> getReview() throws Exception{
         return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewListByUserId(), HttpStatus.OK);
     }
+
+    @Auth
+    @ApiOperation( value = "작성한 자료들의 개수",notes = "해당 유저가 자료들의 갯수.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @GetMapping(value = "/lecture")
+    public ResponseEntity getLectureBankCount(){
+        return new ResponseEntity(userService.getLectureBankCount(), HttpStatus.OK);
+    }
+
+    @Auth
+    @GetMapping("/point")
+    @ApiOperation( value = "포인트 이력",notes = "유저의 포인트 이력", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity getUserPointHistory(){
+        return new ResponseEntity(userService.getUserPointHistory(), HttpStatus.OK);
+    }
+
+    //TODO MYpage 자기 개인 정보 바꾸기 api
+    //TODO 회원탈퇴
+    //TODO 스크랩 삭제
+    //TODO 구입한 자료
 }

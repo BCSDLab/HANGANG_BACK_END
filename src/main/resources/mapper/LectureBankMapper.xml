@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.LectureBankMapper">
 
+<!--lecture bank main-->
         <select id="findLectureBankByKeyword" resultMap="searchLectureBank">
             SELECT
             <include refid="lectureBankColumnList">
@@ -20,6 +21,7 @@
             (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
             WHERE
             (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id)
+            and available = 1
             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(category)">
                 and
                 <foreach collection="category" item="category" open="(" close=")"  separator="or">
@@ -39,21 +41,6 @@
             order by #{order} desc limit #{cursor}, #{limit}
         </select>
 
-    <!--    <select id="getLectureBankList" resultType="in.hangang.domain.LectureBank">-->
-    <!--        SELECT-->
-    <!--        <include refid="lectureBankColumnList">-->
-    <!--            <property name="prefix" value=""/>-->
-    <!--            <property name="alias" value="LB."/>-->
-    <!--        </include>-->
-    <!--        FROM lecture_bank LB-->
-    <!--        <if test="!category.get(0).equals('')">-->
-    <!--            WHERE-->
-    <!--            <foreach collection="category" item="category" open="(" close=")"  separator="or">-->
-    <!--                category = #{category}-->
-    <!--            </foreach>-->
-    <!--        </if>-->
-    <!--        order by #{order} desc limit #{cursor}, #{limit}-->
-    <!--    </select>-->
 
         <sql id="lectureBankColumnList">
             ${alias}id AS ${prefix}id,
@@ -102,23 +89,146 @@
         </resultMap>
 
 
-    <!--    <insert id="createLectureBank">-->
-<!--        INSERT INTO lecture_bank (user_id, lecture_id, category, title, content, point_price)-->
-<!--        VALUES(#{user_id}, #{lecture_id}, #{category}, #{title}, #{content}, #{point_price})-->
-<!--    </insert>-->
 
-<!--    <insert id="setUpload_file">-->
-<!--        INSERT INTO upload_file (lecture_bank_id, url)-->
-<!--        VALUES(#{lecture_bank_id}, #{url})-->
-<!--    </insert>-->
         <select id="getCategoryList" resultType="in.hangang.domain.LectureBankCategory">
             select id, lecture_bank_id, category from lecture_bank_category where lecture_bank_id = #{sdf}
         </select>
 
 
+        <select id="getLectureBank" resultType="in.hangang.domain.LectureBank">
+            SELECT * FROM lecture_bank WHERE id = #{id}
+        </select>
+
+    <select id="getLectureInfo" resultMap="lecture">
+        SELECT * FROM lecture WHERE id = #{id};
+    </select>
+
+    <insert id="createLectureBank">
+        INSERT INTO lecture_bank (user_id, lecture_id, title)
+        VALUES(#{user_id}, 0,'');
+    </insert>
+
+    <select id="getLectureBankId" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank
+        where user_id = #{user_id} AND available = 0
+        ORDER BY created_at desc LIMIT 1;
+    </select>
+
+    <update id="setLectureBank">
+        UPDATE lecture_bank SET title = #{title}, content = #{content}, point_price = #{point_price}
+        WHERE id = #{lecture_bank_id};
+    </update>
+    <insert id="addCategory">
+        INSERT INTO lecture_bank_category(lecture_bank_id, category)
+        VALUES (#{lecture_bank_id},#{category});
+    </insert>
+
+    <delete id="deleteCategory">
+        DELETE FROM lecture_bank_category
+        where id = #{id};
+    </delete>
+
+    <delete id="deleteLectureBank">
+        DELETE FROM lecture_bank
+        WHERE id = #{id} AND user_id = #{user_id};
+    </delete>
+
+    <select id="getCategoryIdList" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_category
+        where lecture_bank_id = #{lecture_bank_id};
+    </select>
+
+<!--purchase-->
+
+    <select id="checkPurchased" resultType="Integer">
+        SELECT purchase FROM lecture_bank_purchase WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
+    </select>
+    <insert id="purchaseInsert">
+        INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id, purchased)
+        VALUES (#{user_id}, #{lecture_bank_id}, 1);
+    </insert>
+    <update id="setPoint">
+        update user set point = point + #{point}
+        where user_id = #{user_id};
+    </update>
 
 
+    <!--Hit-->
+    <select id="checkHits" resultType="Integer">
+        SELECT hit_pushed FROM lecture_bank_purchase WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
+    </select>
 
+    <update id="subHit">
+        UPDATE lecture_bank_purchase SET hit_pushed = 0
+        WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
+    </update>
+    <update id="addHit">
+        UPDATE lecture_bank_purchase SET hit_pushed = 1
+        WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
+    </update>
+    <update id="addHit_lecture_bank">
+        UPDATE lecture_bank SET hits = hits + 1 WHERE id = #{lecture_bank_id};
+    </update>
+    <update id="subHit_lecture_bank">
+        UPDATE lecture_bank SET hits = hits - 1 WHERE id = #{lecture_bank_id};
+    </update>
+    <insert id="hitInsert">
+        INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id,hit_pushed)
+        values(#{user_id}, #{lecture_id},1);
+    </insert>
+
+<!--Comment-->
+
+    <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
+        SELECT * FROM lecture_bank_comment WHERE lecture_bank_id = #{lecture_bank_id};
+    </select>
+
+    <insert id="addComment">
+        INSERT INTO lecture_bank_comment(user_id, lecture_bank_id, comments)
+        VALUES (#{user_id}, #{lecture_bank_id}, #{comments});
+    </insert>
+    <update id="setComment">
+        UPDATE lecture_bank_comment SET comments = #{comments}
+        where id = #{id};
+    </update>
+    <delete id="deleteComment">
+        DELETE FROM lecture_bank_comment
+        where id = #{id};
+    </delete>
+
+
+<!--File-->
+
+    <insert id="insertUpload_file">
+        INSERT INTO upload_file(lecture_bank_id, url, filename, ext)
+        VALUES (#{lecture_bank_id}, #{url}, #{filename}, #{ext});
+    </insert>
+
+    <select id="getFileList" resultType="in.hangang.domain.Upload_File">
+        SELECT * FROM upload_file
+        where lecture_bank_id = #{lecture_bank_id};
+    </select>
+    <select id="getUploadFileId" resultType="java.lang.Long">
+        SELECT id FROM upload_file
+        where lecture_bank_id = #{lecture_bank_id}
+        ORDER BY created_at desc LIMIT 1;
+    </select>
+    <select id="getFileIdList" resultType="java.lang.Long">
+        SELECT id FROM upload_file
+        where lecture_bank_id = #{lecture_bank_id};
+    </select>
+    <update id="setFileAvailable">
+        UPDATE upload_file SET available = #{available}
+        WHERE id = #{id};
+    </update>
+    <select id="getUrl" resultType="java.lang.String">
+        SELECT url FROM upload_file
+        WHERE id = #{id};
+    </select>
+    <select id="getFileId" resultType="java.lang.Long">
+        SELECT id FROM upload_file
+        WHERE lecture_bank_id = #{lecture_bank_id};
+    </select>
 
 
 </mapper>

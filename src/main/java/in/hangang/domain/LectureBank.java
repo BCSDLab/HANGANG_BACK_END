@@ -2,14 +2,16 @@ package in.hangang.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-
+@Component
 public class LectureBank {
     private Long id;
+    @ApiModelProperty(hidden = true)
     private Long user_id;
     private Long lecture_id;
     private ArrayList<String> category;
@@ -17,6 +19,8 @@ public class LectureBank {
     private String content;
     private Integer point_price;
 
+    @ApiModelProperty(hidden = true)
+    private Integer available;
     @ApiModelProperty(hidden = true)
     private Long hits;
     @ApiModelProperty(hidden = true)
@@ -73,8 +77,6 @@ public class LectureBank {
         this.user_id = user_id;
     }
 
-
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -112,6 +114,13 @@ public class LectureBank {
         return lecture_id;
     }
 
+    public Integer getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Integer available) {
+        this.available = available;
+    }
 
     public void setLecture_id(Long lecture_id) {
         this.lecture_id = lecture_id;

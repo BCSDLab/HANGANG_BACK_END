@@ -74,6 +74,29 @@
         WHERE id = #{id}
     </select>
 
+    <select id="getLectureBankCount" resultType="Long">
+        SELECT COUNT(*) FROM hangang.lecture_bank WHERE user_id=#{id};
+    </select>
+
+    <select id="getLectureReviewCount" resultType="Long">
+        SELECT COUNT(*) FROM hangang.review WHERE user_id=#{id};
+    </select>
+
+    <select id="getLectureBankCommentCount" resultType="Long">
+        SELECT COUNT(*) FROM hangang.lecture_bank_comment WHERE user_id=#{id};
+    </select>
+
+    <insert id="addPointHistory">
+        INSERT INTO hangang.user_point_history(user_id,variance,point_type_id) VALUES(#{user_id}, #{variance}, #{pointTypeId})
+    </insert>
+
+    <select id="getUserPointHistory" resultType="in.hangang.domain.PointHistory">
+        SELECT up.id, up.user_id, type.title,up.variance, created_at
+        FROM hangang.user_point_history AS up
+        JOIN hangang.point_type AS type
+        ON up.point_type_id = type.id
+        WHERE up.user_id = #{id}
+    </select>
     <resultMap id="userAll" type="in.hangang.domain.User">
         <result column="id" property="id"/>
         <result column="portal_account" property="portal_account"/>
@@ -101,6 +124,5 @@
     <update id="setProfile">
         UPDATE hangang.user SET profile_image_url = #{url} WHERE id = #{id} and is_deleted=0
     </update>
-
 
 </mapper>
