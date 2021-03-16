@@ -3,11 +3,13 @@ package in.hangang.mapper;
 
 import in.hangang.annotation.Auth;
 import in.hangang.domain.AuthNumber;
+import in.hangang.domain.PointHistory;
 import in.hangang.domain.User;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 
 @Repository
@@ -29,4 +31,10 @@ public interface UserMapper {
     void expirePastAuthNumber(AuthNumber authNumber);
     User getMe(Long id);
     void setProfile(Long id, String url);
+    Long getLectureBankCount(Long id);
+    Long getLectureReviewCount(Long id);
+    Long getLectureBankCommentCount(Long id);
+    void addPointHistory(Long user_id, Integer variance, Integer pointTypeId);
+    List<PointHistory> getUserPointHistory(Long id);
+
 }
