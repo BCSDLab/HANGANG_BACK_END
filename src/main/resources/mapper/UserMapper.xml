@@ -9,10 +9,6 @@
     <update id="setSalt">
         UPDATE hangang.user SET salt = #{salt} WHERE id=#{user_id}
     </update>
-    <insert id="setMajor">
-        INSERT INTO hangang.major ( user_id, major)
-        VALUES( #{user_id}, #{major} )
-    </insert>
 
     <select id="getUserIdFromPortal" resultType="Long">
         SELECT id FROM hangang.user WHERE portal_account =#{portal_account}
@@ -124,5 +120,24 @@
     <update id="setProfile">
         UPDATE hangang.user SET profile_image_url = #{url} WHERE id = #{id} and is_deleted=0
     </update>
+
+
+
+    <insert id="insertMajors" >
+        INSERT INTO hangang.major(user_id, major) VALUES
+        <foreach collection="major" item="m" separator=",">
+            (#{id}, #{m})
+        </foreach>
+    </insert>
+
+
+    <insert id="updateUser" >
+        UPDATE hangang.user SET nickname = #{nickname} WHERE id = #{id} and is_deleted=0;
+        DELETE FROM hangang.major WHERE user_id = #{id};
+        INSERT INTO hangang.major(user_id, major) VALUES
+        <foreach collection="major" item="m" separator=",">
+            (#{id}, #{m})
+        </foreach>
+    </insert>
 
 </mapper>

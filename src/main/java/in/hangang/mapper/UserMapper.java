@@ -14,7 +14,6 @@ import java.util.List;
 
 @Repository
 public interface UserMapper {
-    void setMajor(String major,Long user_id);
     void setSalt(String salt,Long user_id);
     void signUp(User user);
     Long getUserIdFromPortal(String portal_account);
@@ -36,5 +35,6 @@ public interface UserMapper {
     Long getLectureBankCommentCount(Long id);
     void addPointHistory(Long user_id, Integer variance, Integer pointTypeId);
     List<PointHistory> getUserPointHistory(Long id);
-
+    void updateUser(Long id, String nickname, List<String> major);
+    void insertMajors(Long id, List<String> major);
 }

@@ -78,24 +78,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void setMajor(String major, Long user_id) throws Exception{
-
-        if (user_id == null){
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
-        }
-
-        boolean check = false;
-        for( Major majors : Major.values()){
-            if ( major.equals(( String.valueOf(majors)) )){
-                check = true;
-            }
-        }
-
-        if (check)
-            userMapper.setMajor(major,user_id);
-        else
-            throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
-    }
 
     public void signUp(User user) throws Exception {
 
@@ -141,10 +123,13 @@ public class UserServiceImpl implements UserService {
         //회원가입후 user의 가입된 id를 구함
         Long user_id = userMapper.getUserIdFromPortal(user.getPortal_account());
 
-         // n개의 전공을 삽입
-        for ( int i=0; i< user.getMajor().size(); i++){
-            setMajor(user.getMajor().get(i), user_id);
+        // 전공값의 내용이 올바르지 않다면
+        for(int i =0; i<user.getMajor().size(); i++){
+            boolean result = this.isMajorValid(user.getMajor().get(i));
+            if ( !result )
+                throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
+        userMapper.insertMajors(user_id,user.getMajor());
 
         // user salt = timestamp + user_id + BCrypt
         // salt 삽입
@@ -440,5 +425,31 @@ public class UserServiceImpl implements UserService {
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
         }
+    }
+    public void updateUser(User user){
+        Long id = this.getLoginUserId();
+
+        // 전공값의 내용이 올바르지 않다면
+        for(int i =0; i<user.getMajor().size(); i++){
+            boolean result = this.isMajorValid(user.getMajor().get(i));
+            if ( !result )
+                throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
+        }
+
+        //updateUser
+        userMapper.updateUser(id,user.getNickname(),user.getMajor());
+
+    }
+    private boolean isMajorValid(String major){
+        boolean check = false;
+        for( Major m : Major.values()){
+            if ( major.equals(( String.valueOf(m)) )){
+                check = true;
+            }
+        }
+        if (check)
+            return true;
+        else
+            return false;
     }
 }

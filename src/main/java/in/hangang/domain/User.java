@@ -7,9 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -25,13 +23,14 @@ public class User {
     private String portal_account;
     @NotNull(groups = {ValidationGroups.logIn.class, ValidationGroups.signUp.class, ValidationGroups.findPassword.class} , message = "패스워드는 비워둘 수 없습니다.")
     private String password;
-    @NotNull(groups = {ValidationGroups.signUp.class} , message = "닉네임은 비워둘 수 없습니다.")
+    @Size(min = 1, max=30 , groups = {ValidationGroups.updateUser.class, ValidationGroups.signUp.class}, message = "닉네임은 1글자이상 30글자 이하입니다.")
+    @NotNull(groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class} , message = "닉네임은 비워둘 수 없습니다.")
     private String nickname;
 
-    @NotNull(groups = {ValidationGroups.signUp.class} , message = "전공은 비워둘 수 없습니다.")
+    @NotNull(groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class} , message = "전공은 비워둘 수 없습니다.")
     private ArrayList<
-            @Length(min=4, max=15, groups = {ValidationGroups.signUp.class}, message = "전공은 4글자 이상 15글자 이하입니다.")
-            @NotNull(groups = {ValidationGroups.signUp.class}, message = "전공은 비워둘 수 없습니다") String> major;
+            @Length(min=4, max=15, groups = {ValidationGroups.signUp.class,ValidationGroups.updateUser.class}, message = "전공은 4글자 이상 15글자 이하입니다.")
+            @NotNull(groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class}, message = "전공은 비워둘 수 없습니다") String> major;
 
     @ApiModelProperty(hidden = true)
     private String salt;

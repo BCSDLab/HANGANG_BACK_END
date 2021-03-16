@@ -25,6 +25,7 @@ public final class ValidationGroups {
     public interface createUserTimeTable extends Default{};
     public interface updateUserTimeTable extends Default{};
     public interface createMemo extends Default{};
+    public interface updateUser extends Default{};
     // Admin groups
     public interface CreateAdmin extends Default {};
     public interface UpdateAdmin extends Default {};

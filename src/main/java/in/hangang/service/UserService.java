@@ -22,4 +22,5 @@ public interface UserService {
     String setProfile(MultipartFile multipartFile) throws Exception;
     Map<String, Long> getLectureBankCount();
     List<PointHistory> getUserPointHistory();
+    void updateUser(User user);
 }
