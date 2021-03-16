@@ -1,5 +1,6 @@
 package in.hangang.service;
 
+import in.hangang.domain.CustomTimeTable;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.TimeTable;
 import in.hangang.domain.UserTimeTable;
@@ -12,6 +13,8 @@ public interface TimetableService {
     void deleteTimetable(TimeTable timeTable) throws Exception;
     void createLectureOnTimeTable(TimeTable timeTable) throws Exception;
     void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception;
+    void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception;
+    void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception;
     ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception;
 
 

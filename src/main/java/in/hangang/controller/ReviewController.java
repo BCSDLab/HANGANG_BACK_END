@@ -4,6 +4,7 @@ import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.criteria.Criteria;
 import in.hangang.domain.Review;
+import in.hangang.response.BaseResponse;
 import in.hangang.service.ReviewService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -81,4 +82,33 @@ public class ReviewController {
         return new ResponseEntity<ArrayList<String>>(reviewService.getSemesterDateByLectureId(id), HttpStatus.OK);
     }
 
+    @Auth
+    @ApiOperation( value = "자신이 스크랩한 리뷰 조회", notes = "해당 유저가 스크랩한 모든 리뷰를 조회할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/review/scrap", method = RequestMethod.GET)
+    public ResponseEntity<ArrayList<Review>> getScrapReviewList() throws Exception{
+        return new ResponseEntity<ArrayList<Review>>(reviewService.getScrapReviewList(), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "강의 리뷰 스크랩", notes = "강의 리뷰를 스크랩합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/review/scrap", method = RequestMethod.POST)
+    public ResponseEntity scrapReview(@RequestBody Review review) throws Exception{
+        reviewService.scrapReview(review);
+        return new ResponseEntity( new BaseResponse("리뷰가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "스크랩 삭제", notes = "스크랩한 리뷰를 삭제합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/review/scrap", method = RequestMethod.DELETE)
+    public ResponseEntity deleteScrap(@RequestBody Review review) throws Exception{
+        reviewService.deleteScrapReview(review);
+        return new ResponseEntity( new BaseResponse("리뷰가 정상적으로 삭제되었습니다", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "스크랩 갯수 조회", notes = "해당 유저가 스크랩한 리뷰의 갯수를 조회합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/review/scrap/count", method = RequestMethod.GET)
+    public ResponseEntity getCountScrap() throws Exception{
+        return new ResponseEntity(reviewService.getCountScrapReview(), HttpStatus.OK);
+    }
 }

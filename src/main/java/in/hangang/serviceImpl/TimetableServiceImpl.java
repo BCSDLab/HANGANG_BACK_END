@@ -1,8 +1,5 @@
 package in.hangang.serviceImpl;
-import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.TimeTable;
-import in.hangang.domain.User;
-import in.hangang.domain.UserTimeTable;
+import in.hangang.domain.*;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.TimetableMapper;
@@ -12,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 @Service
 public class TimetableServiceImpl implements TimetableService {
@@ -141,7 +140,58 @@ public class TimetableServiceImpl implements TimetableService {
         if(!userId.equals(timetableMapper.getUserIdByTimeTableId(timeTableId)))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
+        //삭제 방식에 대한 고민
         timetableMapper.deleteLectureOnTimeTable(timeTableId, lectureId);
+    }
+
+    @Override
+    public void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        Long timeTableId = lectureTimeTable.getUser_timetable_id();
+        ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
+        ArrayList<Integer> timeListByLecture = getClassTimeArrayList(new ArrayList<>(Collections.singletonList(lectureTimeTable.getClass_time())));
+        for (Integer integer : timeListByLecture) {
+            //시간이 중복되는지 확인
+            if (timeListByTimeTable.contains(integer))
+                throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
+        }
+        String code = "";
+        for(int i=0; i<10; i++){
+            code = createRandomCode();
+            if(timetableMapper.getLectureIdByCode(code)==null)
+                break;
+        }
+        lectureTimeTable.setCode(code);
+        lectureTimeTable.setIs_custom(true);
+        timetableMapper.createLectureOnTimeTable(lectureTimeTable.getUser_timetable_id(), timetableMapper.createLecture(lectureTimeTable));;
+    }
+
+    @Override
+    public void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(customTimeTable.getUser_timetable_id())))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        Long timeTableId = customTimeTable.getUser_timetable_id();
+        Long customLectureId = timetableMapper.getLectureIdByCode(customTimeTable.getCode());
+        if (customLectureId==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
+        ArrayList<Integer> timeListByLecture = getClassTimeArrayList(timetableMapper.getClassTimeByLectureId(customLectureId));
+        for (Integer integer : timeListByLecture) {
+            //시간이 중복되는지 확인
+            if (timeListByTimeTable.contains(integer))
+                throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
+        }
+        timetableMapper.createLectureOnTimeTable(timeTableId, customLectureId);
+
     }
 
     @Override
@@ -175,5 +225,19 @@ public class TimetableServiceImpl implements TimetableService {
             }
         }
         return classTimeArrayList;
+    }
+
+    public String createRandomCode(){
+        Random random = new Random();
+        StringBuilder stringBuilder = new StringBuilder(8);
+        for(int i=0; i<3; i++){
+            char tmp = (char)((int)(Math.random()*25)+65);
+            stringBuilder.append(tmp);
+        }
+        stringBuilder.append("-");
+        int number = (int) (Math.random() * 9999) +1000;
+        stringBuilder.append(number);
+
+        return stringBuilder.toString();
     }
 }
