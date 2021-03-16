@@ -2,7 +2,6 @@ package in.hangang.domain;
 
 import io.swagger.annotations.ApiModelProperty;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 
 public class TimeTable {

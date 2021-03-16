@@ -2,6 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
+import in.hangang.domain.CustomTimeTable;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.TimeTable;
 import in.hangang.domain.UserTimeTable;
@@ -76,6 +77,22 @@ public class TimeTableController {
     public ResponseEntity deleteLectureOnTimeTable(@RequestBody TimeTable timeTable) throws Exception{
         timetableService.deleteLectureOnTimeTable(timeTable);
         return new ResponseEntity( new BaseResponse("해당 강의가 삭제되었습니다.", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "시간표에 강의 추가 직접 추가", notes = "시간표에 강의를 직접 만들어 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/custom/lecture", method = RequestMethod.POST)
+    public ResponseEntity createCustomLectureOnTimeTable (@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
+        timetableService.createCustomLectureOnTimeTable(lectureTimeTable);
+        return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "코드를 이용하여 강의 추가", notes = "공유받은 코드로 강의를 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/custom/code", method = RequestMethod.POST)
+    public ResponseEntity createCustomLectureOnTimeTableByCode (@RequestBody CustomTimeTable customTimeTable) throws Exception{
+        timetableService.createCustomLectureOnTableByCode(customTimeTable);
+        return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
     }
 
     /*

@@ -166,4 +166,57 @@ public class ReviewServiceImpl implements ReviewService {
 
         return reviewMapper.getClassByLectureId(id);
     }
+
+    @Override
+    public void scrapReview(Review review) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 있는지 확인.
+        if(user == null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        //리뷰가 존재하는지 확인
+        if(reviewMapper.isExistsReview(review.getId())==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        //기존 스크랩과 중복되는지 확인
+        if(reviewMapper.isExistsScrap(userId, review.getId())!=null)
+            //TODO : 에러메세지 수정
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        reviewMapper.createScrap(userId, review.getId());
+    }
+
+    @Override
+    public ArrayList<Review> getScrapReviewList() throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 있는지 확인.
+        if(user == null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        return reviewMapper.getScrapReviewList(userId);
+    }
+
+    @Override
+    public void deleteScrapReview(Review review) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 있는지 확인
+        if(user == null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        reviewMapper.deleteScrapReview(userId, review.getId());
+    }
+
+    @Override
+    public Long getCountScrapReview() throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 있는지 확인
+        if(user == null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        return reviewMapper.getScrapCountByUserId(userId);
+    }
 }

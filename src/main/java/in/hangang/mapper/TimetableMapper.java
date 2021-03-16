@@ -12,7 +12,6 @@ public interface TimetableMapper {
     void deleteTimetable(Long timeTableId);
     void createLectureOnTimeTable(Long timeTableId, Long lectureId);
     void deleteLectureOnTimeTable(Long timeTableId, Long lectureId);
-    //TODO : 메모 기능
     ArrayList<String> getClassTimeByLectureId(Long lectureId);
     Long getSemesterDateByLectureId(Long lectureId);
     Long getSemesterDateByTimeTableId(Long timeTableId);
@@ -25,4 +24,6 @@ public interface TimetableMapper {
     String getNameByTimeTableId(Long timeTableId);
     ArrayList<String> getClassTimeByTimeTable(Long timeTableId);
     Long getSemesterDateId(Long semesterDateId);
+    Long getLectureIdByCode(String code);
+    Long createLecture(LectureTimeTable lectureTimeTable);
 }
