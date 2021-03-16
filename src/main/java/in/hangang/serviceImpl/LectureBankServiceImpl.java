@@ -106,11 +106,14 @@ public class LectureBankServiceImpl implements LectureBankService {
 
         List<String> categoryList = lectureBank.getCategory();
         if(categoryList != null){
+            //TODO 이해가 안되는 부분 왜 강의자료를 삽입할 때 댓글을 지우는지? 이 카테고리의 id는 댓글ID과 무슨 상관인지?
+            //TODO 수정에서도 이 함수를 사용하던데 이 때 카테고리를 지워야하는 거 아닌가요?
             //lectueMapper add to lecturebank _ Category : category list while empty
             List<Long> idList = lectureBankMapper.getCategoryIdList(lectureBank.getId());
             for(Long id : idList){
                 lectureBankMapper.deleteComment(id);
             }
+            //TODO 자바에서 디비를 반복적으로 접근하는건 매우 비효율 적입니다 mybatis의 for each를 사용해주세요
             for (String s : categoryList) {
                 //기출자료 필기자료 과제자료 강의자료 기타자료
                 lectureBankMapper.addCategory(lectureBank.getId(), s);
@@ -120,11 +123,15 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public void submitLectureBank(LectureBank lectureBank) throws Exception{
+        // TODO 이 때 파일의 섬네일을 추출해서 같이 등록해주면 좋을 것 같습니다.
+        // TODO 임시생성후 내용을 채우는 방식으로 파악했습니다 이 경우 임시생성한 USER의 ID와 채울 때 USER의 ID도 검사해준다면 더 꼼꼼해질 것 같아요
         setLectureBank(lectureBank);
         List<Long> list = lectureBankMapper.getFileIdList(lectureBank.getId());
         for(Long i : list){
+            //TODO 자바에서 디비를 반복적으로 접근하는건 매우 비효율 적입니다 mybatis의 for each를 사용해주세요
             lectureBankMapper.setFileAvailable(i,1);
         }
+        //TODO 어차피 인터셉터에서 걸립니다 Controller에서 @Auth 어노테이션을 사용했으므로 해당 코드는 필요가 없습니다.
         User user = userService.getLoginUser();
         if (user==null) throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
 
@@ -134,6 +141,9 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public void deleteLectureBank(Long id) throws Exception{
+
+        //TODO Trancation 처리를 한 뒤 해당 강의자료가 지워지면 댓글, 파일, 카테고리 등 연관된 부분도 전부 지워지면 좋을 것 같습니다
+        //TODO soft delete를 적용해주면 나중에 더 좋을 것 같습니다!
         User user = userService.getLoginUser();
         if (user==null) throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         lectureBankMapper.deleteLectureBank(id, user.getId());
@@ -269,8 +279,11 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public org.springframework.core.io.Resource getprivateObject(Long id) throws Exception{
+        //TODO 다운로드 받을 유저의 권한체크 필요할 것 같습니다 1. 게시자인지/ 2. 구매자인지
         String objectKey = lectureBankMapper.getUrl(id);
         URL url = s3Util.getPrivateObjectURL(objectKey);
+
+        //TODO 어 그런데 생각해보니까 굳이 뻘짓할 필요없이 싹다 PRIVATE로 하고 권한 체크한뒤  그냥 파일 자체를 서버에서 S3.GET해서 던져주면 됐던거아닌가요?
         org.springframework.core.io.Resource resource = new UrlResource(url);
         return resource;
     }

@@ -1,9 +1,11 @@
 package in.hangang.serviceImpl;
 
 import in.hangang.domain.AuthNumber;
+import in.hangang.domain.PointHistory;
 import in.hangang.domain.User;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Major;
+import in.hangang.enums.Point;
 import in.hangang.exception.AccessTokenInvalidException;
 import in.hangang.exception.RefreshTokenExpireException;
 import in.hangang.exception.RefreshTokenInvalidException;
@@ -150,6 +152,9 @@ public class UserServiceImpl implements UserService {
         String salt = user_id.toString() + calendar.getTime();
         salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
         userMapper.setSalt(salt,user_id);
+
+        //회원가입 포인트 이력 추가
+        userMapper.addPointHistory(user_id, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
 
     }
 
@@ -394,23 +399,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String setProfile(MultipartFile multipartFile) throws Exception{
+        // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
+        Long id = this.getLoginUserId();
+        String url = s3Util.uploadObject(multipartFile);
+        userMapper.setProfile(id, url);
+        return "프로필 사진이 설정되었습니다";
+    }
+
+    @Override
+    public Map<String, Long> getLectureBankCount(){
+        Long id = this.getLoginUserId();
+        Map<String,Long> map = new HashMap<>();
+        map.put("LectureReview", userMapper.getLectureReviewCount(id));
+        map.put("getLectureBankCount", userMapper.getLectureBankCount(id));
+        map.put("getLectureBankCommentCount", userMapper.getLectureBankCommentCount(id));
+        return map;
+    }
+
+    @Override
+    public List<PointHistory> getUserPointHistory(){
+        Long id = this.getLoginUserId();
+        List list = userMapper.getUserPointHistory(id);
+        return list;
+    }
+
+    private Long getLoginUserId(){
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = request.getHeader(accessTokenName);
         if ( token == null){
-            return "로그인을 해주세요";
+            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
         }
         else {
             // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
             if ( jwt.isValid(token,0) ==0 ) {
                 Map<String, Object> payloads = jwt.validateFormat(token, 0);
                 Long id = Long.valueOf(String.valueOf(payloads.get("id")));
-                String url = s3Util.uploadObject(multipartFile);
-                userMapper.setProfile(id, url);
+                return id;
             }
             else{
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
         }
-        return "프로필 사진이 설정되었습니다";
     }
 }

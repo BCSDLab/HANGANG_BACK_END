@@ -5,7 +5,7 @@ create table if not exists hangang.user (
     nickname varchar(50) not null unique,
     salt varchar(255) default 0,
     profile_image_url varchar(255),
-    point int(10) unsigned default 60,
+    point int(10) unsigned default 20,
     is_deleted tinyint(1) default 0,
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp
@@ -26,6 +26,19 @@ create table if not exists hangang.auth_number(
     is_authed tinyint default 0,
     expired_at timestamp not null,
     created_at timestamp default current_timestamp
+)default character set utf8 collate utf8_general_ci;
+
+create table if not exists  hangang.user_point_history(
+    id BIGINT PRIMARY KEY auto_increment,
+    user_id BIGINT NOT NULL,
+    variance BIGINT NOT NULL DEFAULT 0,
+    point_type_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)default character set utf8 collate utf8_general_ci;
+
+CREATE TABLE if not exists  hangang.point_type(
+    id BIGINT PRIMARY KEY auto_increment,
+    title VARCHAR(30) NOT NULL
 )default character set utf8 collate utf8_general_ci;
 
 /*** 강의 테이블

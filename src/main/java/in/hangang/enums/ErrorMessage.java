@@ -30,7 +30,6 @@ public enum ErrorMessage {
 	NOT_MATCH_SEMESTER_DATE(25, "시간표의 학기정보와 과목의 학기 정보가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
 
 
-
 	Integer code;
 	String errorMessage;
 	HttpStatus httpStatus;

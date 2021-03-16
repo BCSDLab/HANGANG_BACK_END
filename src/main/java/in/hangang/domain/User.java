@@ -35,7 +35,7 @@ public class User {
 
     @ApiModelProperty(hidden = true)
     private String salt;
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(hidden = true )
     private String profile_image_url;
     @ApiModelProperty(hidden = true)
     private Integer point;
