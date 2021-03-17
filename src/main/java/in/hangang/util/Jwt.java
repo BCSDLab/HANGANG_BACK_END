@@ -3,10 +3,7 @@ package in.hangang.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.hangang.enums.ErrorMessage;
-import in.hangang.exception.AccessTokenExpireException;
-import in.hangang.exception.AccessTokenInvalidException;
-import in.hangang.exception.RefreshTokenExpireException;
-import in.hangang.exception.RefreshTokenInvalidException;
+import in.hangang.exception.*;
 import in.hangang.mapper.UserMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -36,7 +33,9 @@ public class Jwt {
     // return generated jwt token method
     public String generateToken(Long id, String nickname , String sub){
         String key = userMapper.getSalt(id);
-
+        if ( key == null){
+            throw new RequestInputException(ErrorMessage.NO_USER_EXCEPTION);
+        }
         Map<String, Object> headers = new HashMap<String, Object>(); // header
         headers.put("typ", "JWT");
         headers.put("alg","HS256");
@@ -84,6 +83,10 @@ public class Jwt {
         Map<String,Object> payloads = this.validateFormat(authToken,flag);
         String key = userMapper.getSalt(Long.valueOf(String.valueOf( payloads.get("id"))));
         String sub = String.valueOf(payloads.get("sub"));
+
+        if ( key == null){
+            throw new RequestInputException(ErrorMessage.NO_USER_EXCEPTION);
+        }
 
         try {
             Claims claims = Jwts.parser().setSigningKey(key.getBytes()).parseClaimsJws(authToken).getBody();

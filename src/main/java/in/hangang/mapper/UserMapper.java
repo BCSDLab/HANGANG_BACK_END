@@ -37,4 +37,8 @@ public interface UserMapper {
     List<PointHistory> getUserPointHistory(Long id);
     void updateUser(Long id, String nickname, List<String> major);
     void insertMajors(Long id, List<String> major);
+    Long getUserIdFromPortalForReSignUp(String portal_account);
+    void reSignUp(User user);
+    void softDeleteUser(Long id, String nickname);
+    void reSignMajors(Long id, List<String> major);
 }

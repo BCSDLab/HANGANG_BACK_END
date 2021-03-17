@@ -11,12 +11,14 @@ import in.hangang.exception.RefreshTokenExpireException;
 import in.hangang.exception.RefreshTokenInvalidException;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.UserMapper;
+import in.hangang.response.BaseResponse;
 import in.hangang.service.UserService;
 import in.hangang.util.Jwt;
 import in.hangang.util.S3Util;
 import in.hangang.util.SesSender;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -56,6 +58,7 @@ public class UserServiceImpl implements UserService {
     @Value("${token.refresh}")
     private String refresh_token;
 
+    private static final String signOutNickName = "(탈퇴한 회원)";
 
     public Map<String,String> login(User user) throws Exception{
 
@@ -63,7 +66,7 @@ public class UserServiceImpl implements UserService {
 
         // 아이디 중복 검사
         if ( dbUser == null){
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.NO_USER_EXCEPTION);
         }
         // 비밀번호가 틀린 경우
         if ( !BCrypt.checkpw( user.getPassword(), dbUser.getPassword() )){
@@ -79,7 +82,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public void signUp(User user) throws Exception {
+    public BaseResponse signUp(User user) throws Exception {
 
         //이메일 인증 여부 체크
         ArrayList<AuthNumber> list = userMapper.getAuthTrue(user.getPortal_account(),0);
@@ -95,30 +98,34 @@ public class UserServiceImpl implements UserService {
 
         // portal account 를 통한 중복가입 여부 확인
         if ( user == null || user.getPortal_account() == null || userMapper.getUserIdFromPortal(user.getPortal_account() ) != null ) {
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.EMAIL_ALREADY_AUTHED);
         }
 
-        // 닉네임 null,중복 체크
-        if (user.getNickname() != null) {
-            if (userMapper.getUserByNickName(user.getNickname() ) != null ) {
+        // 닉네임 null,중복 체크, 혹은 알수 없음은 불가능
+        if (user.getNickname() != null ) {
+            String nickname = userMapper.getUserByNickName(user.getNickname());
+            if ( nickname  != null ) {
                 throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
             }
+            if ( user.getNickname().equals(signOutNickName)){
+                throw new RequestInputException(ErrorMessage.BANNED_NICKNAME);
+            }
         }
+
+        // 재가입인 경우
+        Long dbId =  userMapper.getUserIdFromPortalForReSignUp(user.getPortal_account());
+        if ( dbId != null ){
+            this.reSignUp(dbId, user);
+            return new BaseResponse("재가입이 완료되었습니다.", HttpStatus.OK);
+        }
+
 
         // 암호화
         user.setPassword( BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()) );
         userMapper.signUp(user); // 회원가입
 
-        // 회원가입 완료 시  phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴
-        AuthNumber authNumber = new AuthNumber();
-        authNumber.setIp(this.getClientIp());
-        authNumber.setPortal_account(user.getPortal_account());
-        authNumber.setFlag(0); // 회원가입 인증
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.DAY_OF_YEAR, -1); // 현재시간 빼기 하루
-        authNumber.setExpired_at(new Timestamp(calendar.getTimeInMillis()));
-        userMapper.expirePastAuthNumber(authNumber);
+        //portal 계정으로 들어온 인증 이력을 만료 + soft delete
+        this.invalidateAllAuthNumberByPortal(user.getPortal_account());
 
         //회원가입후 user의 가입된 id를 구함
         Long user_id = userMapper.getUserIdFromPortal(user.getPortal_account());
@@ -133,6 +140,7 @@ public class UserServiceImpl implements UserService {
 
         // user salt = timestamp + user_id + BCrypt
         // salt 삽입
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         String salt = user_id.toString() + calendar.getTime();
         salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
@@ -141,8 +149,46 @@ public class UserServiceImpl implements UserService {
         //회원가입 포인트 이력 추가
         userMapper.addPointHistory(user_id, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
 
+        return new BaseResponse("회원가입에 성공했습니다", HttpStatus.OK);
     }
 
+    //portal 계정으로 들어온 인증 이력을 만료 + soft delete
+    private void invalidateAllAuthNumberByPortal(String portalAccount){
+        // 회원가입 완료 시  phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴
+        AuthNumber authNumber = new AuthNumber();
+        authNumber.setIp(this.getClientIp());
+        authNumber.setPortal_account(portalAccount);
+        authNumber.setFlag(0); // 회원가입 인증
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_YEAR, -1); // 현재시간 빼기 하루
+        authNumber.setExpired_at(new Timestamp(calendar.getTimeInMillis()));
+        userMapper.expirePastAuthNumber(authNumber);
+    }
+
+    private void reSignUp(Long id, User user ){
+        user.setPassword( BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()) );
+        //portal 계정으로 들어온 인증 이력을 만료 + soft delete
+        this.invalidateAllAuthNumberByPortal(user.getPortal_account());
+        // 전공값의 내용이 올바르지 않다면
+        for(int i =0; i<user.getMajor().size(); i++){
+            boolean result = this.isMajorValid(user.getMajor().get(i));
+            if ( !result )
+                throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
+        }
+
+        userMapper.reSignMajors(id,user.getMajor());
+
+        // user salt = timestamp + user_id + BCrypt
+        // salt 삽입
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        String salt = id.toString() + calendar.getTime();
+        salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
+        user.setSalt(salt);
+        user.setId(id);
+        userMapper.reSignUp(user);
+    }
     public Map<String,Object> refresh()throws Exception{
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String refreshToken = request.getHeader(refreshUserName);
@@ -327,10 +373,14 @@ public class UserServiceImpl implements UserService {
         return ip;
     }
     public boolean checkNickname(String nickname) {
-        if (userMapper.getUserByNickName(nickname) == null)
-            return true;
+        String dbNickname = userMapper.getUserByNickName(nickname);
+        if( nickname.equals(signOutNickName)){
+            throw new RequestInputException(ErrorMessage.BANNED_NICKNAME);
+        }
+        else if ( dbNickname != null )
+            throw new RequestInputException(ErrorMessage.NICKNAME_DUPLICATED);
         else
-            return false;
+            return true;
     }
 
     public void findPassword(User user) throws  Exception{
@@ -426,6 +476,7 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+    @Override
     public void updateUser(User user){
         Long id = this.getLoginUserId();
 
@@ -440,6 +491,14 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(id,user.getNickname(),user.getMajor());
 
     }
+    @Override
+    public BaseResponse deleteUser(){
+        //TODO 전부 Soft delete
+        Long id = this.getLoginUserId();
+        userMapper.softDeleteUser(id, signOutNickName);
+        return new BaseResponse("회원탈퇴 완료", HttpStatus.OK);
+    }
+
     private boolean isMajorValid(String major){
         boolean check = false;
         for( Major m : Major.values()){

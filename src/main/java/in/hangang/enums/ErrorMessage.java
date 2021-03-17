@@ -27,7 +27,9 @@ public enum ErrorMessage {
 	EMAIL_COUNT_EXCEED_EXCEPTION(22, "이메일 인증은 하루에 5회만 가능합니다.", HttpStatus.BAD_REQUEST),
 	TIME_LIST_CONFLICT(23, "기존 강의 시간과 중복됩니다.", HttpStatus.BAD_REQUEST),
 	TIME_TABLE_LIMIT(24, "시간표는 학기당 최대 5개, 총 50개만 생성 가능합니다.", HttpStatus.BAD_REQUEST),
-	NOT_MATCH_SEMESTER_DATE(25, "시간표의 학기정보와 과목의 학기 정보가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
+	NOT_MATCH_SEMESTER_DATE(25, "시간표의 학기정보와 과목의 학기 정보가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+	NICKNAME_DUPLICATED(26, "중복된 닉네임입니다.", HttpStatus.BAD_REQUEST),
+	BANNED_NICKNAME(27, "금지된 닉네임입니다.", HttpStatus.BAD_REQUEST);
 
 
 	Integer code;

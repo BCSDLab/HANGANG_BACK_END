@@ -11,19 +11,23 @@
     </update>
 
     <select id="getUserIdFromPortal" resultType="Long">
-        SELECT id FROM hangang.user WHERE portal_account =#{portal_account}
+        SELECT id FROM hangang.user WHERE portal_account =#{portal_account} and is_deleted = 0
+    </select>
+
+    <select id="getUserIdFromPortalForReSignUp" resultType="Long">
+        SELECT id FROM hangang.user WHERE portal_account = #{portal_account} and is_deleted = 1
     </select>
 
     <select id="getUserByNickName" resultType="String">
-        SELECT nickname FROM hangang.user WHERE nickname = #{nickname}
+        SELECT nickname FROM hangang.user WHERE nickname = #{nickname} and is_deleted = 0
     </select>
 
     <select id="getPasswordFromPortal" resultType="in.hangang.domain.User">
-        SELECT password,nickname,id FROM hangang.user WHERE portal_account = #{portal_account}
+        SELECT password,nickname,id FROM hangang.user WHERE portal_account = #{portal_account} and is_deleted = 0
     </select>
 
     <select id="getSalt" resultType="String">
-        SELECT salt FROM hangang.user WHERE id=#{id}
+        SELECT salt FROM hangang.user WHERE id=#{id} and is_deleted = 0
     </select>
 
     <insert id="setAuthNumber">
@@ -44,7 +48,7 @@
         UPDATE hangang.user set password=#{password} WHERE portal_account=#{portal_account}
     </update>
     <select id="getMajor" resultType="String">
-        SELECT major FROM hangang.major WHERE user_id = #{id}
+        SELECT major FROM hangang.major WHERE user_id = #{id} and is_deleted = 0
     </select>
 
     <select id="authNumberAllSoftDeleteAfterUse" resultType="Integer" >
@@ -130,6 +134,14 @@
         </foreach>
     </insert>
 
+    <insert id="reSignMajors" >
+        DELETE FROM hangang.major WHERE user_id = #{id};
+        INSERT INTO hangang.major(user_id, major) VALUES
+        <foreach collection="major" item="m" separator=",">
+            (#{id}, #{m})
+        </foreach>
+    </insert>
+
 
     <insert id="updateUser" >
         UPDATE hangang.user SET nickname = #{nickname} WHERE id = #{id} and is_deleted=0;
@@ -139,5 +151,13 @@
             (#{id}, #{m})
         </foreach>
     </insert>
+
+    <update id="reSignUp" >
+        UPDATE hangang.user SET is_deleted = 0, nickname = #{nickname}, password=#{password}, salt=#{salt} where id = #{id}
+    </update>
+
+    <update id="softDeleteUser">
+        UPDATE hangang.user SET is_deleted = 1, nickname = #{nickname} WHERE id = #{id}
+    </update>
 
 </mapper>

@@ -1,8 +1,8 @@
 create table if not exists hangang.user (
-	id bigint unsigned auto_increment primary key,
+	id ㅋ`` unsigned auto_increment primary key,
     portal_account varchar(50) unique not null,
     password text not null,
-    nickname varchar(50) not null unique,
+    nickname varchar(50) not null,
     salt varchar(255) default 0,
     profile_image_url varchar(255),
     point int(10) unsigned default 20,
@@ -14,7 +14,8 @@ create table if not exists hangang.user (
 create table if not exists hangang.major (
 	id bigint unsigned auto_increment primary key,
     user_id bigint unsigned not null,
-    major varchar(20) not null
+    major varchar(20) not null,
+    is_deleted tinyint default 0
 )default character set utf8 collate utf8_general_ci;
 
 create table if not exists hangang.auth_number(
@@ -24,6 +25,7 @@ create table if not exists hangang.auth_number(
     secret varchar(50) not null,
     flag int not null,
     is_authed tinyint default 0,
+    is_deleted tinyint default 0,
     expired_at timestamp not null,
     created_at timestamp default current_timestamp
 )default character set utf8 collate utf8_general_ci;
@@ -33,7 +35,8 @@ create table if not exists  hangang.user_point_history(
     user_id BIGINT NOT NULL,
     variance BIGINT NOT NULL DEFAULT 0,
     point_type_id BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted tinyint default 0
 )default character set utf8 collate utf8_general_ci;
 
 CREATE TABLE if not exists  hangang.point_type(
