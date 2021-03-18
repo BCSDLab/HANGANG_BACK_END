@@ -1,4 +1,6 @@
+/*
 create table if not exists hangang.user (
+
 	id ㅋ`` unsigned auto_increment primary key,
     portal_account varchar(50) unique not null,
     password text not null,
@@ -44,6 +46,7 @@ CREATE TABLE if not exists  hangang.point_type(
     title VARCHAR(30) NOT NULL
 )default character set utf8 collate utf8_general_ci;
 
+ */
 /*** 강의 테이블
 CREATE TABLE IF NOT EXISTS hangang.lecture (
     `id` int unsigned NOT NULL AUTO_INCREMENT,

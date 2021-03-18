@@ -9,8 +9,6 @@ import in.hangang.service.LectureBankService;
 import in.hangang.service.UserService;
 import in.hangang.util.S3Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -190,6 +188,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     public void purchase(Long lecture_bank_id) throws Exception{
         User user = userService.getLoginUser();
+        //TODO 인터셉터에서 검사하므로 NULL 체크는 의미가 없습니다.
         if (user==null) throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         LectureBank lectureBank = getLectureBank(lecture_bank_id);
         Integer purchase = lectureBankMapper.checkPurchased(user.getId(), lecture_bank_id);
@@ -273,7 +272,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
     @Override
-    public List<Upload_File> getFileList(Long lecture_bank_id) throws Exception{
+    public List<UploadFile> getFileList(Long lecture_bank_id) throws Exception{
         return lectureBankMapper.getFileList(lecture_bank_id);
     }
 

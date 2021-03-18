@@ -155,7 +155,8 @@ public class UserController {
     @GetMapping("/purchase")
     @ApiOperation( value = "구입한 자료들",notes = "유저가 구입한 자료들", authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity getPurchase(){
-        //TODO 구현해야함
-        return null;
+        return new ResponseEntity(userService.getUserPurchasedLectureBank(), HttpStatus.OK);
     }
+
+
 }

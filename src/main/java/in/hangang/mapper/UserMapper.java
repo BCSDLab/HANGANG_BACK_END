@@ -5,6 +5,7 @@ import in.hangang.annotation.Auth;
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.PointHistory;
 import in.hangang.domain.User;
+import in.hangang.domain.UserLectureBank;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -41,4 +42,5 @@ public interface UserMapper {
     void reSignUp(User user);
     void softDeleteUser(Long id, String nickname);
     void reSignMajors(Long id, List<String> major);
+    List<UserLectureBank> getUserPurchasedLectureBank(Long id);
 }

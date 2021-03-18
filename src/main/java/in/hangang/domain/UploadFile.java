@@ -1,12 +1,14 @@
 package in.hangang.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 
 @Component
-public class Upload_File {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UploadFile {
     private Long id;
     private Long lecture_bank_id;
     @ApiModelProperty(hidden = true)

@@ -4,6 +4,7 @@ package in.hangang.service;
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.PointHistory;
 import in.hangang.domain.User;
+import in.hangang.domain.UserLectureBank;
 import in.hangang.response.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,4 +26,5 @@ public interface UserService {
     List<PointHistory> getUserPointHistory();
     void updateUser(User user);
     BaseResponse deleteUser();
+    List<UserLectureBank> getUserPurchasedLectureBank();
 }

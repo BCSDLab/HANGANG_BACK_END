@@ -159,5 +159,67 @@
     <update id="softDeleteUser">
         UPDATE hangang.user SET is_deleted = 1, nickname = #{nickname} WHERE id = #{id}
     </update>
+    
+    <sql id="UserLectureBank">
+        ${alias}id AS ${prefix}id
+        ,${alias}user_id AS ${prefix}user_id
+		,${alias}title AS ${prefix}title
+    </sql>
+
+    <sql id="UserLecture">
+        ${alias}id AS ${prefix}id,
+        ${alias}professor AS ${prefix}professor
+		,${alias}name AS ${prefix}name
+    </sql>
+
+    <sql id="UserFile">
+        ${alias}id AS ${prefix}id
+		,${alias}ext AS ${prefix}ext
+        ,${alias}filename AS ${prefix}filename
+    </sql>
+    
+    <resultMap id="userPurchase" type="in.hangang.domain.UserLectureBank">
+        <result column="B_id" property="id"/>
+        <result column="B_user_id" property="user_id"/>
+        <result column="B_title" property="title"/>
+        <association property="lecture" resultMap="UserLectureMap"></association>
+        <collection  column="P_user_id" property="uploadFiles" javaType="java.util.List"  ofType="in.hangang.domain.UploadFile" select="getUserUploadFiles"> </collection>
+    </resultMap>
+
+    <resultMap id="UserLectureMap" type="in.hangang.domain.Lecture">
+        <result column="L_id" property="id"></result>
+        <result column="L_professor" property="professor"/>
+        <result column="L_name" property="name"/>
+    </resultMap>
+
+    <select id="getUserPurchasedLectureBank" resultMap="userPurchase">
+        SELECT
+        <include refid="UserLectureBank">
+            <property name="prefix" value="B_"/>
+            <property name="alias" value="b."/>
+        </include>,
+        <include refid="UserLecture">
+            <property name="prefix" value="L_"/>
+            <property name="alias" value="l."/>
+        </include>,
+        p.user_id AS P_user_id
+        FROM hangang.user AS u
+        JOIN hangang.lecture_bank_purchase AS p ON u.id = p.user_id
+        JOIN hangang.lecture_bank AS b ON p.lecture_bank_id = b.id
+        JOIN hangang.lecture AS l ON b.lecture_id = l.id
+        WHERE u.id=#{id};
+    </select>
+
+    <select id="getUserUploadFiles" resultType="in.hangang.domain.UploadFile">
+        SELECT
+        <include refid="UserFile">
+            <property name="prefix" value=""/>
+            <property name="alias" value="f."/>
+        </include>
+        FROM hangang.user AS u JOIN hangang.lecture_bank_purchase AS p ON u.id = p.user_id
+        JOIN hangang.upload_file AS f ON f.lecture_bank_id = p.lecture_bank_id
+        WHERE u.id=#{P_user_id};
+    </select>
+
 
 </mapper>

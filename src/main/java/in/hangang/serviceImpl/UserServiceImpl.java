@@ -3,6 +3,7 @@ package in.hangang.serviceImpl;
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.PointHistory;
 import in.hangang.domain.User;
+import in.hangang.domain.UserLectureBank;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Major;
 import in.hangang.enums.Point;
@@ -478,6 +479,11 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public void updateUser(User user){
+
+        if  (user.getMajor().size() == 0 ){
+            throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
+        }
+
         Long id = this.getLoginUserId();
 
         // 전공값의 내용이 올바르지 않다면
@@ -493,7 +499,7 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public BaseResponse deleteUser(){
-        //TODO 전부 Soft delete
+        // soft delete and nickname update to "(탈퇴한 회원)"
         Long id = this.getLoginUserId();
         userMapper.softDeleteUser(id, signOutNickName);
         return new BaseResponse("회원탈퇴 완료", HttpStatus.OK);
@@ -510,5 +516,11 @@ public class UserServiceImpl implements UserService {
             return true;
         else
             return false;
+    }
+    // 유저가 구매한 강의자료들과 대상 강의에 대한 정보
+    public List<UserLectureBank> getUserPurchasedLectureBank(){
+        Long id = this.getLoginUserId();
+        return userMapper.getUserPurchasedLectureBank(id);
+
     }
 }
