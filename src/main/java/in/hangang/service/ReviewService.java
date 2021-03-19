@@ -1,6 +1,6 @@
 package in.hangang.service;
 
-import in.hangang.criteria.Criteria;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 
 import java.util.ArrayList;

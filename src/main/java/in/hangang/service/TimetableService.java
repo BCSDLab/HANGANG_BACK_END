@@ -16,6 +16,8 @@ public interface TimetableService {
     void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception;
     void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception;
     ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception;
+    ArrayList<LectureTimeTable> getMainTimeTable() throws Exception;
+    void updateMainTimeTable(TimeTable timeTable) throws Exception;
 
 
 }

@@ -16,10 +16,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.sql.Time;
 import java.util.ArrayList;
 
 @RestController
 public class TimeTableController {
+
     @Resource
     TimetableService timetableService;
 
@@ -69,6 +71,21 @@ public class TimeTableController {
     public ResponseEntity createLectureOnTimeTable (@RequestBody TimeTable timeTable) throws Exception{
         timetableService.createLectureOnTimeTable(timeTable);
         return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "메인 시간표 보기", notes = "메인 시간표를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/main/lecture", method = RequestMethod.GET)
+    public ResponseEntity<ArrayList<LectureTimeTable>> getMainTimeTable () throws Exception{
+        return new ResponseEntity<ArrayList<LectureTimeTable>>(timetableService.getMainTimeTable(), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "메인 시간표 변경", notes = "메인 시간표를 변경할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/main/lecture", method = RequestMethod.PATCH)
+    public ResponseEntity updateMainTimeTable(@RequestBody TimeTable timeTable) throws Exception{
+        timetableService.updateMainTimeTable(timeTable);
+        return new ResponseEntity( new BaseResponse("메인 시간표가 변경되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
     @Auth
