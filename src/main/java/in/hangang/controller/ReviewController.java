@@ -2,7 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
-import in.hangang.criteria.Criteria;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.ReviewService;

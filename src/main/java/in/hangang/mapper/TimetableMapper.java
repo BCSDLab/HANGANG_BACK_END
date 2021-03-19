@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public interface TimetableMapper {
     ArrayList<UserTimeTable> getTableListByUserId(Long userId, Long semesterDateId);
-    void createTimetable(Long user_id, Long semester_date_id, String name);
+    Long createTimetable(Long user_id, Long semester_date_id, String name);
     void updateTimeTable(Long timeTableId, String name);
     void deleteTimetable(Long timeTableId);
     void createLectureOnTimeTable(Long timeTableId, Long lectureId);
@@ -26,4 +26,7 @@ public interface TimetableMapper {
     Long getSemesterDateId(Long semesterDateId);
     Long getLectureIdByCode(String code);
     Long createLecture(LectureTimeTable lectureTimeTable);
+    void updateMainTimeTable(Long userId, Long timeTableId);
+    void assignMainTimeTable(Long timeTableId);
+    Long getMainTimeTableId(Long userId);
 }

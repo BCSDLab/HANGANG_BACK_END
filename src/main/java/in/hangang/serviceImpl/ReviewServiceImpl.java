@@ -1,18 +1,14 @@
 package in.hangang.serviceImpl;
 
-import in.hangang.criteria.Criteria;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 import in.hangang.domain.User;
 import in.hangang.enums.ErrorMessage;
+import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
-import in.hangang.mapper.HashTagMapper;
-import in.hangang.mapper.LectureMapper;
-import in.hangang.mapper.LikesMapper;
-import in.hangang.mapper.ReviewMapper;
-import in.hangang.service.LectureService;
+import in.hangang.mapper.*;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
-import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -37,6 +33,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private UserMapper userMapper;
 
     @Override
     public ArrayList<Review> getReviewList(Criteria criteria) throws Exception {
@@ -119,9 +118,12 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
         //TODO : 속도 향상을 위해 서비스 호출 줄여보기.
+        //TODO : 트랜젝션 처리
         reviewMapper.updateReviewedAt(lectureId);
         lectureMapper.updateReviewCountById(lectureId);
         lectureMapper.updateTotalRatingById(lectureId);
+        userMapper.addPointHistory(user.getId(), Point.LECTURE_REVIEW.getPoint(), Point.LECTURE_REVIEW.getTypeId());
+
     }
 
     @Override

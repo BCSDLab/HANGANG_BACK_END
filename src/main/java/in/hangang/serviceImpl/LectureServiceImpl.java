@@ -1,7 +1,8 @@
 package in.hangang.serviceImpl;
 
-import in.hangang.criteria.Criteria;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Lecture;
+import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureMapper;
@@ -20,13 +21,16 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public ArrayList<Lecture>
-    getLectureList(String keyword, ArrayList<String> classification, String department,
-                   ArrayList<Long> hashtag, String sort, Criteria criteria) throws Exception {
+    getLectureList(//String keyword, ArrayList<String> classification, String department,
+                   //ArrayList<Long> hashtag, String sort, Criteria criteria
+                   LectureCriteria lectureCriteria) throws Exception {
+
         String[] sortList = {"최신순", "평점순", "평가순"};
-        if(sort!=null && !Arrays.asList(sortList).contains(sort))
+        if(lectureCriteria.getSort()!=null && !Arrays.asList(sortList).contains(lectureCriteria.getSort()))
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
-        return lectureMapper.getLectureList(keyword, classification, department, hashtag, sort, criteria.getCursor(), criteria.getLimit());
+        return lectureMapper.getLectureList(//eyword, classification, department, hashtag, sort, criteria.getCursor(), criteria.getLimit()
+                lectureCriteria);
     }
 
     @Override

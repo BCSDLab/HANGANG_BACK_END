@@ -47,7 +47,10 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.getCountTimeTable(userId)>=50)
             throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT);
 
-        timetableMapper.createTimetable(userId, userTimetable.getSemester_date_id(), userTimetable.getName());
+        Long timeTableId = timetableMapper.createTimetable(userId, userTimetable.getSemester_date_id(), userTimetable.getName());
+        //메인으로 지정된 시간표가 없다면 메인 시간표로 지정
+        if(timetableMapper.getMainTimeTableId(userId)==null)
+            timetableMapper.assignMainTimeTable(timeTableId);
     }
 
     @Override
@@ -90,6 +93,37 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         timetableMapper.deleteTimetable(timeTableId);
+    }
+
+    public ArrayList<LectureTimeTable> getMainTimeTable() throws Exception{
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        Long timeTableId = timetableMapper.getMainTimeTableId(userId);
+
+        return getLectureListByTimeTableId(timeTableId);
+    }
+
+    public void updateMainTimeTable(TimeTable timeTable) throws Exception {
+        //id가 비어있다면 에러
+        Long timeTableId = timeTable.getUser_timetable_id();
+        if(timeTableId == null)
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        //지정하고자 하는 시간표가 존재하는지 확인
+        if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        //해당 시간표를 지정할 권한이 있는지 확인
+        if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        timetableMapper.updateMainTimeTable(userId, timeTableId);
     }
 
     @Override

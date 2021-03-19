@@ -60,9 +60,10 @@
         INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId})
     </insert>
 
-    <insert id="createTimetable">
+    <select id="createTimetable" resultType="Long">
         INSERT INTO hangang.user_timetables(user_id, semester_date_id, name) VALUES(#{user_id}, #{semester_date_id}, #{name});
-    </insert>
+        SELECT LAST_INSERT_ID();
+    </select>
 
     <update id="updateTimeTable">
         UPDATE hangang.user_timetables SET name = #{name}, updated_at = now() WHERE id = #{timeTableId}
@@ -89,6 +90,19 @@
     <update id="deleteLectureOnTimeTable">
         UPDATE hangang.timetables SET is_deleted = 1, updated_at = now() WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
     </update>
+
+    <update id="assignMainTimeTable">
+        UPDATE hangang.user_timetables SET is_main = 1 WHERE id = #{timeTableId}
+    </update>
+    <update id="updateMainTimeTable">
+        <!-- mysql에서 UPDATE할 같은 테이블을 조회해서 업데이트하는 것이 막혀 있음 -->
+        UPDATE hangang.user_timetables SET is_main = 0 WHERE id IN (SELECT id FROM(SELECT id FROM hangang.user_timetables WHERE user_id = #{userId} AND is_main = 1 AND is_deleted = 0) as temp);
+        UPDATE hangang.user_timetables SET is_main = 1 WHERE id = #{timeTableId};
+    </update>
+
+    <select id="getMainTimeTableId" resultType="Long">
+        SELECT id FROM hangang.user_timetables WHERE user_id = #{userId} AND is_main = 1 AND is_deleted = 0
+    </select>
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
