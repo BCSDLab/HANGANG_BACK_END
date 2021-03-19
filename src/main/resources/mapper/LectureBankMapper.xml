@@ -204,7 +204,7 @@
         VALUES (#{lecture_bank_id}, #{url}, #{filename}, #{ext});
     </insert>
 
-    <select id="getFileList" resultType="in.hangang.domain.Upload_File">
+    <select id="getFileList" resultType="in.hangang.domain.UploadFile">
         SELECT * FROM upload_file
         where lecture_bank_id = #{lecture_bank_id};
     </select>

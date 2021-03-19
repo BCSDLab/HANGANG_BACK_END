@@ -3,7 +3,6 @@ package in.hangang.mapper;
 import in.hangang.domain.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public interface LectureBankMapper {
 
     //file
     void insertUpload_file(@Param("lecture_bank_id")Long lecture_bank_id, @Param("url")String url, @Param("filename")String filename, @Param("ext")String ext);
-    List<Upload_File> getFileList(@Param("lecture_bank_id")Long lecture_bank_id);
+    List<UploadFile> getFileList(@Param("lecture_bank_id")Long lecture_bank_id);
     Long getUploadFileId(@Param("lecture_bank_id")Long lecture_bank_id);
     List<Long> getFileIdList(@Param("lecture_bank_id")Long lecture_bank_id);
     void setFileAvailable(@Param("id")Long id, @Param("available")Integer available);

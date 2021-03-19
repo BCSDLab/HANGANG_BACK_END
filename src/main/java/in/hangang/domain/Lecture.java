@@ -1,11 +1,14 @@
 package in.hangang.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Component
 public class Lecture {
     @ApiModelProperty(hidden = true)

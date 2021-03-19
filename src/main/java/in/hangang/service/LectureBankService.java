@@ -1,11 +1,9 @@
 package in.hangang.service;
 
 import in.hangang.domain.*;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 public interface LectureBankService {
@@ -22,7 +20,7 @@ public interface LectureBankService {
     //List<String> getUrls(Long lecture_bank_id);
     List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long id) throws IOException;
     Long fileUpload(MultipartFile file, Long id) throws IOException;
-    List<Upload_File> getFileList(Long lecture_bank_id) throws Exception;
+    List<UploadFile> getFileList(Long lecture_bank_id) throws Exception;
     org.springframework.core.io.Resource getprivateObject(Long id) throws Exception;
     void cancelUpload(Long id) throws Exception;
 
