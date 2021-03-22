@@ -1,12 +1,14 @@
 package in.hangang.mapper;
 
 import in.hangang.domain.LectureTimeTable;
+import in.hangang.domain.TimeTableMap;
 import in.hangang.domain.UserTimeTable;
 
 import java.util.ArrayList;
 
 public interface TimetableMapper {
     ArrayList<UserTimeTable> getTableListByUserId(Long userId, Long semesterDateId);
+    TimeTableMap getTableById(Long id);
     Long createTimetable(Long user_id, Long semester_date_id, String name);
     void updateTimeTable(Long timeTableId, String name);
     void deleteTimetable(Long timeTableId);

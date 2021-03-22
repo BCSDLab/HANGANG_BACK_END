@@ -7,6 +7,7 @@ import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.*;
+import in.hangang.service.LectureService;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Resource
     private UserMapper userMapper;
 
+    @Resource
+    private LectureService lectureService;
+
     @Override
     public ArrayList<Review> getReviewList(Criteria criteria) throws Exception {
         return reviewMapper.getReviewList(criteria.getCursor(), criteria.getLimit());
@@ -65,7 +69,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ArrayList<Review> getReviewByLectureId(Long id, Criteria criteria) throws Exception {
         if(lectureMapper.checkLectureExists(id)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         return reviewMapper.getReviewByLectureId(id, criteria.getCursor(), criteria.getLimit());
     }
 
@@ -74,7 +78,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         //해당 강의가 존재하는지 확인.
         if(lectureMapper.checkLectureExists(review.getLecture_id())==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         //유저 정보가 있는지 확인.
         User user = userService.getLoginUser();
@@ -87,7 +91,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         review.setUser_id(user.getId());
 
-        ArrayList<String> semester = getSemesterDateByLectureId(review.getLecture_id());
+        ArrayList<String> semester = lectureService.getSemesterDateByLectureId(review.getLecture_id());
 
         //입력된 학기 정보가 강의가 개설된 학기에 포함되어있늕지 확인.
         if(!semester.contains(review.getSemester_date()))
@@ -127,47 +131,32 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void likesReview(Long id) throws Exception {
+    public void likesReview(Review review) throws Exception {
+        Long reviewId = review.getId();
+        //id가 비어있는지 확
+        if(reviewId == null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+
         User user = userService.getLoginUser();
         //유저 정보가 있는지 확인.
         if(user == null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
 
         Long userId = user.getId();
-        Long isLiked = likesMapper.checkIsLikedByUserId(userId, id);
+        Long isLiked = likesMapper.checkIsLikedByUserId(userId, reviewId);
 
         if (isLiked == null)
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         if(isLiked == 0)
-            likesMapper.createLikesReview(0, userId, id);
+            likesMapper.createLikesReview(0, userId, reviewId);
         else if (isLiked == 1)
-            likesMapper.deleteLikesReview(0, userId, id);
+            likesMapper.deleteLikesReview(0, userId, reviewId);
         //어떠한 이유로든 추천이 두번 이상 되었는지 확인.
         else
             throw new RequestInputException(ErrorMessage.INVALID_RECOMMENDATION);
     }
 
-    @Override
-    public ArrayList<String> getSemesterDateByLectureId(Long id) throws Exception {
-        //해당 강의가 존재하는지 확인.
-        if(lectureMapper.checkLectureExists(id)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-
-        String name = lectureMapper.getNameById(id);
-        String professor = lectureMapper.getProfessorById(id);
-
-        return lectureMapper.getSemesterDateByNameAndProfessor(name, professor);
-    }
-
-    @Override
-    public ArrayList<HashMap<String, String>> getClassByLectureId(Long id) throws Exception {
-        //해당 강의가 존재하는지 확인.
-        if(lectureMapper.checkLectureExists(id)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-
-        return reviewMapper.getClassByLectureId(id);
-    }
 
     @Override
     public void scrapReview(Review review) throws Exception {
@@ -179,12 +168,11 @@ public class ReviewServiceImpl implements ReviewService {
 
         //리뷰가 존재하는지 확인
         if(reviewMapper.isExistsReview(review.getId())==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         //기존 스크랩과 중복되는지 확인
         if(reviewMapper.isExistsScrap(userId, review.getId())!=null)
-            //TODO : 에러메세지 수정
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.SCRAP_ALREADY_EXISTS);
 
         reviewMapper.createScrap(userId, review.getId());
     }
@@ -207,6 +195,10 @@ public class ReviewServiceImpl implements ReviewService {
         if(user == null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
+
+        //이미 스크랩한 내역이 있는지 확인
+        if(reviewMapper.isExistsScrap(userId, review.getId())!=null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         reviewMapper.deleteScrapReview(userId, review.getId());
     }

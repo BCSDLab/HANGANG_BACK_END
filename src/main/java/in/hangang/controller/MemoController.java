@@ -31,8 +31,8 @@ public class MemoController {
     @Auth
     @ApiOperation( value = "메모 읽기", notes = "시간표 강의에 등록된 메모를 읽어옵니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/memo", method = RequestMethod.GET)
-    public ResponseEntity<Memo> getMemo(@RequestParam Memo memo) throws Exception{
-        return new ResponseEntity<Memo>(memoService.getMemo(memo), HttpStatus.OK);
+    public ResponseEntity<Memo> getMemo(@RequestParam Long timeTableId) throws Exception{
+        return new ResponseEntity<Memo>(memoService.getMemo(timeTableId), HttpStatus.OK);
     }
 
     @Auth

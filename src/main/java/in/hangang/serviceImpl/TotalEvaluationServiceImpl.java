@@ -26,7 +26,7 @@ public class TotalEvaluationServiceImpl implements TotalEvaluationService {
     public Review getTotalEvaluation(Long id) throws Exception {
         //해당 강의가 존재하는지 확인.
         if(lectureMapper.checkLectureExists(id)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         return totalEvaluationMapper.getTotalEvaluationByLectureId(id);
     }
 
@@ -34,7 +34,7 @@ public class TotalEvaluationServiceImpl implements TotalEvaluationService {
     public ArrayList<HashMap<String, String>> getRatingCountByLectureId(Long id) throws Exception {
         //해당 강의가 존재하는지 확인.
         if(lectureMapper.checkLectureExists(id)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         return totalEvaluationMapper.getRatingCountByLectureId(id);
     }
 }

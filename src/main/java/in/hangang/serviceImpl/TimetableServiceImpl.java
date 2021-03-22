@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 @Service
@@ -43,6 +44,7 @@ public class TimetableServiceImpl implements TimetableService {
         if(timetableMapper.getSemesterDateId(userTimetable.getSemester_date_id())==null)
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
+        //TODO : 나누기
         if(timetableMapper.getCountSemesterDate(userId, userTimetable.getSemester_date_id())>=5 ||
         timetableMapper.getCountTimeTable(userId)>=50)
             throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT);
@@ -66,7 +68,7 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
         //수정하고자 하는 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 시간표를 수정할 권한이 있는지 확인
         if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
@@ -87,7 +89,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long userId = user.getId();
         //삭제하고자 하는 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 시간표를 삭제할 권한이 있는지 확인
        if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
@@ -95,7 +97,7 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.deleteTimetable(timeTableId);
     }
 
-    public ArrayList<LectureTimeTable> getMainTimeTable() throws Exception{
+    public TimeTableMap getMainTimeTable() throws Exception{
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -103,7 +105,11 @@ public class TimetableServiceImpl implements TimetableService {
         Long userId = user.getId();
         Long timeTableId = timetableMapper.getMainTimeTableId(userId);
 
-        return getLectureListByTimeTableId(timeTableId);
+        //HashMap<ArrayList<UserTimeTable>, ArrayList<LectureTimeTable>> mainTable =
+        //        new HashMap<ArrayList<UserTimeTable>, ArrayList<LectureTimeTable>>();
+        //mainTable.put(timetableMapper.getTableById(timeTableId), getLectureListByTimeTableId(timeTableId));
+
+        return timetableMapper.getTableById(timeTableId);
     }
 
     public void updateMainTimeTable(TimeTable timeTable) throws Exception {
@@ -118,7 +124,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long userId = user.getId();
         //지정하고자 하는 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 시간표를 지정할 권한이 있는지 확인
         if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
@@ -136,13 +142,13 @@ public class TimetableServiceImpl implements TimetableService {
 
         //해당 강의가 존재하는지 확인
         if(timetableMapper.isExists(lectureId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 강의가 이미 있는지 확인
         if(timetableMapper.isAlreadyExists(timeTableId, lectureId)!=null)
             throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
         //해당 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //시간표의 학기 정보와 강의의 학기 정보가 일치하는지 확인
         if(!timetableMapper.getSemesterDateByLectureId(lectureId).equals(timetableMapper.getSemesterDateByTimeTableId(timeTableId)))
             throw new RequestInputException(ErrorMessage.NOT_MATCH_SEMESTER_DATE);
@@ -216,7 +222,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long timeTableId = customTimeTable.getUser_timetable_id();
         Long customLectureId = timetableMapper.getLectureIdByCode(customTimeTable.getCode());
         if (customLectureId==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
         ArrayList<Integer> timeListByLecture = getClassTimeArrayList(timetableMapper.getClassTimeByLectureId(customLectureId));
         for (Integer integer : timeListByLecture) {
@@ -242,7 +248,7 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         //해당 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         return timetableMapper.getLectureListByTimeTableId(timeTableId);
     }
