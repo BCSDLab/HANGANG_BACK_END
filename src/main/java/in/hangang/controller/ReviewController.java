@@ -60,38 +60,22 @@ public class ReviewController {
     // 후기 추천수 기능
     @Auth
     @ApiOperation( value = "강의 후기 추천", notes = "강의 후기 추천 기능입니다. 파라미터로 reviewID를 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/reviews/recommend/{id}", method = RequestMethod.POST)
-    public ResponseEntity createLikesReview(@PathVariable Long id) throws Exception{
-        reviewService.likesReview(id);
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
-    //분반 정보 조회
-    @Auth
-    @ApiOperation(value = "분반 확인 기능", notes = "강의 id를 통해 해당 강의의 모든 분반 정보를 조회합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/reviews/class/{id}", method = RequestMethod.GET)
-    public ResponseEntity getClassByLectureId(@PathVariable Long id) throws Exception{
-        return new ResponseEntity(reviewService.getClassByLectureId(id), HttpStatus.OK);
-
-    }
-
-    @Auth
-    @ApiOperation( value = "개설 학기 조회", notes = "강의 id를 통해 해당 강의가 개설 되었던 학기를 조회합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/semesterdates/{id}", method = RequestMethod.GET)
-    public ResponseEntity getSemesterDateByLectureId(@PathVariable Long id) throws Exception{
-        return new ResponseEntity<ArrayList<String>>(reviewService.getSemesterDateByLectureId(id), HttpStatus.OK);
+    @RequestMapping(value = "/review/recommend", method = RequestMethod.POST)
+    public ResponseEntity createLikesReview(@RequestBody Review review) throws Exception{
+        reviewService.likesReview(review);
+        return new ResponseEntity(new BaseResponse("정상적으로 추천되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
     @Auth
     @ApiOperation( value = "자신이 스크랩한 리뷰 조회", notes = "해당 유저가 스크랩한 모든 리뷰를 조회할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/review/scrap", method = RequestMethod.GET)
+    @RequestMapping(value = "/reviews/scrap", method = RequestMethod.GET)
     public ResponseEntity<ArrayList<Review>> getScrapReviewList() throws Exception{
         return new ResponseEntity<ArrayList<Review>>(reviewService.getScrapReviewList(), HttpStatus.OK);
     }
 
     @Auth
     @ApiOperation( value = "강의 리뷰 스크랩", notes = "강의 리뷰를 스크랩합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/review/scrap", method = RequestMethod.POST)
+    @RequestMapping(value = "/reviews/scrap", method = RequestMethod.POST)
     public ResponseEntity scrapReview(@RequestBody Review review) throws Exception{
         reviewService.scrapReview(review);
         return new ResponseEntity( new BaseResponse("리뷰가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
@@ -99,7 +83,7 @@ public class ReviewController {
 
     @Auth
     @ApiOperation( value = "스크랩 삭제", notes = "스크랩한 리뷰를 삭제합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/review/scrap", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/reviews/scrap", method = RequestMethod.DELETE)
     public ResponseEntity deleteScrap(@RequestBody Review review) throws Exception{
         reviewService.deleteScrapReview(review);
         return new ResponseEntity( new BaseResponse("리뷰가 정상적으로 삭제되었습니다", HttpStatus.OK), HttpStatus.OK);
@@ -107,7 +91,7 @@ public class ReviewController {
 
     @Auth
     @ApiOperation( value = "스크랩 갯수 조회", notes = "해당 유저가 스크랩한 리뷰의 갯수를 조회합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/review/scrap/count", method = RequestMethod.GET)
+    @RequestMapping(value = "/reviews/scrap/count", method = RequestMethod.GET)
     public ResponseEntity getCountScrap() throws Exception{
         return new ResponseEntity(reviewService.getCountScrapReview(), HttpStatus.OK);
     }

@@ -2,10 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
-import in.hangang.domain.CustomTimeTable;
-import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.TimeTable;
-import in.hangang.domain.UserTimeTable;
+import in.hangang.domain.*;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.TimetableService;
 import io.swagger.annotations.ApiOperation;
@@ -16,8 +13,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.sql.Time;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @RestController
 public class TimeTableController {
@@ -76,8 +73,8 @@ public class TimeTableController {
     @Auth
     @ApiOperation( value = "메인 시간표 보기", notes = "메인 시간표를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/main/lecture", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<LectureTimeTable>> getMainTimeTable () throws Exception{
-        return new ResponseEntity<ArrayList<LectureTimeTable>>(timetableService.getMainTimeTable(), HttpStatus.OK);
+    public ResponseEntity<TimeTableMap> getMainTimeTable () throws Exception{
+        return new ResponseEntity<TimeTableMap>(timetableService.getMainTimeTable(), HttpStatus.OK);
     }
 
     @Auth
@@ -120,6 +117,4 @@ public class TimeTableController {
     public ResponseEntity createMemo(@Validated(ValidationGroups.createMemo.class) @RequestBody Memo memo) throws Exception{
     }
     */
-
-
 }

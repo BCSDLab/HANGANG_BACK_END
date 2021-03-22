@@ -143,6 +143,14 @@
         WHERE lecture.id = REV.lecture_id
     </update>
 
+    <select id="getClassByLectureId" resultType="java.util.HashMap">
+        SELECT id, class, target FROM lecture_timetable
+        WHERE name = (SELECT name FROM lecture WHERE id = #{lecture_id})
+          AND professor = (SELECT professor FROM lecture WHERE id = #{lecture_id})
+          AND semester_date = 5
+        ORDER BY class
+    </select>
+
     <select id="getSemesterDateByNameAndProfessor" resultType="String">
         SELECT semester FROM hangang.semester_date
         WHERE id IN(SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)

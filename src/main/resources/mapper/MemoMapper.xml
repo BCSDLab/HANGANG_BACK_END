@@ -6,7 +6,7 @@
     </insert>
 
     <select id="getMemo" resultType="in.hangang.domain.Memo">
-        SELECT id, timetable_id, memo FROM hangang.memo WHERE timetable_id = #{timetable_id} AND is_deleted = 0;
+        SELECT id, timetable_id, memo FROM hangang.memo WHERE timetable_id = #{timeTableId} AND is_deleted = 0;
     </select>
 
     <update id="updateMemo">

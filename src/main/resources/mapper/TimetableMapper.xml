@@ -10,6 +10,18 @@
         </choose>
     </select>
 
+    <select id="getTableById" resultMap="mainTable">
+        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE id = #{id} AND is_deleted = 0;
+    </select>
+
+    <resultMap id="mainTable" type="in.hangang.domain.TimeTableMap">
+        <result column="id" property="id"/>
+        <result column="semester_date_id" property="tableSemesterDate"/>
+        <result column="name" property="tableName"/>
+        <collection property="lectureList" ofType="in.hangang.domain.LectureTimeTable" column="{id=id}" select="getLectureListByTimeTableId">
+        </collection>
+    </resultMap>
+
     <select id="getClassTimeByLectureId" resultType="String">
         SELECT class_time FROM hangang.lecture_timetable WHERE id = #{lectureId};
     </select>
@@ -57,7 +69,7 @@
     </select>
 
     <insert id="createLectureOnTimeTable">
-        INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId})
+        INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId});
     </insert>
 
     <select id="createTimetable" resultType="Long">
@@ -66,7 +78,7 @@
     </select>
 
     <update id="updateTimeTable">
-        UPDATE hangang.user_timetables SET name = #{name}, updated_at = now() WHERE id = #{timeTableId}
+        UPDATE hangang.user_timetables SET name = #{name}, updated_at = now() WHERE id = #{timeTableId};
     </update>
 
     <update id="deleteTimetable">
@@ -74,7 +86,7 @@
     </update>
 
     <select id="getSemesterDateId" resultType="Long">
-        SELECT id FROM semester_date WHERE id = #{semesterDateId}
+        SELECT id FROM semester_date WHERE id = #{semesterDateId};
     </select>
 
     <select id="getLectureIdByCode" resultType="Long">
@@ -94,6 +106,7 @@
     <update id="assignMainTimeTable">
         UPDATE hangang.user_timetables SET is_main = 1 WHERE id = #{timeTableId}
     </update>
+
     <update id="updateMainTimeTable">
         <!-- mysql에서 UPDATE할 같은 테이블을 조회해서 업데이트하는 것이 막혀 있음 -->
         UPDATE hangang.user_timetables SET is_main = 0 WHERE id IN (SELECT id FROM(SELECT id FROM hangang.user_timetables WHERE user_id = #{userId} AND is_main = 1 AND is_deleted = 0) as temp);
@@ -124,4 +137,7 @@
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
     </resultMap>
+
+
+
 </mapper>

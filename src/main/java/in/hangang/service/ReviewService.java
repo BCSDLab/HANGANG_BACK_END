@@ -12,9 +12,7 @@ public interface ReviewService {
     Review getReview(Long id) throws Exception;
     ArrayList<Review> getReviewByLectureId(Long id, Criteria criteria) throws Exception;
     void createReview(Review review) throws Exception;
-    void likesReview(Long id) throws Exception;
-    ArrayList<String> getSemesterDateByLectureId(Long id) throws Exception;
-    ArrayList<HashMap<String, String>> getClassByLectureId(Long id) throws Exception;
+    void likesReview(Review review) throws Exception;
     void scrapReview(Review review) throws Exception;
     ArrayList<Review> getScrapReviewList() throws Exception;
     void deleteScrapReview(Review review) throws Exception;
