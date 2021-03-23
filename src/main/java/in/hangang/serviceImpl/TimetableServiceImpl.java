@@ -1,5 +1,6 @@
 package in.hangang.serviceImpl;
 import in.hangang.domain.*;
+import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.TimetableMapper;
@@ -21,6 +22,15 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Resource
     UserService userService;
+
+    @Override
+    public ArrayList<LectureTimeTable> getLectureList(TimeTableCriteria timeTableCriteria) throws Exception {
+        //학기 정보가 비어있으면 예외 처리
+        if(timeTableCriteria.getSemesterDateId()==null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+
+        return timetableMapper.getLectureList(timeTableCriteria);
+    }
 
     @Override
     public ArrayList<UserTimeTable> getTableListByUserId(Long semesterDateId) throws Exception {

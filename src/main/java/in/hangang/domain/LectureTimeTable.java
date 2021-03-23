@@ -38,6 +38,7 @@ public class LectureTimeTable {
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
+    private float rating;
 
     public Long getId() {
         return id;
@@ -189,5 +190,13 @@ public class LectureTimeTable {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
     }
 }
