@@ -3,10 +3,12 @@ package in.hangang.mapper;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.TimeTableMap;
 import in.hangang.domain.UserTimeTable;
+import in.hangang.domain.criteria.TimeTableCriteria;
 
 import java.util.ArrayList;
 
 public interface TimetableMapper {
+    ArrayList<LectureTimeTable> getLectureList(TimeTableCriteria timeTableCriteria);
     ArrayList<UserTimeTable> getTableListByUserId(Long userId, Long semesterDateId);
     TimeTableMap getTableById(Long id);
     Long createTimetable(Long user_id, Long semester_date_id, String name);

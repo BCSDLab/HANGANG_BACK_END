@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TimetableMapper">
+
+    <select id="getLectureList" resultMap="lectureList">
+        SELECT * FROM hangang.lecture_timetable WHERE semester_date = #{semesterDateId} AND is_deleted = 0
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(classification)">
+                AND
+                <foreach collection="classification" item="classification" open="(" close=")" separator="or">
+                    classification = #{classification}
+                </foreach>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
+                AND ((name like concat('%',#{keyword},'%')) OR (professor like concat('%',#{keyword},'%')))
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
+                AND department = #{department}
+            </when>
+        </choose>
+
+        LIMIT #{cursor}, #{limit}
+    </select>
+
     <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimeTable">
         SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0
         <choose>
@@ -137,6 +162,34 @@
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
     </resultMap>
+
+    <resultMap id="lectureList" type="in.hangang.domain.LectureTimeTable">
+        <result column="id" property="id"/>
+        <result column="is_custom" property="is_custom"/>
+        <result column="semester_date" property="semester_date"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="classification" property="classification"/>
+        <result column="grades" property="grades"/>
+        <result column="class" property="classNumber"/>
+        <result column="regular_number" property="regular_number"/>
+        <result column="department" property="department"/>
+        <result column="target" property="target"/>
+        <result column="professor" property="professor"/>
+        <result column="is_english" property="is_english"/>
+        <result column="design_score" property="design_score"/>
+        <result column="is_elearning" property="is_elearning"/>
+        <result column="class_time" property="class_time"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <collection
+                property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
+        </collection>
+    </resultMap>
+
+    <select id="getRatingByNameAndProfessor" resultType="Float">
+        SELECT total_rating FROM lecture WHERE name = #{name} AND professor = #{professor};
+    </select>
 
 
 

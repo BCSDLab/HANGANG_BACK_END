@@ -3,6 +3,7 @@ package in.hangang.controller;
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.*;
+import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.TimetableService;
 import io.swagger.annotations.ApiOperation;
@@ -21,6 +22,11 @@ public class TimeTableController {
 
     @Resource
     TimetableService timetableService;
+
+    @RequestMapping(value = "/timetable/lecture/list", method = RequestMethod.GET)
+    public ResponseEntity<ArrayList<LectureTimeTable>> getLectureList(@ModelAttribute TimeTableCriteria timeTableCriteria) throws Exception{
+        return new ResponseEntity<ArrayList<LectureTimeTable>>(timetableService.getLectureList(timeTableCriteria), HttpStatus.OK);
+    }
 
     @Auth
     @ApiOperation( value = "시간표 확인", notes = "해당 유저가 생성한 시간표를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
