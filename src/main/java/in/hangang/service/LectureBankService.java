@@ -23,7 +23,8 @@ public interface LectureBankService {
     List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long id) throws IOException;
     Long fileUpload(MultipartFile file, Long id) throws IOException;
     List<Upload_File> getFileList(Long lecture_bank_id) throws Exception;
-    org.springframework.core.io.Resource getprivateObject(Long id) throws Exception;
+    //org.springframework.core.io.Resource getprivateObject(Long id) throws Exception;
+    String getObjectUrl(Long id) throws Exception;
     void cancelUpload(Long id) throws Exception;
 
     //comment
@@ -31,6 +32,7 @@ public interface LectureBankService {
     void addComment(Long lecture_bank_id, String comments) throws Exception;
     void setComment(Long lecture_bank_comment_id, String comments) throws Exception;
     void deleteComment(Long lecture_bank_comment_id) throws Exception;
+    Boolean checkCommentWriter(Long lecture_bank_comment_id)throws Exception;
 
     //purchase
     Boolean checkPurchase(Long lecture_bank_id) throws Exception;

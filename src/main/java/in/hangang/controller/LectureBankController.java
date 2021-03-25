@@ -36,6 +36,7 @@ public class LectureBankController {
     public @ResponseBody
     ResponseEntity getSearchLectureBanks(@ModelAttribute("criteria") LectureBankCriteria lectureBankCriteria) {
         return new ResponseEntity<List<LectureBank>>(lectureBankService.searchLectureBanks(lectureBankCriteria), HttpStatus.OK);
+        //TODO THUMBNAIL URL 추가****************************************************************************************
     }
 
 
@@ -72,7 +73,9 @@ public class LectureBankController {
 
     @Auth
     @RequestMapping(value = "/write", method = RequestMethod.POST)
-    @ApiOperation(value ="강의자료 작성완료" , notes = "id를 포함하여 작성한 강의 자료를 전송합니다")
+    @ApiOperation(value ="강의자료 작성완료" , notes = "id를 포함하여 작성한 강의 자료를 전송합니다(/write에서 받은 id 입력)"
+            +"\nsemester_date : 수강 학기 ( 20191, 20192, 20201, 20202, 20211 )"
+            +"")
     public @ResponseBody
     ResponseEntity submitLectureBank(@RequestBody LectureBank lectureBank) throws Exception {
         lectureBankService.submitLectureBank(lectureBank);
@@ -135,35 +138,18 @@ public class LectureBankController {
     @RequestMapping(value = "/file/cancel_upload/{id}", method = RequestMethod.POST)
     @ApiOperation(value ="업로드 취소" , notes = "파일 업로드가 취소 됩니다\n해당파일을 제외하고 업로드 할 시 사용합니다\n파라미터는 파일의 id 입니다.")
     public @ResponseBody
-    ResponseEntity<Long> cancelUpload(@PathVariable Long id) throws Exception {
+    ResponseEntity cancelUpload(@PathVariable Long id) throws Exception {
         lectureBankService.cancelUpload(id);
         return new ResponseEntity(HttpStatus.OK);
     }
 
 
-    //check if file is users's? ************************************************************************
-
-
+    @Auth
     @RequestMapping(value = "/file/download/{id}", method = RequestMethod.GET)
     @ApiOperation(value ="단일 파일 다운로드" , notes = "파일을 1개 다운로드 합니다.\n파라미터는 파일의 id 입니다.")
     public @ResponseBody
-    ResponseEntity getFile(@ApiParam(required = true) @PathVariable Long id) throws Exception {
-        org.springframework.core.io.Resource resource = lectureBankService.getprivateObject(id);
-        //if(resource == null) return new ResponseEntity(HttpStatus.OK);
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String contentType=null;
-        try{
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        }catch (IOException e){
-            System.out.println("default type null");
-        }
-
-        if(contentType == null){
-            contentType = "application/octet-stream";
-        }
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() +"\"")
-                .body(resource);
+    ResponseEntity<String> getFile(@ApiParam(required = true) @PathVariable Long id) throws Exception {
+        return new ResponseEntity<String>(lectureBankService.getObjectUrl(id),HttpStatus.OK);
     }
 
 

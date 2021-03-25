@@ -1,3 +1,4 @@
+/*
 create table if not exists hangang.user (
 	id bigint unsigned auto_increment primary key,
     portal_account varchar(50) unique not null,

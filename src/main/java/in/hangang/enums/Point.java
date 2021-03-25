@@ -4,9 +4,10 @@ import org.springframework.http.HttpStatus;
 
 public enum Point {
     SIGN_UP("유저 회원가입", 20,1),
-    LECTURE_PURCHASE("강의자료 업로드", 2),
+    LECTURE_PURCHASE("강의자료 구매", 2),
     LECTURE_REVIEW("강의평 작성", 20,3),
-    LECTURE_UPLOAD("강의자료 업로드", 50,4);
+    LECTURE_UPLOAD("강의자료 업로드", 50,4),
+    LECTURE_SELL("강의자료 판매",5);
 
 
     private String name;

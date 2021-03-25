@@ -23,11 +23,11 @@
             (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id)
             and available = 1
             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(category)">
-                and
-                <foreach collection="category" item="category" open="(" close=")"  separator="or">
-                    LBC.category = #{category}
-                </foreach>
-            </if>
+            and
+            <foreach collection="category" item="category" open="(" close=")"  separator="or">
+                LBC.category = #{category}
+            </foreach>
+        </if>
             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
                 and
                 (LB.title like concat('%',#{keyword},'%')
@@ -115,7 +115,8 @@
     </select>
 
     <update id="setLectureBank">
-        UPDATE lecture_bank SET title = #{title}, content = #{content}, point_price = #{point_price}
+        UPDATE lecture_bank SET title = #{title}, content = #{content}
+                              ,point_price = #{point_price}, semester_date_id = #{semester_date_id}
         WHERE id = #{lecture_bank_id};
     </update>
     <insert id="addCategory">
@@ -129,13 +130,28 @@
     </delete>
 
     <delete id="deleteLectureBank">
-        DELETE FROM lecture_bank
+        UPDATE lecture_bank SET is_deleted =1
         WHERE id = #{id} AND user_id = #{user_id};
     </delete>
 
     <select id="getCategoryIdList" resultType="java.lang.Long">
         SELECT id FROM lecture_bank_category
         where lecture_bank_id = #{lecture_bank_id};
+    </select>
+
+    <select id="getWriterId" resultType="java.lang.Long">
+        SELECT user_id FROM lecture_bank
+        where id = #{id};
+    </select>
+
+    <select id="getLatestSemesterID" resultType="java.lang.Long">
+        SELECT id FROM semester_date
+        ORDER BY id DESC LIMIT 1;
+    </select>
+
+    <select id="getSemesterID" resultType="java.lang.Long">
+        SELECT id FROM semester_date
+        where semester = #{semester}
     </select>
 
 <!--purchase-->
@@ -153,17 +169,18 @@
     </update>
 
 
+
     <!--Hit-->
     <select id="checkHits" resultType="Integer">
-        SELECT hit_pushed FROM lecture_bank_purchase WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
+        SELECT hit FROM lecture_bank_hit WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
     </select>
 
     <update id="subHit">
-        UPDATE lecture_bank_purchase SET hit_pushed = 0
+        UPDATE lecture_bank_hit SET hit = 0
         WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
     </update>
     <update id="addHit">
-        UPDATE lecture_bank_purchase SET hit_pushed = 1
+        UPDATE lecture_bank_hit SET hit = 1
         WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
     </update>
     <update id="addHit_lecture_bank">
@@ -173,7 +190,7 @@
         UPDATE lecture_bank SET hits = hits - 1 WHERE id = #{lecture_bank_id};
     </update>
     <insert id="hitInsert">
-        INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id,hit_pushed)
+        INSERT INTO lecture_bank_hit(user_id, lecture_bank_id,hit)
         values(#{user_id}, #{lecture_id},1);
     </insert>
 
@@ -195,6 +212,11 @@
         DELETE FROM lecture_bank_comment
         where id = #{id};
     </delete>
+
+    <select id="getCommentWriterId" resultType="java.lang.Long">
+        SELECT user_id FROM lecture_bank_comment
+        where id = #{id};
+    </select>
 
 
 <!--File-->
@@ -221,6 +243,15 @@
         UPDATE upload_file SET available = #{available}
         WHERE id = #{id};
     </update>
+    <update id="setMultiFileAvailable">
+        UPDATE upload_file SET available = #{available}
+        WHERE
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(id_list)">
+            <foreach collection="id_list" item="id" open="(" close=")"  separator="or">
+                id = #{id}
+            </foreach>
+        </if>;
+    </update>
     <select id="getUrl" resultType="java.lang.String">
         SELECT url FROM upload_file
         WHERE id = #{id};
@@ -229,6 +260,18 @@
         SELECT id FROM upload_file
         WHERE lecture_bank_id = #{lecture_bank_id};
     </select>
+    <select id="getLectureBankId_file" resultType="java.lang.Long">
+        SELECT lecture_bank_id FROM upload_file
+        WHERE id = #{id};
+    </select>
+
+
+<!--else-->
+
+    <insert id="addPointHistory">
+        INSERT INTO user_point_history(user_id, variance, point_type_id)
+        VALUES (#{user_id}, #{variance}, #{point_type_id});
+    </insert>
 
 
 </mapper>

@@ -23,25 +23,30 @@ public interface LectureBankMapper {
     LectureBank getLectureBank(@Param("id")Long id);
     Lecture getLectureInfo(@Param("id")Long id);
     Long getLectureBankId(@Param("user_id")Long user_id);
-    void setLectureBank(@Param("lecture_bank_id")Long lecture_bank_id, @Param("lecture_id")Long lecture_id, @Param("title")String title, @Param("content") String content, @Param("point_price")Integer point_price);
+    void setLectureBank(@Param("lecture_bank_id")Long lecture_bank_id, @Param("lecture_id")Long lecture_id, @Param("title")String title, @Param("content") String content, @Param("point_price")Integer point_price, @Param("semester_date_id")Long semester_date_id);
     void createLectureBank(@Param("user_id")Long user_id);
     void deleteLectureBank(@Param("id")Long id, @Param("user_id")Long user_id);
 
     void addCategory(@Param("lecture_bank_id")Long lecture_bank_id, @Param("category")String category);
     void deleteCategory(@Param("id")Long id);
     List<Long> getCategoryIdList(@Param("lecture_bank_id")Long lecture_bank_id);
+    Long getWriterId(@Param("id")Long id);
+    Long getLatestSemesterID();
+    Long getSemesterID(@Param("semester")String semester);
 
     //comments
     ArrayList<LectureBankComment> getComments(@Param("lecture_bank_id")Long lecture_bank_id);
     void addComment(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id, @Param("comments")String comments);
     void setComment(@Param("id")Long id, @Param("comments")String comments);
     void deleteComment(@Param("id") Long id);
+    Long getCommentWriterId(@Param("id") Long id);
 
 
     //purchase
     Integer checkPurchased(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void purchaseInsert(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void setPoint(@Param("user_id")Long user_id, @Param("point")Integer point);
+
 
 
     //hits
@@ -59,8 +64,14 @@ public interface LectureBankMapper {
     Long getUploadFileId(@Param("lecture_bank_id")Long lecture_bank_id);
     List<Long> getFileIdList(@Param("lecture_bank_id")Long lecture_bank_id);
     void setFileAvailable(@Param("id")Long id, @Param("available")Integer available);
+    void setMultiFileAvailable(@Param("id_list")List<Long> id_list, @Param("available")Integer available);
     String getUrl(@Param("id")Long id);
     List<Long> getFileId(@Param("lecture_bank_id")Long lecture_bank_id);
+    Long getLectureBankId_file(@Param("id")Long id);
+
+
+    //else
+    void addPointHistory(@Param("user_id")Long user_id, @Param("variance")Integer variance, @Param("point_type_id")Integer point_type_id);
 
 
 }
