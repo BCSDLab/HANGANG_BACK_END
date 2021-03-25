@@ -2,10 +2,8 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
-import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.Memo;
-import in.hangang.domain.TimeTable;
-import in.hangang.domain.UserTimeTable;
+import in.hangang.domain.*;
+import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.TimetableService;
 import io.swagger.annotations.ApiOperation;
@@ -17,11 +15,18 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @RestController
 public class TimeTableController {
+
     @Resource
     TimetableService timetableService;
+
+    @RequestMapping(value = "/timetable/lecture/list", method = RequestMethod.GET)
+    public ResponseEntity<ArrayList<LectureTimeTable>> getLectureList(@ModelAttribute TimeTableCriteria timeTableCriteria) throws Exception{
+        return new ResponseEntity<ArrayList<LectureTimeTable>>(timetableService.getLectureList(timeTableCriteria), HttpStatus.OK);
+    }
 
     @Auth
     @ApiOperation( value = "시간표 확인", notes = "해당 유저가 생성한 시간표를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
@@ -72,11 +77,42 @@ public class TimeTableController {
     }
 
     @Auth
+    @ApiOperation( value = "메인 시간표 보기", notes = "메인 시간표를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/main/lecture", method = RequestMethod.GET)
+    public ResponseEntity<TimeTableMap> getMainTimeTable () throws Exception{
+        return new ResponseEntity<TimeTableMap>(timetableService.getMainTimeTable(), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "메인 시간표 변경", notes = "메인 시간표를 변경할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/main/lecture", method = RequestMethod.PATCH)
+    public ResponseEntity updateMainTimeTable(@RequestBody TimeTable timeTable) throws Exception{
+        timetableService.updateMainTimeTable(timeTable);
+        return new ResponseEntity( new BaseResponse("메인 시간표가 변경되었습니다.", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
     @ApiOperation( value = "강의 삭제", notes = "시간표에 등록된 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture", method = RequestMethod.DELETE)
     public ResponseEntity deleteLectureOnTimeTable(@RequestBody TimeTable timeTable) throws Exception{
         timetableService.deleteLectureOnTimeTable(timeTable);
         return new ResponseEntity( new BaseResponse("해당 강의가 삭제되었습니다.", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "시간표에 강의 추가 직접 추가", notes = "시간표에 강의를 직접 만들어 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/custom/lecture", method = RequestMethod.POST)
+    public ResponseEntity createCustomLectureOnTimeTable (@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
+        timetableService.createCustomLectureOnTimeTable(lectureTimeTable);
+        return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "코드를 이용하여 강의 추가", notes = "공유받은 코드로 강의를 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/custom/code", method = RequestMethod.POST)
+    public ResponseEntity createCustomLectureOnTimeTableByCode (@RequestBody CustomTimeTable customTimeTable) throws Exception{
+        timetableService.createCustomLectureOnTableByCode(customTimeTable);
+        return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
     }
 
     /*
@@ -87,6 +123,4 @@ public class TimeTableController {
     public ResponseEntity createMemo(@Validated(ValidationGroups.createMemo.class) @RequestBody Memo memo) throws Exception{
     }
     */
-
-
 }

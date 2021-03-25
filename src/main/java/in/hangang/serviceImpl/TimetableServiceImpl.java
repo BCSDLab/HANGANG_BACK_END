@@ -1,8 +1,6 @@
 package in.hangang.serviceImpl;
-import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.TimeTable;
-import in.hangang.domain.User;
-import in.hangang.domain.UserTimeTable;
+import in.hangang.domain.*;
+import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.TimetableMapper;
@@ -12,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Random;
 
 @Service
 public class TimetableServiceImpl implements TimetableService {
@@ -21,6 +22,15 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Resource
     UserService userService;
+
+    @Override
+    public ArrayList<LectureTimeTable> getLectureList(TimeTableCriteria timeTableCriteria) throws Exception {
+        //학기 정보가 비어있으면 예외 처리
+        if(timeTableCriteria.getSemesterDateId()==null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+
+        return timetableMapper.getLectureList(timeTableCriteria);
+    }
 
     @Override
     public ArrayList<UserTimeTable> getTableListByUserId(Long semesterDateId) throws Exception {
@@ -44,11 +54,15 @@ public class TimetableServiceImpl implements TimetableService {
         if(timetableMapper.getSemesterDateId(userTimetable.getSemester_date_id())==null)
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
+        //TODO : 나누기
         if(timetableMapper.getCountSemesterDate(userId, userTimetable.getSemester_date_id())>=5 ||
         timetableMapper.getCountTimeTable(userId)>=50)
             throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT);
 
-        timetableMapper.createTimetable(userId, userTimetable.getSemester_date_id(), userTimetable.getName());
+        Long timeTableId = timetableMapper.createTimetable(userId, userTimetable.getSemester_date_id(), userTimetable.getName());
+        //메인으로 지정된 시간표가 없다면 메인 시간표로 지정
+        if(timetableMapper.getMainTimeTableId(userId)==null)
+            timetableMapper.assignMainTimeTable(timeTableId);
     }
 
     @Override
@@ -64,7 +78,7 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
         //수정하고자 하는 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 시간표를 수정할 권한이 있는지 확인
         if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
@@ -85,12 +99,47 @@ public class TimetableServiceImpl implements TimetableService {
         Long userId = user.getId();
         //삭제하고자 하는 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 시간표를 삭제할 권한이 있는지 확인
        if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         timetableMapper.deleteTimetable(timeTableId);
+    }
+
+    public TimeTableMap getMainTimeTable() throws Exception{
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        Long timeTableId = timetableMapper.getMainTimeTableId(userId);
+
+        //HashMap<ArrayList<UserTimeTable>, ArrayList<LectureTimeTable>> mainTable =
+        //        new HashMap<ArrayList<UserTimeTable>, ArrayList<LectureTimeTable>>();
+        //mainTable.put(timetableMapper.getTableById(timeTableId), getLectureListByTimeTableId(timeTableId));
+
+        return timetableMapper.getTableById(timeTableId);
+    }
+
+    public void updateMainTimeTable(TimeTable timeTable) throws Exception {
+        //id가 비어있다면 에러
+        Long timeTableId = timeTable.getUser_timetable_id();
+        if(timeTableId == null)
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        //지정하고자 하는 시간표가 존재하는지 확인
+        if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        //해당 시간표를 지정할 권한이 있는지 확인
+        if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        timetableMapper.updateMainTimeTable(userId, timeTableId);
     }
 
     @Override
@@ -103,13 +152,13 @@ public class TimetableServiceImpl implements TimetableService {
 
         //해당 강의가 존재하는지 확인
         if(timetableMapper.isExists(lectureId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 강의가 이미 있는지 확인
         if(timetableMapper.isAlreadyExists(timeTableId, lectureId)!=null)
             throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
         //해당 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //시간표의 학기 정보와 강의의 학기 정보가 일치하는지 확인
         if(!timetableMapper.getSemesterDateByLectureId(lectureId).equals(timetableMapper.getSemesterDateByTimeTableId(timeTableId)))
             throw new RequestInputException(ErrorMessage.NOT_MATCH_SEMESTER_DATE);
@@ -141,7 +190,58 @@ public class TimetableServiceImpl implements TimetableService {
         if(!userId.equals(timetableMapper.getUserIdByTimeTableId(timeTableId)))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
+        //삭제 방식에 대한 고민
         timetableMapper.deleteLectureOnTimeTable(timeTableId, lectureId);
+    }
+
+    @Override
+    public void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        Long timeTableId = lectureTimeTable.getUser_timetable_id();
+        ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
+        ArrayList<Integer> timeListByLecture = getClassTimeArrayList(new ArrayList<>(Collections.singletonList(lectureTimeTable.getClass_time())));
+        for (Integer integer : timeListByLecture) {
+            //시간이 중복되는지 확인
+            if (timeListByTimeTable.contains(integer))
+                throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
+        }
+        String code = "";
+        for(int i=0; i<10; i++){
+            code = createRandomCode();
+            if(timetableMapper.getLectureIdByCode(code)==null)
+                break;
+        }
+        lectureTimeTable.setCode(code);
+        lectureTimeTable.setIs_custom(true);
+        timetableMapper.createLectureOnTimeTable(lectureTimeTable.getUser_timetable_id(), timetableMapper.createLecture(lectureTimeTable));;
+    }
+
+    @Override
+    public void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(customTimeTable.getUser_timetable_id())))
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        Long timeTableId = customTimeTable.getUser_timetable_id();
+        Long customLectureId = timetableMapper.getLectureIdByCode(customTimeTable.getCode());
+        if (customLectureId==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
+        ArrayList<Integer> timeListByLecture = getClassTimeArrayList(timetableMapper.getClassTimeByLectureId(customLectureId));
+        for (Integer integer : timeListByLecture) {
+            //시간이 중복되는지 확인
+            if (timeListByTimeTable.contains(integer))
+                throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
+        }
+        timetableMapper.createLectureOnTimeTable(timeTableId, customLectureId);
+
     }
 
     @Override
@@ -158,7 +258,7 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         //해당 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         return timetableMapper.getLectureListByTimeTableId(timeTableId);
     }
@@ -175,5 +275,19 @@ public class TimetableServiceImpl implements TimetableService {
             }
         }
         return classTimeArrayList;
+    }
+
+    public String createRandomCode(){
+        Random random = new Random();
+        StringBuilder stringBuilder = new StringBuilder(8);
+        for(int i=0; i<3; i++){
+            char tmp = (char)((int)(Math.random()*25)+65);
+            stringBuilder.append(tmp);
+        }
+        stringBuilder.append("-");
+        int number = (int) (Math.random() * 9999) +1000;
+        stringBuilder.append(number);
+
+        return stringBuilder.toString();
     }
 }

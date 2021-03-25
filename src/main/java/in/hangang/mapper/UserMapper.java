@@ -5,6 +5,7 @@ import in.hangang.annotation.Auth;
 import in.hangang.domain.AuthNumber;
 import in.hangang.domain.PointHistory;
 import in.hangang.domain.User;
+import in.hangang.domain.UserLectureBank;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -14,7 +15,6 @@ import java.util.List;
 
 @Repository
 public interface UserMapper {
-    void setMajor(String major,Long user_id);
     void setSalt(String salt,Long user_id);
     void signUp(User user);
     Long getUserIdFromPortal(String portal_account);
@@ -36,5 +36,11 @@ public interface UserMapper {
     Long getLectureBankCommentCount(Long id);
     void addPointHistory(Long user_id, Integer variance, Integer pointTypeId);
     List<PointHistory> getUserPointHistory(Long id);
-
+    void updateUser(Long id, String nickname, List<String> major);
+    void insertMajors(Long id, List<String> major);
+    Long getUserIdFromPortalForReSignUp(String portal_account);
+    void reSignUp(User user);
+    void softDeleteUser(Long id, String nickname);
+    void reSignMajors(Long id, List<String> major);
+    List<UserLectureBank> getUserPurchasedLectureBank(Long id);
 }

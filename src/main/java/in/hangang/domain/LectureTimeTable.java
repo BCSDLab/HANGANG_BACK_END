@@ -1,25 +1,44 @@
 package in.hangang.domain;
 
+import io.swagger.annotations.ApiModelProperty;
 import java.sql.Timestamp;
 
 public class LectureTimeTable {
+    @ApiModelProperty(hidden = true)
     private Long id;
+    @ApiModelProperty(hidden = true)
+    private boolean is_custom;
+    private Long user_timetable_id;
+    @ApiModelProperty(hidden = true)
     private String semester_date;
+    @ApiModelProperty(hidden = true)
     private String code;
     private String name;
+    @ApiModelProperty(hidden = true)
     private String classification;
+    @ApiModelProperty(hidden = true)
     private String grades;
+    @ApiModelProperty(hidden = true)
     private String classNumber;
+    @ApiModelProperty(hidden = true)
     private String regular_number;
+    @ApiModelProperty(hidden = true)
     private String department;
+    @ApiModelProperty(hidden = true)
     private String target;
     private String professor;
+    @ApiModelProperty(hidden = true)
     private String is_english;
+    @ApiModelProperty(hidden = true)
     private String design_score;
+    @ApiModelProperty(hidden = true)
     private String is_elearning;
     private String class_time;
+    @ApiModelProperty(hidden = true)
     private Timestamp created_at;
+    @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
+    private float rating;
 
     public Long getId() {
         return id;
@@ -27,6 +46,22 @@ public class LectureTimeTable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public boolean isIs_custom() {
+        return is_custom;
+    }
+
+    public void setIs_custom(boolean is_custom) {
+        this.is_custom = is_custom;
+    }
+
+    public Long getUser_timetable_id() {
+        return user_timetable_id;
+    }
+
+    public void setUser_timetable_id(Long user_timetable_id) {
+        this.user_timetable_id = user_timetable_id;
     }
 
     public String getSemester_date() {
@@ -155,5 +190,13 @@ public class LectureTimeTable {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
     }
 }

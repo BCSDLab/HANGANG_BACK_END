@@ -45,8 +45,7 @@ public class UserController {
     @RequestMapping(value = "/sign-up", method = RequestMethod.POST)
     @ApiOperation(value ="회원가입" , notes = "회원가입 하기위한 api입니다. 이메일인증이 선행되어야 합니다.")
     public ResponseEntity signUp(@RequestBody @Validated(ValidationGroups.signUp.class) User user) throws Exception{
-        userService.signUp(user);
-        return new ResponseEntity( new BaseResponse("회원가입에 성공했습니다.", HttpStatus.OK),HttpStatus.OK);
+        return new ResponseEntity( userService.signUp(user),HttpStatus.OK);
     }
 
     @Auth
@@ -136,8 +135,28 @@ public class UserController {
         return new ResponseEntity(userService.getUserPointHistory(), HttpStatus.OK);
     }
 
-    //TODO MYpage 자기 개인 정보 바꾸기 api
-    //TODO 회원탈퇴
-    //TODO 스크랩 삭제
-    //TODO 구입한 자료
+    @Auth
+    @PutMapping("/me")
+    @ApiOperation( value = "개인정보 바꾸기",notes = "개인정보 바꾸기 ", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity updateUser(@Validated(ValidationGroups.updateUser.class) @RequestBody User user){
+        userService.updateUser(user);
+        return new ResponseEntity(new BaseResponse("수정이 완료 되었습니다.", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @DeleteMapping("/me")
+    @ApiOperation( value = "회원 탈퇴",notes = "회원 탈퇴", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity deleteUser(){
+        return new ResponseEntity( userService.deleteUser(), HttpStatus.OK);
+    }
+
+    
+    @Auth
+    @GetMapping("/purchase")
+    @ApiOperation( value = "구입한 자료들",notes = "유저가 구입한 자료들", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity getPurchase(){
+        return new ResponseEntity(userService.getUserPurchasedLectureBank(), HttpStatus.OK);
+    }
+
+
 }

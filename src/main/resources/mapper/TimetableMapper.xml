@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TimetableMapper">
+
+    <select id="getLectureList" resultMap="lectureList">
+        SELECT * FROM hangang.lecture_timetable WHERE semester_date = #{semesterDateId} AND is_deleted = 0
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(classification)">
+                AND
+                <foreach collection="classification" item="classification" open="(" close=")" separator="or">
+                    classification = #{classification}
+                </foreach>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
+                AND ((name like concat('%',#{keyword},'%')) OR (professor like concat('%',#{keyword},'%')))
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
+                AND department = #{department}
+            </when>
+        </choose>
+
+        LIMIT #{cursor}, #{limit}
+    </select>
+
     <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimeTable">
         SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0
         <choose>
@@ -9,6 +34,18 @@
             </when>
         </choose>
     </select>
+
+    <select id="getTableById" resultMap="mainTable">
+        SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE id = #{id} AND is_deleted = 0;
+    </select>
+
+    <resultMap id="mainTable" type="in.hangang.domain.TimeTableMap">
+        <result column="id" property="id"/>
+        <result column="semester_date_id" property="tableSemesterDate"/>
+        <result column="name" property="tableName"/>
+        <collection property="lectureList" ofType="in.hangang.domain.LectureTimeTable" column="{id=id}" select="getLectureListByTimeTableId">
+        </collection>
+    </resultMap>
 
     <select id="getClassTimeByLectureId" resultType="String">
         SELECT class_time FROM hangang.lecture_timetable WHERE id = #{lectureId};
@@ -24,7 +61,7 @@
 
     <select id="getClassTimeByTimeTable" resultType="String">
         SELECT class_time FROM hangang.lecture_timetable
-        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId});
+        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
     </select>
 
     <select id="getUserIdByTimeTableId" resultType="Long">
@@ -53,19 +90,20 @@
     </select>
 
     <select id="isExists" resultType="Long">
-        SELECT id FROM hangang.lecture_timetable WHERE id = #{lectureId}
+        SELECT id FROM hangang.lecture_timetable WHERE id = #{lectureId} AND is_custom = 0
     </select>
 
     <insert id="createLectureOnTimeTable">
-        INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId})
+        INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId});
     </insert>
 
-    <insert id="createTimetable">
+    <select id="createTimetable" resultType="Long">
         INSERT INTO hangang.user_timetables(user_id, semester_date_id, name) VALUES(#{user_id}, #{semester_date_id}, #{name});
-    </insert>
+        SELECT LAST_INSERT_ID();
+    </select>
 
     <update id="updateTimeTable">
-        UPDATE hangang.user_timetables SET name = #{name}, updated_at = now() WHERE id = #{timeTableId}
+        UPDATE hangang.user_timetables SET name = #{name}, updated_at = now() WHERE id = #{timeTableId};
     </update>
 
     <update id="deleteTimetable">
@@ -73,15 +111,40 @@
     </update>
 
     <select id="getSemesterDateId" resultType="Long">
-        SELECT id FROM semester_date WHERE id = #{semesterDateId}
+        SELECT id FROM semester_date WHERE id = #{semesterDateId};
+    </select>
+
+    <select id="getLectureIdByCode" resultType="Long">
+        SELECT id FROM lecture_timetable WHERE code = #{code} AND is_deleted = 0;
+    </select>
+
+    <select id="createLecture" resultType="Long">
+        INSERT INTO hangang.lecture_timetable(is_custom, code, name, professor, class_time)
+        VALUES(#{is_custom}, #{code}, #{name}, #{professor}, #{class_time});
+        SELECT LAST_INSERT_ID();
     </select>
 
     <update id="deleteLectureOnTimeTable">
         UPDATE hangang.timetables SET is_deleted = 1, updated_at = now() WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
     </update>
 
+    <update id="assignMainTimeTable">
+        UPDATE hangang.user_timetables SET is_main = 1 WHERE id = #{timeTableId}
+    </update>
+
+    <update id="updateMainTimeTable">
+        <!-- mysql에서 UPDATE할 같은 테이블을 조회해서 업데이트하는 것이 막혀 있음 -->
+        UPDATE hangang.user_timetables SET is_main = 0 WHERE id IN (SELECT id FROM(SELECT id FROM hangang.user_timetables WHERE user_id = #{userId} AND is_main = 1 AND is_deleted = 0) as temp);
+        UPDATE hangang.user_timetables SET is_main = 1 WHERE id = #{timeTableId};
+    </update>
+
+    <select id="getMainTimeTableId" resultType="Long">
+        SELECT id FROM hangang.user_timetables WHERE user_id = #{userId} AND is_main = 1 AND is_deleted = 0
+    </select>
+
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
+        <result column="is_custom" property="is_custom"/>
         <result column="semester_date" property="semester_date"/>
         <result column="code" property="code"/>
         <result column="name" property="name"/>
@@ -99,4 +162,35 @@
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
     </resultMap>
+
+    <resultMap id="lectureList" type="in.hangang.domain.LectureTimeTable">
+        <result column="id" property="id"/>
+        <result column="is_custom" property="is_custom"/>
+        <result column="semester_date" property="semester_date"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="classification" property="classification"/>
+        <result column="grades" property="grades"/>
+        <result column="class" property="classNumber"/>
+        <result column="regular_number" property="regular_number"/>
+        <result column="department" property="department"/>
+        <result column="target" property="target"/>
+        <result column="professor" property="professor"/>
+        <result column="is_english" property="is_english"/>
+        <result column="design_score" property="design_score"/>
+        <result column="is_elearning" property="is_elearning"/>
+        <result column="class_time" property="class_time"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <collection
+                property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
+        </collection>
+    </resultMap>
+
+    <select id="getRatingByNameAndProfessor" resultType="Float">
+        SELECT total_rating FROM lecture WHERE name = #{name} AND professor = #{professor};
+    </select>
+
+
+
 </mapper>

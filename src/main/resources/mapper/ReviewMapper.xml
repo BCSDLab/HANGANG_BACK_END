@@ -76,14 +76,6 @@
         SELECT nickname FROM hangang.user WHERE id = #{id}
     </select>
 
-    <select id="getClassByLectureId" resultType="java.util.HashMap">
-        SELECT id, class, target FROM lecture_timetable
-        WHERE name = (SELECT name FROM lecture WHERE id = #{lecture_id})
-        AND professor = (SELECT professor FROM lecture WHERE id = #{lecture_id})
-        AND semester_date = 5
-        ORDER BY class
-    </select>
-
     <select id="getReviewByUserIdAndLectureId" resultType="Long">
         SELECT id FROM hangang.review WHERE lecture_id = #{lecture_id} AND user_id = #{user_id}
     </select>
@@ -100,5 +92,32 @@
 
     <select id="getLectureIdByReviewId" resultType="Long">
         SELECT lecture_id FROM hangang.review WHERE id = #{id}
+    </select>
+
+
+    <!-- 스크랩 기능 -->
+    <insert id="createScrap">
+        INSERT INTO hangang.scrap(user_id, review_id) VALUES(#{userId}, #{reviewId})
+    </insert>
+
+    <select id="getScrapReviewList" resultMap="review">
+        SELECT * FROM hangang.review WHERE id = ANY(SELECT review_id FROM hangang.scrap WHERE user_id = #{userId} AND is_deleted = 0) AND is_deleted = 0
+    </select>
+
+    <select id="getScrapCountByUserId" resultType="Long">
+        SELECT count(*) FROM hangang.scrap WHERE user_id = #{userId} AND is_deleted = 0
+    </select>
+
+    <update id="deleteScrapReview">
+        UPDATE hangang.scrap SET is_deleted = 1 WHERE user_id = #{userId} AND review_id = #{reviewId}
+    </update>
+
+    <!-- 삭제 여부 확인 -->
+    <select id="isExistsReview" resultType="Long">
+        SELECT id FROM hangang.review WHERE id = #{reviewId} AND is_deleted = 0
+    </select>
+
+    <select id="isExistsScrap" resultType="Long">
+        SELECT id FROM hangang.scrap WHERE user_id = #{userId} AND review_id = #{reviewId} AND is_deleted = 0
     </select>
 </mapper>

@@ -1,8 +1,7 @@
-package in.hangang.criteria;
+package in.hangang.domain.criteria;
 
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
-import io.swagger.models.auth.In;
 import org.springframework.stereotype.Component;
 
 @Component

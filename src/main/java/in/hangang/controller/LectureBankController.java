@@ -50,8 +50,8 @@ public class LectureBankController {
     @RequestMapping(value = "/main/file/{id}", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 파일 목록" , notes = "강의자료록에 해당하는 파일의 목록만을 가져옵니다(파일이름, 확장자)\n파라미터는 강의 자료 id 입니다.")
     public @ResponseBody
-    ResponseEntity<List<Upload_File>> getFileList(@PathVariable Long id) throws Exception {
-        return new ResponseEntity<List<Upload_File>>(lectureBankService.getFileList(id),HttpStatus.OK);
+    ResponseEntity<List<UploadFile>> getFileList(@PathVariable Long id) throws Exception {
+        return new ResponseEntity<List<UploadFile>>(lectureBankService.getFileList(id),HttpStatus.OK);
     }
 
 

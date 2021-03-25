@@ -22,6 +22,12 @@ public interface ReviewMapper {
     void deleteReviewById(Long id);
     void createReviewAssignment(Long review_id, Long assignment_id);
     Long getLectureIdByReviewId(Long lecture_id);
-    ArrayList<HashMap<String, String>> getClassByLectureId(Long lecture_id);
+    void createScrap(Long userId, Long reviewId);
+    ArrayList<Review> getScrapReviewList(Long userId);
+    Long getScrapCountByUserId(Long userId);
+    void deleteScrapReview(Long userId, Long reviewId);
+    Long isExistsReview(Long reviewId);
+    Long isExistsScrap(Long userId, Long reviewId);
+
 
 }
