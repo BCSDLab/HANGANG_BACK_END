@@ -10,4 +10,5 @@ public interface MemoMapper {
     void updateMemo(Memo memo);
     void deleteMemo(Memo memo);
     Long isExistsMemo(Long timeTableId);
+    Long getUserIdByTimeTablesId(Long timeTableId);
 }

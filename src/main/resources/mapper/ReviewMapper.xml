@@ -120,4 +120,8 @@
     <select id="isExistsScrap" resultType="Long">
         SELECT id FROM hangang.scrap WHERE user_id = #{userId} AND review_id = #{reviewId} AND is_deleted = 0
     </select>
+
+    <select id="getReviewByTimeTableLecture" resultType="in.hangang.domain.Lecture">
+        SELECT * FROM lecture WHERE (name, professor) IN (SELECT name, professor FROM lecture_timetable WHERE id = #{lectureId})
+    </select>
 </mapper>

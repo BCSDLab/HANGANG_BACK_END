@@ -6,7 +6,7 @@
     </insert>
 
     <select id="getMemo" resultType="in.hangang.domain.Memo">
-        SELECT id, timetable_id, memo FROM hangang.memo WHERE timetable_id = #{timeTableId} AND is_deleted = 0;
+        SELECT timetable_id, memo FROM hangang.memo WHERE timetable_id = #{timeTableId} AND is_deleted = 0;
     </select>
 
     <update id="updateMemo">
@@ -19,5 +19,9 @@
 
     <select id="isExistsMemo" resultType="Long">
         SELECT id FROM hangang.memo WHERE timetable_id = #{timeTableId} AND is_deleted = 0;
+    </select>
+
+    <select id="getUserIdByTimeTablesId" resultType="Long">
+        SELECT user_id FROM user_timetables WHERE id = (SELECT user_timetable_id FROM timetables WHERE id = #{timeTableId})
     </select>
 </mapper>
