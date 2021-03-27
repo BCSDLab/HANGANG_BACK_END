@@ -1,6 +1,8 @@
 package in.hangang.mapper;
 
 import in.hangang.domain.Assignment;
+import in.hangang.domain.Lecture;
+import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.Review;
 import org.springframework.stereotype.Repository;
 
@@ -28,6 +30,7 @@ public interface ReviewMapper {
     void deleteScrapReview(Long userId, Long reviewId);
     Long isExistsReview(Long reviewId);
     Long isExistsScrap(Long userId, Long reviewId);
+    Lecture getReviewByTimeTableLecture(Long lectureId);
 
 
 }

@@ -1,5 +1,7 @@
 package in.hangang.serviceImpl;
 
+import in.hangang.domain.Lecture;
+import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 import in.hangang.domain.User;
@@ -53,6 +55,12 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         else
             return review;
+    }
+
+    //시간표 추가 리스트에서 바로 리뷰 검색
+    @Override
+    public Lecture getReviewByTimeTableLecture(Long lectureId) throws Exception {
+        return reviewMapper.getReviewByTimeTableLecture(lectureId);
     }
 
     @Override

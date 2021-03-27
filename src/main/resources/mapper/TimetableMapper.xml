@@ -73,8 +73,18 @@
     </select>
 
     <select id="getLectureListByTimeTableId" resultMap="lectureTimeTableList">
+        <!--
         SELECT * FROM hangang.lecture_timetable
         WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
+        -->
+        SELECT TT.id,
+        <include refid="lectureTimeTableList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LTT."/>
+        </include>
+        FROM timetables TT
+        JOIN lecture_timetable LTT ON LTT.id = TT.lecture_id
+        WHERE TT.user_timetable_id = #{timeTableId} AND TT.is_deleted = 0;
     </select>
 
     <select id="getCountSemesterDate" resultType="Long">
@@ -144,6 +154,7 @@
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
+        <result column="lecture_id" property="lecture_id"/>
         <result column="is_custom" property="is_custom"/>
         <result column="semester_date" property="semester_date"/>
         <result column="code" property="code"/>
@@ -190,6 +201,25 @@
     <select id="getRatingByNameAndProfessor" resultType="Float">
         SELECT total_rating FROM lecture WHERE name = #{name} AND professor = #{professor};
     </select>
+
+    <sql id="lectureTimeTableList">
+        ${alias}id AS ${prefix}lecture_id
+        ,${alias}is_custom AS ${prefix}is_custom
+        ,${alias}semester_date AS ${prefix}semester_date
+        ,${alias}code AS ${prefix}code
+		,${alias}name AS ${prefix}name
+		,${alias}department AS ${prefix}department
+		,${alias}target AS ${prefix}target
+		,${alias}professor AS ${prefix}professor
+		,${alias}classification AS ${prefix}classification
+		,${alias}grades AS ${prefix}grades
+		,${alias}class AS ${prefix}class
+		,${alias}class_time AS ${prefix}class_time
+		,${alias}regular_number AS ${prefix}regular_number
+		,${alias}is_deleted AS ${prefix}is_deleted
+        ,${alias}created_at AS ${prefix}created_at
+        ,${alias}updated_at AS ${prefix}updated_at
+    </sql>
 
 
 

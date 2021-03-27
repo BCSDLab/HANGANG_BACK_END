@@ -26,13 +26,14 @@ public enum ErrorMessage {
 	PROHIBITED_ATTEMPT(21, "수강 후기는 한 과목에 하나만 작성 가능합니다.", HttpStatus.BAD_REQUEST),
 	EMAIL_COUNT_EXCEED_EXCEPTION(22, "이메일 인증은 하루에 5회만 가능합니다.", HttpStatus.BAD_REQUEST),
 	TIME_LIST_CONFLICT(23, "기존 강의 시간과 중복됩니다.", HttpStatus.BAD_REQUEST),
-	TIME_TABLE_LIMIT(24, "시간표는 학기당 최대 5개, 총 50개만 생성 가능합니다.", HttpStatus.BAD_REQUEST),
+	TIME_TABLE_LIMIT_SEMESTER(24, "시간표는 학기당 최대 5개만 생성 가능합니다.", HttpStatus.BAD_REQUEST),
 	NOT_MATCH_SEMESTER_DATE(25, "시간표의 학기정보와 과목의 학기 정보가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 	NICKNAME_DUPLICATED(26, "중복된 닉네임입니다.", HttpStatus.BAD_REQUEST),
 	BANNED_NICKNAME(27, "금지된 닉네임입니다.", HttpStatus.BAD_REQUEST),
 	MEMO_ALREADY_EXISTS(28, "메모가 이미 등록되어 있습니다.", HttpStatus.BAD_REQUEST),
 	SCRAP_ALREADY_EXISTS(29, "이미 스크랩한 게시글 입니다.", HttpStatus.BAD_REQUEST),
-	CONTENT_NOT_EXISTS(30, "해당 게시글 혹은 자료가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+	CONTENT_NOT_EXISTS(30, "해당 게시글 혹은 자료가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+	TIME_TABLE_LIMIT_TOTAL(31, "시간표는 총 50개만 생성 가능합니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

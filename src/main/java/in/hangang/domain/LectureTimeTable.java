@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 public class LectureTimeTable {
     @ApiModelProperty(hidden = true)
     private Long id;
+    private Long lecture_id;
     @ApiModelProperty(hidden = true)
     private boolean is_custom;
     private Long user_timetable_id;
@@ -190,6 +191,14 @@ public class LectureTimeTable {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public Long getLecture_id() {
+        return lecture_id;
+    }
+
+    public void setLecture_id(Long lecture_id) {
+        this.lecture_id = lecture_id;
     }
 
     public float getRating() {
