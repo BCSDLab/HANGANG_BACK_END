@@ -2,6 +2,7 @@ package in.hangang.util;
 
 import in.hangang.mapper.LectureMapper;
 import in.hangang.service.HashTagService;
+import in.hangang.service.LectureBankService;
 import in.hangang.service.LectureService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,9 @@ public class Scheduler {
 
     @Resource
     private LectureService lectureService;
+
+    @Resource
+    private LectureBankService lectureBankService;
 
     /**
     1초에 한번씩 호출하는 fixedDelay
@@ -43,4 +47,7 @@ public class Scheduler {
 
     @Scheduled(cron = "0 0 0 */1 * *")
     public void updateReviewCount() {lectureService.updateReviewCount();}
+
+    @Scheduled(cron = "0 0 0 ? * 6")
+    public void cleanUnavailableFiles() throws Exception {lectureBankService.hardDeleteFile();}
 }

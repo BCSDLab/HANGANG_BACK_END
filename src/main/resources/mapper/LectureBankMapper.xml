@@ -22,6 +22,8 @@
             WHERE
             (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id)
             and available = 1
+            and is_deleted = 0
+            and reported = 0
             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(category)">
             and
             <foreach collection="category" item="category" open="(" close=")"  separator="or">
@@ -116,7 +118,7 @@
 
     <update id="setLectureBank">
         UPDATE lecture_bank SET title = #{title}, content = #{content}
-                              ,point_price = #{point_price}, semester_date_id = #{semester_date_id}
+                              ,point_price = #{point_price}, semester_date = #{semester_date}
         WHERE id = #{lecture_bank_id};
     </update>
     <insert id="addCategory">
@@ -124,9 +126,24 @@
         VALUES (#{lecture_bank_id},#{category});
     </insert>
 
+    <insert id="addMultiCategory">
+        INSERT INTO lecture_bank_category(lecture_bank_id, category)
+        VALUES
+        <foreach collection="category_list" item="category"  separator=",">
+            (#{lecture_bank_id}, #{category})
+        </foreach>;
+    </insert>
+
     <delete id="deleteCategory">
         DELETE FROM lecture_bank_category
         where id = #{id};
+    </delete>
+    <delete id="deleteMultiCategory">
+        DELETE FROM lecture_bank_category
+        WHERE id IN
+        <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>;
     </delete>
 
     <delete id="deleteLectureBank">
@@ -144,8 +161,8 @@
         where id = #{id};
     </select>
 
-    <select id="getLatestSemesterID" resultType="java.lang.Long">
-        SELECT id FROM semester_date
+    <select id="getLatestSemester" resultType="java.lang.String">
+        SELECT semester FROM semester_date
         ORDER BY id DESC LIMIT 1;
     </select>
 
@@ -164,8 +181,26 @@
         VALUES (#{user_id}, #{lecture_bank_id}, 1);
     </insert>
     <update id="setPoint">
-        update user set point = point + #{point}
+        UPDATE user set point = point + #{point}
         where user_id = #{user_id};
+    </update>
+
+    <select id="getPurchaseId" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_purchase
+        WHERE lecture_bank_id=#{lecture_bank_id};
+    </select>
+
+    <update id="deletePurchase">
+        UPDATE lecture_bank_purchase set is_deleted = 1
+        WHERE id = #{id};
+    </update>
+
+    <update id="deleteMultiPurchase">
+        UPDATE lecture_bank_purchase set is_deleted = 1
+        WHERE id IN
+        <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>;
     </update>
 
 
@@ -193,11 +228,23 @@
         INSERT INTO lecture_bank_hit(user_id, lecture_bank_id,hit)
         values(#{user_id}, #{lecture_id},1);
     </insert>
+    <update id="deleteHit">
+        UPDATE lecture_bank_hit SET is_deleted = 1
+        WHERE id = #{id};
+    </update>
+    <update id="deleteMultiHit">
+        UPDATE lecture_bank_hit SET is_deleted = 1
+        WHERE id IN
+        <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>;
+    </update>
 
 <!--Comment-->
 
     <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
-        SELECT * FROM lecture_bank_comment WHERE lecture_bank_id = #{lecture_bank_id};
+        SELECT * FROM lecture_bank_comment WHERE reported = 0
+        AND lecture_bank_id = #{lecture_bank_id};
     </select>
 
     <insert id="addComment">
@@ -208,15 +255,28 @@
         UPDATE lecture_bank_comment SET comments = #{comments}
         where id = #{id};
     </update>
-    <delete id="deleteComment">
-        DELETE FROM lecture_bank_comment
+    <update id="deleteComment">
+        UPDATE lecture_bank_comment SET is_deleted = 1
         where id = #{id};
-    </delete>
+    </update>
 
     <select id="getCommentWriterId" resultType="java.lang.Long">
         SELECT user_id FROM lecture_bank_comment
         where id = #{id};
     </select>
+
+    <select id="getCommentIdList" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_comment
+        WHERE lecture_bank_id = #{lecture_bank_id};
+    </select>
+
+    <update id="deleteMultiComment">
+        UPDATE lecture_bank_comment SET is_deleted = 1
+        where id IN
+        <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>;
+    </update>
 
 
 <!--File-->
@@ -241,16 +301,14 @@
     </select>
     <update id="setFileAvailable">
         UPDATE upload_file SET available = #{available}
-        WHERE id = #{id};
+        WHERE id = #{id} AND available = 0;
     </update>
-    <update id="setMultiFileAvailable">
+    <update id="setMultiFileAvailable_0">
         UPDATE upload_file SET available = #{available}
-        WHERE
-        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(id_list)">
-            <foreach collection="id_list" item="id" open="(" close=")"  separator="or">
-                id = #{id}
-            </foreach>
-        </if>;
+        WHERE available = 0 AND id in
+        <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>;
     </update>
     <select id="getUrl" resultType="java.lang.String">
         SELECT url FROM upload_file
@@ -265,13 +323,63 @@
         WHERE id = #{id};
     </select>
 
+    <update id="deleteFile">
+        UPDATE upload_file SET available = #{available}
+        WHERE id = #{id} AND available = 1;
+    </update>
+    <update id="deleteMultiFile">
+        UPDATE upload_file SET available = #{available}
+        WHERE available = 1 AND id IN
+        <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>;
+    </update>
 
+    <select id="getDelIDList" resultType="java.lang.Long">
+        SELECT id FROM upload_file
+        WHERE available = 2;
+    </select>
+    <select id="getDelObjectList" resultType="java.lang.String">
+        SELECT url FROM upload_file
+        WHERE available = 2;
+    </select>
+    <delete id="hardDeleteFile">
+        DELETE FROM upload_file
+        where id = #{id};
+    </delete>
+    <delete id="hardDeleteMultiFile">
+        DELETE FROM upload_file
+        where id in
+        <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+            #{id}
+        </foreach>;
+    </delete>
 <!--else-->
 
     <insert id="addPointHistory">
         INSERT INTO user_point_history(user_id, variance, point_type_id)
         VALUES (#{user_id}, #{variance}, #{point_type_id});
     </insert>
+
+<!--REPORT-->
+
+    <insert id="reportLectureBank">
+        INSERT INTO lecture_bank_report(lecture_bank_id, report_id)
+        VALUES (#{lecture_bank_id}, #{report_id});
+    </insert>
+
+    <insert id="reportLectureBankComment">
+        INSERT INTO lecture_bank_report(lecture_bank_comment_id, report_id)
+        VALUES (#{lecture_bank_comment_id}, #{report_id});
+    </insert>
+    <update id="makeLectureBankReported">
+        UPDATE lecture_bank SET reported = 1
+        WHERE id = #{lecture_bank_id};
+    </update>
+    <update id="makeLectureBankCommentReported">
+        UPDATE lecture_bank_comment SET reported = 1
+        WHERE id = #{lecture_bank_comment_id};
+    </update>
 
 
 </mapper>

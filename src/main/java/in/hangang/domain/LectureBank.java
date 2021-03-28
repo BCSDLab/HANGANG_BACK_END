@@ -32,6 +32,8 @@ public class LectureBank {
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
 
+    private Boolean reported;
+
     @ApiModelProperty(hidden = true)
     private User user;
     @ApiModelProperty(hidden = true)
@@ -152,5 +154,13 @@ public class LectureBank {
 
     public void setSemester_date(String semester_date) {
         this.semester_date = semester_date;
+    }
+
+    public Boolean getReported() {
+        return reported;
+    }
+
+    public void setReported(Boolean reported) {
+        this.reported = reported;
     }
 }

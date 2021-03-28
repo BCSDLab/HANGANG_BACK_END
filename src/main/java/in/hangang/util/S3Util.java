@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -90,7 +91,7 @@ public class S3Util {
         return url;
     }
 
-    public String privateUpload(MultipartFile multipartFile) throws IOException {
+    public String privateUpload(MultipartFile multipartFile) throws Exception {
         String fileName = multipartFile.getOriginalFilename();
 
         int index = fileName.lastIndexOf(".");
@@ -112,6 +113,11 @@ public class S3Util {
                 .withCannedAcl(CannedAccessControlList.Private));
 
         return date + "/" + savedName;
+    }
+
+    public void deleteObjectbyKey(String objectKey){
+        amazonS3.deleteObject(bucket, objectKey);
+
     }
 
 }

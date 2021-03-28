@@ -9,17 +9,20 @@ import in.hangang.mapper.UserMapper;
 import in.hangang.service.LectureBankService;
 import in.hangang.service.UserService;
 import in.hangang.util.S3Util;
+import io.github.makbn.thumbnailer.*;
+import io.github.makbn.thumbnailer.listener.ThumbnailListener;
+import io.github.makbn.thumbnailer.model.ThumbnailCandidate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static in.hangang.enums.ErrorMessage.INVALID_ACCESS_EXCEPTION;
 
 @Service
 public class LectureBankServiceImpl implements LectureBankService {
@@ -32,7 +35,6 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Autowired
     private UserService userService;
-
 
     @Autowired
     private S3Util s3Util;
@@ -63,7 +65,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     public LectureBank getLectureBank(Long id) throws Exception{
         LectureBank lectureBank = lectureBankMapper.getLectureBank(id);
         if(lectureBank == null)
-            throw new RequestInputException(INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         User user = userMapper.getMe(lectureBank.getUser_id());
         lectureBank.setUser(user);
 
@@ -71,92 +73,93 @@ public class LectureBankServiceImpl implements LectureBankService {
         lectureBank.setLecture(lecture);
 
         return lectureBank;
-
     }
 
     @Override
     public Lecture getLecture(Long id){
-        return lectureBankMapper.getLectureInfo(id);
+        Lecture lecture = lectureBankMapper.getLectureInfo(id);
+        if(lecture == null) throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        return lecture;
     }
 
     @Override
     public Long createLectureBank() throws Exception{
         User user = userService.getLoginUser();
-        if (user==null) throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
-
         lectureBankMapper.createLectureBank(user.getId());
         return lectureBankMapper.getLectureBankId(user.getId());
     }
 
     @Override
+    @Transactional
     public void setLectureBank(LectureBank lectureBank) throws Exception{
-        if(lectureBank.getId() == null) throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+        if(lectureBank.getId() == null) throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        if(checkWriter(lectureBank.getId())) throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         LectureBank lb = lectureBankMapper.getLectureBank(lectureBank.getId());
 
-        Long lecture_id=0L; String title="", content=""; Integer point_price=0;
+        String date;
+        if(lectureBank.getSemester_date() != null)  date = lectureBank.getSemester_date();
+        else if(lb.getSemester_date() != null) date = lb.getSemester_date();
+        else date = lectureBankMapper.getLatestSemester();
 
-        if(lectureBank.getLecture_id() != null) lecture_id = lectureBank.getLecture_id();
-        else if(lb.getLecture_id() != null) lecture_id = lb.getLecture_id();
-        if(lectureBank.getTitle() != null) title = lectureBank.getTitle();
-        else if(lb.getTitle() != null) title = lb.getTitle();
-        if(lectureBank.getContent() != null) content = lectureBank.getContent();
-        else if(lb.getContent() != null) content = lb.getContent();
-        if(lectureBank.getPoint_price() != null) point_price = lectureBank.getPoint_price();
-        else if(lb.getPoint_price() != null) point_price = lb.getPoint_price();
-
-        Long semester_date_id = lectureBankMapper.getLatestSemesterID(); String date;
-        if(lectureBank.getSemester_date() == null)  date = lb.getSemester_date();
-        else date = lectureBank.getSemester_date();
-        semester_date_id = lectureBankMapper.getSemesterID(date);
-        lectureBankMapper.setLectureBank(lectureBank.getId(), lecture_id, title, content, point_price, semester_date_id);
+        lectureBankMapper.setLectureBank(lectureBank.getId(), lectureBank.getLecture_id(), lectureBank.getTitle(),
+                lectureBank.getContent(), lectureBank.getPoint_price(), date);
 
         List<String> categoryList = lectureBank.getCategory();
         if(categoryList != null){
             //lectueMapper add to lecturebank _ Category : category list while empty
             List<Long> idList = lectureBankMapper.getCategoryIdList(lectureBank.getId());
-            for(Long id : idList){
-                lectureBankMapper.deleteCategory(id);
-            }
-            //TODO 자바에서 디비를 반복적으로 접근하는건 매우 비효율 적입니다 mybatis의 for each를 사용해주세요
-            for (String s : categoryList) {
-                //기출자료 필기자료 과제자료 강의자료 기타자료
-                lectureBankMapper.addCategory(lectureBank.getId(), s);
-            }
+            lectureBankMapper.deleteMultiCategory((ArrayList<Long>) idList);
+            lectureBankMapper.addMultiCategory(lectureBank.getId(),(ArrayList<String>) categoryList);
         }
     }
 
     @Override
+    @Transactional
     public void submitLectureBank(LectureBank lectureBank) throws Exception{
-        // TODO 이 때 파일의 섬네일을 추출해서 같이 등록해주면 좋을 것 같습니다.
-        // TODO 임시생성후 내용을 채우는 방식으로 파악했습니다 이 경우 임시생성한 USER의 ID와 채울 때 USER의 ID도 검사해준다면 더 꼼꼼해질 것 같아요
+        // TODO 섬네일 생성 및 등록하기
         setLectureBank(lectureBank);
         List<Long> list = lectureBankMapper.getFileIdList(lectureBank.getId());
-        for(Long i : list){
-            //TODO 자바에서 디비를 반복적으로 접근하는건 매우 비효율 적입니다 mybatis의 for each를 사용해주세요
-            lectureBankMapper.setFileAvailable(i,1);
-        }
-        //TODO zeplin: 작성시 +50point -> POINT
+        lectureBankMapper.setMultiFileAvailable_0((ArrayList<Long>) list,1);
+
         User user = userService.getLoginUser();
-        lectureBankMapper.setPoint(user.getId(), 50);
+        lectureBankMapper.setPoint(user.getId(), Point.LECTURE_UPLOAD.getPoint());
+        lectureBankMapper.addPointHistory(user.getId(),Point.LECTURE_UPLOAD.getPoint(),Point.LECTURE_UPLOAD.getTypeId());
     }
 
     @Override
     @Transactional
     public void deleteLectureBank(Long id) throws Exception{
-        //TODO Trancation 처리를 한 뒤 해당 강의자료가 지워지면 댓글, 파일, 카테고리 등 연관된 부분도 전부 지워지면 좋을 것 같습니다
-        //TODO soft delete를 적용해주면 나중에 더 좋을 것 같습니다!
+        //delete LectureBank - soft
+        Long userId = userService.getLoginUser().getId();
+        if(checkWriter(id)){
+            lectureBankMapper.deleteLectureBank(id, userId);
 
-        //user_point_history
-        // point_type
-        User user = userService.getLoginUser();
-        if (user==null) throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+            //delete Comment : soft
+            lectureBankMapper.deleteMultiComment((ArrayList<Long>)lectureBankMapper.getCommentIdList(id));
+            //delete File : soft -> hard => scheduler available 2
+            lectureBankMapper.deleteMultiFile((ArrayList<Long>) lectureBankMapper.getFileId(id),2);
+            //delete Category : hard
+            lectureBankMapper.deleteMultiCategory((ArrayList<Long>)lectureBankMapper.getCategoryIdList(id));
+            //delete Hit : soft getPurchaseId
+            lectureBankMapper.deleteMultiHit((ArrayList<Long>)lectureBankMapper.getPurchaseId(id));
+            //delete Purchase : soft
+            List<Long> purchase_list = lectureBankMapper.getPurchaseId(id);
+            lectureBankMapper.deleteMultiPurchase((ArrayList<Long>)lectureBankMapper.getPurchaseId(id));
+        }
+        else throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
-        lectureBankMapper.deleteLectureBank(id, user.getId());
+    }
+
+    @Override
+    public Boolean checkWriter(Long lecture_bank_id) throws Exception{
+        Long userId = userService.getLoginUser().getId();
+        Long writerId = lectureBankMapper.getWriterId(lecture_bank_id);
+        return userId.equals(writerId);
     }
 
     //comments------------------------------------------------------------------------------------
     @Override
-    public ArrayList<LectureBankComment> getComments(Long lecture_bank_id){
+    public List<LectureBankComment> getComments(Long lecture_bank_id){
         return lectureBankMapper.getComments(lecture_bank_id);
     }
 
@@ -170,7 +173,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         if(checkCommentWriter(lecture_bank_comment_id))
             lectureBankMapper.setComment(lecture_bank_comment_id, comments);
         else
-            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
     }
 
     @Override
@@ -178,7 +181,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         if(checkCommentWriter(lecture_bank_comment_id))
             lectureBankMapper.deleteComment(lecture_bank_comment_id);
         else
-            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
     }
 
     @Override
@@ -196,6 +199,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         Integer purchase = lectureBankMapper.checkPurchased(user.getId(), lecture_bank_id);
         return purchase != null;
     }
+
     @Override
     @Transactional
     public void purchase(Long lecture_bank_id) throws Exception{
@@ -205,12 +209,13 @@ public class LectureBankServiceImpl implements LectureBankService {
         LectureBank lectureBank = getLectureBank(lecture_bank_id);
         Integer point_price = lectureBank.getPoint_price();
 
-        // 구매한 유저 포인트-- 자료주인은 포인트++
+
         lectureBankMapper.purchaseInsert(userID, lecture_bank_id);
+        // 구매한 유저 포인트-- 자료주인은 포인트++
         lectureBankMapper.setPoint(userID, -point_price);
         lectureBankMapper.addPointHistory(userID,-point_price, Point.LECTURE_PURCHASE.getTypeId());
         lectureBankMapper.setPoint(lectureBank.getUser_id(), point_price);
-        lectureBankMapper.addPointHistory(userID,point_price,Point.LECTURE_SELL.getTypeId());
+        lectureBankMapper.addPointHistory(lectureBank.getUser_id(),point_price,Point.LECTURE_SELL.getTypeId());
 
 
     }
@@ -245,8 +250,10 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
     //file------------------------------------------------------------------------------------
+
+    //UPLOAD====================================================================================
     @Override
-    public List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long lecture_bank_id) throws IOException {
+    public List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long lecture_bank_id) throws Exception {
         List<Long> result = new ArrayList<>();
         if(!fileList.isEmpty()){
             for(MultipartFile file : fileList){
@@ -262,7 +269,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
     @Override
-    public Long fileUpload(MultipartFile file, Long lecture_bank_id) throws IOException{
+    public Long fileUpload(MultipartFile file, Long lecture_bank_id) throws Exception{
         String uploadUrl = s3Util.privateUpload(file);
         String fileName = file.getOriginalFilename();
         int index = fileName.lastIndexOf(".");
@@ -272,7 +279,28 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
     @Override
-    public List<Upload_File> getFileList(Long lecture_bank_id) throws Exception{
+    public void cancelUpload(Long id) throws Exception{
+        lectureBankMapper.setFileAvailable(id,2);
+    }
+
+    @Override
+    public void hardDeleteFile() throws Exception{
+
+        List<String> objectKeys = lectureBankMapper.getDelObjectList();
+        //delete on S3
+        for(String key : objectKeys){
+            s3Util.deleteObjectbyKey(key);
+        }
+        List<Long> id_list = lectureBankMapper.getDelIDList();
+        lectureBankMapper.hardDeleteMultiFile((ArrayList<Long>) id_list);
+
+
+    }
+
+    //DOWNLOAD====================================================================================
+
+    @Override
+    public List<UploadFile> getFileList(Long lecture_bank_id) throws Exception{
         return lectureBankMapper.getFileList(lecture_bank_id);
     }
 
@@ -289,28 +317,73 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public String getObjectUrl(Long id) throws Exception{
-        //TODO 다운로드 받을 유저의 권한체크 필요할 것 같습니다 1. 게시자인지/ 2. 구매자인지
-
         Long user_id = userService.getLoginUser().getId();
         Long lecturebank_id = lectureBankMapper.getLectureBankId_file(id);
         Long writer = lectureBankMapper.getWriterId(lecturebank_id);
+
         if(checkPurchase(lecturebank_id) || (writer.equals(user_id))){
             String objectKey = lectureBankMapper.getUrl(id);
             URL url = s3Util.getPrivateObjectURL(objectKey);
             return url.toString();
         }else{
-
             return null;
         }
 
     }
 
-
-
+    //Thumbnail------------------------------------------------------------------------------------
     @Override
-    public void cancelUpload(Long id) throws Exception{
-        lectureBankMapper.setFileAvailable(id,2);
+    public String makeThumbnail(MultipartFile multipartFile) throws Exception{
+/*
+        final String[] path = {"PATH","------"};
+        try {
+        //TODO install OpenOffice
+
+            AppSettings.init(new String[]{"","/Users/ki_sol/Downloads","","/Users/ki_sol/Downloads","100","100"});
+            Thumbnailer.start();
+
+            File in = new File(multipartFile.getOriginalFilename());
+            multipartFile.transferTo(in);
+            if(in.exists()) {
+                ThumbnailCandidate candidate = new ThumbnailCandidate(in,"unique_code");
+
+                Thumbnailer.createThumbnail(candidate, new ThumbnailListener() {
+                    @Override
+                    public void onThumbnailReady(String hash, File thumbnail) {
+                        path[0] = thumbnail.getAbsolutePath();
+                        System.out.println("FILE created in : " + path[0]);
+                    }
+
+                    @Override
+                    public void onThumbnailFailed(String hash, String message, int code) {
+
+                    }
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return path[0];
+
+*/
+        return "test_thumbnail_url_path";
+        
     }
 
+
+    //REPORT------------------------------------------------------------------------------------
+    @Override
+    @Transactional
+    public void reportLectureBank(Long lecture_bank_id, Long report_id) throws Exception{
+        lectureBankMapper.reportLectureBank(lecture_bank_id, report_id);
+        lectureBankMapper.makeLectureBankReported(lecture_bank_id);
+    }
+
+    @Override
+    @Transactional
+    public void reportLectureBankComment(Long lecture_bank_comment_id, Long report_id) throws Exception{
+        lectureBankMapper.reportLectureBankComment(lecture_bank_comment_id, report_id);
+        lectureBankMapper.makeLectureBankCommentReported(lecture_bank_comment_id);
+    }
 
 }
