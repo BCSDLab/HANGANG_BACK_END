@@ -32,7 +32,7 @@ public class MemoServiceImpl implements MemoService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(memo.getTimetable_id())))
+        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_id())))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         if(memoMapper.isExistsMemo(memo.getTimetable_id())!=null)
@@ -65,7 +65,7 @@ public class MemoServiceImpl implements MemoService {
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
-        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(memo.getTimetable_id())))
+        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_id())))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         if(memoMapper.isExistsMemo(memo.getTimetable_id())==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
@@ -79,7 +79,7 @@ public class MemoServiceImpl implements MemoService {
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
-        if(!userId.equals(timetableMapper.getUserIdByTimeTableId(memo.getTimetable_id())))
+        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_id())))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         if(memoMapper.isExistsMemo(memo.getTimetable_id())==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);

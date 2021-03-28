@@ -55,9 +55,10 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
         //TODO : 나누기
-        if(timetableMapper.getCountSemesterDate(userId, userTimetable.getSemester_date_id())>=5 ||
-        timetableMapper.getCountTimeTable(userId)>=50)
-            throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT);
+        if(timetableMapper.getCountSemesterDate(userId, userTimetable.getSemester_date_id())>=5)
+            throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT_SEMESTER);
+        if(timetableMapper.getCountTimeTable(userId)>=50)
+            throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT_TOTAL);
 
         Long timeTableId = timetableMapper.createTimetable(userId, userTimetable.getSemester_date_id(), userTimetable.getName());
         //메인으로 지정된 시간표가 없다면 메인 시간표로 지정

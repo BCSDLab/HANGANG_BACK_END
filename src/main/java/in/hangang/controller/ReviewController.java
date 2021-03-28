@@ -2,6 +2,8 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
+import in.hangang.domain.Lecture;
+import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 import in.hangang.response.BaseResponse;
@@ -94,5 +96,12 @@ public class ReviewController {
     @RequestMapping(value = "/reviews/scrap/count", method = RequestMethod.GET)
     public ResponseEntity getCountScrap() throws Exception{
         return new ResponseEntity(reviewService.getCountScrapReview(), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "강의에 등록된 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.\n강의 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/reviews/timetable/lecture", method = RequestMethod.GET)
+    public ResponseEntity<Lecture> getReviewByTimeTableLecture(Long lectureId) throws Exception{
+        return new ResponseEntity<Lecture>(reviewService.getReviewByTimeTableLecture(lectureId), HttpStatus.OK);
     }
 }
