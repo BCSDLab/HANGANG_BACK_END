@@ -22,9 +22,10 @@ public interface LectureBankMapper {
     LectureBank getLectureBank(@Param("id")Long id);
     Lecture getLectureInfo(@Param("id")Long id);
     Long getLectureBankId(@Param("user_id")Long user_id);
-    void setLectureBank(@Param("lecture_bank_id")Long lecture_bank_id, @Param("lecture_id")Long lecture_id, @Param("title")String title, @Param("content") String content, @Param("point_price")Integer point_price, @Param("semester_date")String semester_date);
+    void setLectureBank(@Param("lecture_bank_id")Long lecture_bank_id, @Param("lecture_id")Long lecture_id, @Param("title")String title, @Param("content") String content, @Param("point_price")Integer point_price, @Param("semester_date_id")Long semester_date_id);
     void createLectureBank(@Param("user_id")Long user_id);
     void deleteLectureBank(@Param("id")Long id, @Param("user_id")Long user_id);
+    void setLectureBankAvailable(@Param("lecture_bank_id")Long lecture_bank_id);
 
     Long getWriterId(@Param("id")Long id);
     String getLatestSemester();
@@ -56,6 +57,7 @@ public interface LectureBankMapper {
     List<Long> getPurchaseId(@Param("lecture_bank_id")Long lecture_bank_id);
     void deletePurchase(@Param("id") Long id);
     void deleteMultiPurchase(@Param("id_list") ArrayList<Long> id_list);
+    Integer getUserPoint(@Param("user_id")Long user_id);
 
 
 
@@ -68,6 +70,7 @@ public interface LectureBankMapper {
     void hitInsert(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void deleteHit(@Param("id") Long id);
     void deleteMultiHit(@Param("id_list") ArrayList<Long> id_list);
+    List<Long> getHitId(@Param("lecture_bank_id")Long lecture_bank_id);
 
 
     //file
@@ -82,10 +85,12 @@ public interface LectureBankMapper {
     Long getLectureBankId_file(@Param("id")Long id);
     void deleteFile(@Param("id")Long id, @Param("available")Integer available); //1->
     void deleteMultiFile(@Param("id_list")ArrayList<Long> id_list, @Param("available")Integer available);
+    void deleteMultiFile_UN(@Param("id_list")ArrayList<Long> id_list, @Param("available")Integer available);
     List<Long> getDelIDList();
     List<String> getDelObjectList();
     void hardDeleteFile(@Param("id")Long id);
     void hardDeleteMultiFile(@Param("id_list")ArrayList<Long> id_list);
+    Long getLectureBankIDFile(@Param("upload_file_id")Long upload_file_id);
 
 
     //else

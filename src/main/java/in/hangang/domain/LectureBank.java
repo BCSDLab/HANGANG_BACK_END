@@ -2,6 +2,7 @@ package in.hangang.domain;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
@@ -17,6 +18,7 @@ public class LectureBank {
     private ArrayList<String> category;
     @NotNull
     private String title;
+    @NotNull
     private String content;
     @NotNull
     private Integer point_price;
@@ -32,7 +34,8 @@ public class LectureBank {
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
 
-    private Boolean reported;
+    @ApiModelProperty(hidden = true)
+    private Boolean reported = false;
 
     @ApiModelProperty(hidden = true)
     private User user;

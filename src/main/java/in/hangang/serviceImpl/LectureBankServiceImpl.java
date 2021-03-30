@@ -93,22 +93,24 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Transactional
     public void setLectureBank(LectureBank lectureBank) throws Exception{
         if(lectureBank.getId() == null) throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-        if(checkWriter(lectureBank.getId())) throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        if(checkWriter(lectureBank.getUser_id())) throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
         LectureBank lb = lectureBankMapper.getLectureBank(lectureBank.getId());
 
         String date;
         if(lectureBank.getSemester_date() != null)  date = lectureBank.getSemester_date();
         else if(lb.getSemester_date() != null) date = lb.getSemester_date();
         else date = lectureBankMapper.getLatestSemester();
+        Long semester_id = lectureBankMapper.getSemesterID(date);
 
         lectureBankMapper.setLectureBank(lectureBank.getId(), lectureBank.getLecture_id(), lectureBank.getTitle(),
-                lectureBank.getContent(), lectureBank.getPoint_price(), date);
+                lectureBank.getContent(), lectureBank.getPoint_price(), semester_id);
 
         List<String> categoryList = lectureBank.getCategory();
         if(categoryList != null){
             //lectueMapper add to lecturebank _ Category : category list while empty
             List<Long> idList = lectureBankMapper.getCategoryIdList(lectureBank.getId());
-            lectureBankMapper.deleteMultiCategory((ArrayList<Long>) idList);
+            if(idList.size() != 0)
+                lectureBankMapper.deleteMultiCategory((ArrayList<Long>) idList);
             lectureBankMapper.addMultiCategory(lectureBank.getId(),(ArrayList<String>) categoryList);
         }
     }
@@ -118,8 +120,16 @@ public class LectureBankServiceImpl implements LectureBankService {
     public void submitLectureBank(LectureBank lectureBank) throws Exception{
         // TODO 섬네일 생성 및 등록하기
         setLectureBank(lectureBank);
+        lectureBankMapper.setLectureBankAvailable(lectureBank.getId());
+
         List<Long> list = lectureBankMapper.getFileIdList(lectureBank.getId());
-        lectureBankMapper.setMultiFileAvailable_0((ArrayList<Long>) list,1);
+        System.out.println("File sizes"+list.size());
+        for(Long i : list){
+            System.out.print(i + " ");
+        }
+        System.out.println();
+        if(list.size() != 0)
+            lectureBankMapper.setMultiFileAvailable_0((ArrayList<Long>) list,1);
 
         User user = userService.getLoginUser();
         lectureBankMapper.setPoint(user.getId(), Point.LECTURE_UPLOAD.getPoint());
@@ -135,16 +145,45 @@ public class LectureBankServiceImpl implements LectureBankService {
             lectureBankMapper.deleteLectureBank(id, userId);
 
             //delete Comment : soft
-            lectureBankMapper.deleteMultiComment((ArrayList<Long>)lectureBankMapper.getCommentIdList(id));
+            List<Long> commentIdList= lectureBankMapper.getCommentIdList(id);
+            if(commentIdList.size() != 0)
+                lectureBankMapper.deleteMultiComment((ArrayList<Long>)commentIdList);
+
             //delete File : soft -> hard => scheduler available 2
-            lectureBankMapper.deleteMultiFile((ArrayList<Long>) lectureBankMapper.getFileId(id),2);
+            List<Long> fileIdList = lectureBankMapper.getFileId(id);
+            if(fileIdList.size() != 0)
+                lectureBankMapper.deleteMultiFile((ArrayList<Long>) fileIdList,2);
+
             //delete Category : hard
-            lectureBankMapper.deleteMultiCategory((ArrayList<Long>)lectureBankMapper.getCategoryIdList(id));
-            //delete Hit : soft getPurchaseId
-            lectureBankMapper.deleteMultiHit((ArrayList<Long>)lectureBankMapper.getPurchaseId(id));
+            List<Long> categoryList = lectureBankMapper.getCategoryIdList(id);
+            if(categoryList.size() != 0)
+                lectureBankMapper.deleteMultiCategory((ArrayList<Long>)categoryList);
+
+            //delete Hit : soft
+            List<Long> hitIdList = lectureBankMapper.getHitId(id);
+            if(hitIdList.size() != 0)
+                lectureBankMapper.deleteMultiHit((ArrayList<Long>)hitIdList);
             //delete Purchase : soft
-            List<Long> purchase_list = lectureBankMapper.getPurchaseId(id);
-            lectureBankMapper.deleteMultiPurchase((ArrayList<Long>)lectureBankMapper.getPurchaseId(id));
+            List<Long> purchaseId = lectureBankMapper.getPurchaseId(id);
+            if(purchaseId.size() != 0)
+            lectureBankMapper.deleteMultiPurchase((ArrayList<Long>)purchaseId);
+        }
+        else throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+    }
+
+    @Override
+    @Transactional
+    public void cancelLectureBank(Long id) throws Exception{
+        //delete LectureBank - soft
+        Long userId = userService.getLoginUser().getId();
+        if(checkWriter(id)){
+            lectureBankMapper.deleteLectureBank(id, userId);
+
+            //delete File : soft -> hard => scheduler available 2
+            List<Long> fileIdList = lectureBankMapper.getFileId(id);
+            if(fileIdList.size() != 0)
+                lectureBankMapper.deleteMultiFile_UN((ArrayList<Long>) fileIdList,2);
         }
         else throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
@@ -154,6 +193,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     public Boolean checkWriter(Long lecture_bank_id) throws Exception{
         Long userId = userService.getLoginUser().getId();
         Long writerId = lectureBankMapper.getWriterId(lecture_bank_id);
+        System.out.println("ID:---------------" +userId +" " +writerId);
         return userId.equals(writerId);
     }
 
@@ -165,6 +205,7 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public void addComment(Long lecture_bank_id, String comments) throws Exception{
+        // lecture_bank의 is_deleted, reported 검사?
         lectureBankMapper.addComment(userService.getLoginUser().getId(), lecture_bank_id, comments);
     }
 
@@ -208,6 +249,10 @@ public class LectureBankServiceImpl implements LectureBankService {
         Long userID = userService.getLoginUser().getId();
         LectureBank lectureBank = getLectureBank(lecture_bank_id);
         Integer point_price = lectureBank.getPoint_price();
+        Integer user_point = lectureBankMapper.getUserPoint(userID);
+
+        if(checkWriter(lecture_bank_id)) throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        if(user_point < point_price) throw new RequestInputException(ErrorMessage.NOT_ENOUGH_POINT);
 
 
         lectureBankMapper.purchaseInsert(userID, lecture_bank_id);
@@ -280,7 +325,11 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public void cancelUpload(Long id) throws Exception{
-        lectureBankMapper.setFileAvailable(id,2);
+        Long lectureBankID = lectureBankMapper.getLectureBankIDFile(id);
+        if(checkWriter(lectureBankID))
+            lectureBankMapper.setFileAvailable(id,2);
+        else
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
     }
 
     @Override
@@ -311,7 +360,11 @@ public class LectureBankServiceImpl implements LectureBankService {
         URL url = s3Util.getPrivateObjectURL(objectKey);
         org.springframework.core.io.Resource resource = new UrlResource(url);
         return resource;
+
     }
+
+
+
 
      */
 

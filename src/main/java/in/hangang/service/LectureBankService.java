@@ -17,6 +17,7 @@ public interface LectureBankService {
     void setLectureBank(LectureBank lectureBank) throws Exception;
     void submitLectureBank(LectureBank lectureBank) throws Exception;
     void deleteLectureBank(Long id) throws Exception;
+    void cancelLectureBank(Long id) throws Exception;
     Boolean checkWriter(Long lecture_bank_id) throws Exception;
 
 
