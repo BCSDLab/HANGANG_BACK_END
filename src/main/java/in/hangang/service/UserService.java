@@ -27,4 +27,5 @@ public interface UserService {
     void updateUser(User user);
     BaseResponse deleteUser();
     List<UserLectureBank> getUserPurchasedLectureBank();
+    BaseResponse updateUserSort();
 }

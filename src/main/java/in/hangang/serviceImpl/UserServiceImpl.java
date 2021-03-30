@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
         this.invalidateAllAuthNumberByPortal(user.getPortal_account());
 
         //회원가입후 user의 가입된 id를 구함
-        Long user_id = userMapper.getUserIdFromPortal(user.getPortal_account());
+        Long userId = userMapper.getUserIdFromPortal(user.getPortal_account());
 
         // 전공값의 내용이 올바르지 않다면
         for(int i =0; i<user.getMajor().size(); i++){
@@ -137,18 +137,18 @@ public class UserServiceImpl implements UserService {
             if ( !result )
                 throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
-        userMapper.insertMajors(user_id,user.getMajor());
+        userMapper.insertMajors(userId,user.getMajor());
 
         // user salt = timestamp + user_id + BCrypt
         // salt 삽입
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        String salt = user_id.toString() + calendar.getTime();
+        String salt = userId.toString() + calendar.getTime();
         salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
-        userMapper.setSalt(salt,user_id);
+        userMapper.setSalt(salt,userId);
 
         //회원가입 포인트 이력 추가
-        userMapper.addPointHistory(user_id, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
+        userMapper.addPointHistory(userId, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
 
         return new BaseResponse("회원가입에 성공했습니다", HttpStatus.OK);
     }
@@ -522,5 +522,18 @@ public class UserServiceImpl implements UserService {
         Long id = this.getLoginUserId();
         return userMapper.getUserPurchasedLectureBank(id);
 
+    }
+
+    @Override
+    public BaseResponse updateUserSort(){
+        Long userId = this.getLoginUserId();
+        // user salt = timestamp + user_id + BCrypt
+        // salt 삽입
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        String salt = userId.toString() + calendar.getTime();
+        salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
+        userMapper.setSalt(salt,userId);
+        return new BaseResponse("모든 기기에서 로그아웃 되었습니다.", HttpStatus.OK);
     }
 }

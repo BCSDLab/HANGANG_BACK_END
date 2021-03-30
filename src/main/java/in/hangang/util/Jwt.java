@@ -48,12 +48,12 @@ public class Jwt {
 
 
         if( sub.equals(access_token)) {
-            calendar.add(Calendar.HOUR_OF_DAY, 24); // access token expire 24h later
-            //calendar.add(Calendar.MINUTE, 2); // test용 2분
+            //calendar.add(Calendar.HOUR_OF_DAY, 24); // access token expire 24h later
+            calendar.add(Calendar.MINUTE, 2); // test용 2분
         }
         else{
-            //calendar.add(Calendar.MINUTE, 4); // test용 4분
-            calendar.add(Calendar.DAY_OF_YEAR, 14); // refresh token expire 14day later
+            calendar.add(Calendar.MINUTE, 3); // test용 4분
+            //calendar.add(Calendar.DAY_OF_YEAR, 14); // refresh token expire 14day later
         }
         Date exp = calendar.getTime();
 

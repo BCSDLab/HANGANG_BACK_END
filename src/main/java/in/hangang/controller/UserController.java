@@ -159,4 +159,10 @@ public class UserController {
     }
 
 
+    @Auth
+    @PutMapping("/logout-all")
+    @ApiOperation( value = "모든 기기 로그아웃",notes = "토큰에 사용하는 유저의 솔트를 재발급한다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity logOutAll(){
+        return new ResponseEntity( userService.updateUserSort(), HttpStatus.OK);
+    }
 }
