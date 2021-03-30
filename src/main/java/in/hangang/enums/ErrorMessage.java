@@ -33,7 +33,8 @@ public enum ErrorMessage {
 	MEMO_ALREADY_EXISTS(28, "메모가 이미 등록되어 있습니다.", HttpStatus.BAD_REQUEST),
 	SCRAP_ALREADY_EXISTS(29, "이미 스크랩한 게시글 입니다.", HttpStatus.BAD_REQUEST),
 	CONTENT_NOT_EXISTS(30, "해당 게시글 혹은 자료가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
-	TIME_TABLE_LIMIT_TOTAL(31, "시간표는 총 50개만 생성 가능합니다.", HttpStatus.BAD_REQUEST);
+	TIME_TABLE_LIMIT_TOTAL(31, "시간표는 총 50개만 생성 가능합니다.", HttpStatus.BAD_REQUEST),
+	NOT_ENOUGH_POINT(32, "point가 부족합니다", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;
