@@ -3,10 +3,12 @@ package in.hangang.controller;
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.Lecture;
-import in.hangang.domain.LectureTimeTable;
+import in.hangang.domain.Report;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
+import in.hangang.enums.ContentType;
 import in.hangang.response.BaseResponse;
+import in.hangang.service.ReportService;
 import in.hangang.service.ReviewService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -23,6 +25,9 @@ public class ReviewController {
 
     @Resource
     ReviewService reviewService;
+
+    @Resource
+    ReportService reportService;
 
     // 전체 후기 리스트
     @ApiOperation( value = "모든 강의 후기 읽기", notes = "등록된 모든 강의 후기를 읽어옵니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
@@ -66,6 +71,18 @@ public class ReviewController {
     public ResponseEntity createLikesReview(@RequestBody Review review) throws Exception{
         reviewService.likesReview(review);
         return new ResponseEntity(new BaseResponse("정상적으로 추천되었습니다.", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    // 리뷰 신고
+    @Auth
+    @RequestMapping(value = "/review/report", method = RequestMethod.POST)
+    @ApiOperation(value ="강의자료 신고" , notes = "파라미터는 강의 자료 id 입니다\n REPORT 내용 별 id =>"
+            +"1: \"욕설/비하\" ,2 : \"유출/사칭/저작권 위배\", 3: \"허위/부적절한 정보\"\n" +
+            "    4: \"광고/도배\", 5: \"음란물\""
+            ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity reportLectureBank(@RequestBody Report report) throws Exception {
+        reportService.createReport(ContentType.REVIEW.getTypeId(), report);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @Auth

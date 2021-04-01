@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.ReportMapper">
+    <insert id="createReport">
+        INSERT INTO hangang.report_log(type_id, content_id, report_id, user_id) VALUES(#{type_id}, #{content_id}, #{report_id}, #{user_id});
+    </insert>
+
+    <select id="checkAlreadyReported" resultType="Long">
+        SELECT id FROM hangang.report_log WHERE type_id = #{type_id} AND content_id = #{content_id} AND user_id = #{user_id};
+    </select>
+</mapper>
