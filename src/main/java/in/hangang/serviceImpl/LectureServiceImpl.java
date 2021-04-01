@@ -14,9 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-rg.apache.commons.lang3.ObjectUtil;
-import org.apache.commons.lang3.ObjectUtils
-
 @Service
 public class LectureServiceImpl implements LectureService {
 

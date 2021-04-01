@@ -49,7 +49,6 @@ public class LectureBankServiceImpl implements LectureBankService {
                 lectureBankCriteria.getOrder(), lectureBankCriteria.getCategory(),
                 lectureBankCriteria.getKeyword(), lectureBankCriteria.getDepartment());
 
-        //TODO MYBATIS 의 COLLCETION 과 ASSOCIATION을 사용하면 개선할 수 있을것 같다는 느낌이 듭니다.
         for(int i=0; i<result.size(); i++){
             List<LectureBankCategory> categories = lectureBankMapper.getCategoryList(result.get(i).getId());
             ArrayList<String> categoryList = new ArrayList<>();
@@ -67,7 +66,6 @@ public class LectureBankServiceImpl implements LectureBankService {
         LectureBank lectureBank = lectureBankMapper.getLectureBank(id);
         if(lectureBank == null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-
         User user = userMapper.getMe(lectureBank.getUser_id());
         lectureBank.setUser(user);
 
@@ -87,8 +85,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     public Long createLectureBank() throws Exception{
         User user = userService.getLoginUser();
-
-        //TODO 멀티쿼리르 사용해보시는 것은 어떨까요?
         lectureBankMapper.createLectureBank(user.getId());
         return lectureBankMapper.getLectureBankId(user.getId());
     }
@@ -147,7 +143,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         Long userId = userService.getLoginUser().getId();
         if(checkWriter(id)){
             lectureBankMapper.deleteLectureBank(id, userId);
-            //TODO MULTI QUERY랑 CHOOSE WHEN 구문을 사용해 볼 수 있지 않을까요?
+
             //delete Comment : soft
             List<Long> commentIdList= lectureBankMapper.getCommentIdList(id);
             if(commentIdList.size() != 0)
@@ -210,15 +206,11 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     public void addComment(Long lecture_bank_id, String comments) throws Exception{
         // lecture_bank의 is_deleted, reported 검사?
-        // TODO 만약 없는 강의자료에 커멘트를 다는 경우가 처리되어야할 것 같습니다.
-        // TODO  comments 유효성 검사를 해줘야 할 것 같습니다 null, size... 등등..
         lectureBankMapper.addComment(userService.getLoginUser().getId(), lecture_bank_id, comments);
     }
 
     @Override
     public void setComment(Long lecture_bank_comment_id, String comments) throws Exception{
-        // TODO 만약 없는 강의자료에 커멘트를 다는 경우가 처리되어야할 것 같습니다.
-        // TODO  comments 유효성 검사를 해줘야 할 것 같습니다 null, size... 등등..
         if(checkCommentWriter(lecture_bank_comment_id))
             lectureBankMapper.setComment(lecture_bank_comment_id, comments);
         else
@@ -227,7 +219,6 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public void deleteComment(Long lecture_bank_comment_id) throws Exception{
-        // TODO 만약 없는 강의자료에 커멘트를 다는 경우가 처리되어야할 것 같습니다.
         if(checkCommentWriter(lecture_bank_comment_id))
             lectureBankMapper.deleteComment(lecture_bank_comment_id);
         else
@@ -264,7 +255,6 @@ public class LectureBankServiceImpl implements LectureBankService {
         if(user_point < point_price) throw new RequestInputException(ErrorMessage.NOT_ENOUGH_POINT);
 
 
-        //TODO 자바에서 5번 다녀오는 것 보다 한번에 할 수 있도록 멀티쿼리를 사용하면 좋을 것 같습니다
         lectureBankMapper.purchaseInsert(userID, lecture_bank_id);
         // 구매한 유저 포인트-- 자료주인은 포인트++
         lectureBankMapper.setPoint(userID, -point_price);
@@ -279,7 +269,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     //hits------------------------------------------------------------------------------------
     @Override
     public Boolean checkHits(Long lecture_bank_id) throws  Exception {
-
         Long userID = userService.getLoginUser().getId();
         Integer hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
         return hits != null;
@@ -292,13 +281,13 @@ public class LectureBankServiceImpl implements LectureBankService {
 
         Integer hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
 
-        if(hits == null){ // TODO 안누른경우
+        if(hits == null){
             lectureBankMapper.hitInsert(userID, lecture_bank_id);
             lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
-        } else if(hits.intValue()==1){ // TODO 누른 경우
+        } else if(hits.intValue()==1){
             lectureBankMapper.subHit(userID, lecture_bank_id);
             lectureBankMapper.subHit_lecture_bank(lecture_bank_id);
-        }else{ // TODO ???
+        }else{
             lectureBankMapper.addHit(userID, lecture_bank_id);
             lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
         }
@@ -344,7 +333,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
     @Override
-    // TODO 사용하지 않는 파일들을 전부 지우기 위한거 같군요
     public void hardDeleteFile() throws Exception{
 
         List<String> objectKeys = lectureBankMapper.getDelObjectList();
@@ -440,7 +428,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     @Transactional
     public void reportLectureBank(Long lecture_bank_id, Long report_id) throws Exception{
-        //TODO 신고기능은 SLACK 노티를 보내는 것이 좋을것 같습니다
         lectureBankMapper.reportLectureBank(lecture_bank_id, report_id);
         lectureBankMapper.makeLectureBankReported(lecture_bank_id);
     }
@@ -448,7 +435,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     @Transactional
     public void reportLectureBankComment(Long lecture_bank_comment_id, Long report_id) throws Exception{
-        //TODO 신고기능은 SLACK 노티를 보내는 것이 좋을것 같습니다
         lectureBankMapper.reportLectureBankComment(lecture_bank_comment_id, report_id);
         lectureBankMapper.makeLectureBankCommentReported(lecture_bank_comment_id);
     }
