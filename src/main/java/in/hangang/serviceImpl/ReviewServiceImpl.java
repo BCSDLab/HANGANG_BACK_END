@@ -204,8 +204,8 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        //이미 스크랩한 내역이 있는지 확인
-        if(reviewMapper.isExistsScrap(userId, review.getId())!=null)
+        // 삭제할 스크랩이 존재하는지 확인
+        if(reviewMapper.isExistsScrap(userId, review.getId())==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         reviewMapper.deleteScrapReview(userId, review.getId());
