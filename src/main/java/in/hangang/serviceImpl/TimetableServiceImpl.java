@@ -264,6 +264,47 @@ public class TimetableServiceImpl implements TimetableService {
         return timetableMapper.getLectureListByTimeTableId(timeTableId);
     }
 
+    @Override
+    public void createScrapLecture(LectureTimeTable lectureTimeTable) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        if(lectureTimeTable.getLecture_id() == null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+
+        if(timetableMapper.getScrapLectureByLectureId(userId, lectureTimeTable.getLecture_id()) != null)
+            throw new RequestInputException(ErrorMessage.ALREADY_SCRAP_LECTURE);
+
+        timetableMapper.createScrapLecture(userId, lectureTimeTable.getLecture_id());
+    }
+
+    @Override
+    public ArrayList<LectureTimeTable> getScrapLectureList() throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        return timetableMapper.getScrapLectureList(userId);
+    }
+
+    @Override
+    public void deleteScrapLecture(LectureTimeTable lectureTimeTable) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        if(lectureTimeTable.getLecture_id() == null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+
+        timetableMapper.deleteScrapLecture(userId, lectureTimeTable.getLecture_id());
+    }
 
     //String으로 처리된 '강의시간' 정보들을 배열로 바꾸어준다
     public ArrayList<Integer> getClassTimeArrayList(ArrayList<String> classTimeList){
