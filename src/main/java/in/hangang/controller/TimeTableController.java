@@ -133,7 +133,7 @@ public class TimeTableController {
     }
 
     @Auth
-    @ApiOperation( value = "자신이 찜 한 강의 삭", notes = "자신이 스크랩(찜)한 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "자신이 찜 한 강의 삭제", notes = "자신이 스크랩(찜)한 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/scrap", method = RequestMethod.DELETE)
     public ResponseEntity deleteScrapLecture(@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
         timetableService.deleteScrapLecture(lectureTimeTable);
