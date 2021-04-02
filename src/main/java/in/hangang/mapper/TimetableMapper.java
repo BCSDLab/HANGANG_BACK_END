@@ -33,4 +33,8 @@ public interface TimetableMapper {
     void updateMainTimeTable(Long userId, Long timeTableId);
     void assignMainTimeTable(Long timeTableId);
     Long getMainTimeTableId(Long userId);
+    void createScrapLecture(Long userId, Long lectureId);
+    ArrayList<LectureTimeTable> getScrapLectureList(Long userId);
+    Long getScrapLectureByLectureId(Long userId, Long lectureId);
+    void deleteScrapLecture(Long userId, Long lectureId);
 }

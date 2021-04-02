@@ -35,7 +35,8 @@ public enum ErrorMessage {
 	CONTENT_NOT_EXISTS(30, "해당 게시글 혹은 자료가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
 	TIME_TABLE_LIMIT_TOTAL(31, "시간표는 총 50개만 생성 가능합니다.", HttpStatus.BAD_REQUEST),
 	NOT_ENOUGH_POINT(32, "point가 부족합니다", HttpStatus.BAD_REQUEST),
-	ALREADY_REPORTED(33, "이미 신고한 기록이 있습니다.", HttpStatus.BAD_REQUEST);
+	ALREADY_REPORTED(33, "이미 신고한 기록이 있습니다.", HttpStatus.BAD_REQUEST),
+	ALREADY_SCRAP_LECTURE(34, "이미 찜한 강의입니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;
