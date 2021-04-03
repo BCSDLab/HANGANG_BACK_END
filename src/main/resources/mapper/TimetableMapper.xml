@@ -168,6 +168,12 @@
         INSERT INTO hangang.scrap_lecture(user_id, lecture_timetable_id) VALUES(#{userId}, #{lectureId});
     </insert>
 
+    <select id="getLectureByScrap" resultMap="in.hangang.mapper.LectureMapper.lectureList">
+        SELECT * FROM lecture WHERE (name, professor)
+        IN (SELECT name, professor FROM lecture_timetable WHERE id
+        IN (SELECT lecture_timetable_id from scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0));
+    </select>
+
     <select id="getScrapLectureList" resultMap="lectureList">
         SELECT * FROM hangang.lecture_timetable
         WHERE id = ANY(SELECT lecture_timetable_id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0);
