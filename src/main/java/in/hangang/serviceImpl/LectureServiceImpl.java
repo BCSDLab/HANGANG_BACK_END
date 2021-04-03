@@ -1,5 +1,6 @@
 package in.hangang.serviceImpl;
 
+import in.hangang.domain.User;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Lecture;
 import in.hangang.domain.criteria.LectureCriteria;
@@ -7,6 +8,7 @@ import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureMapper;
 import in.hangang.service.LectureService;
+import in.hangang.service.UserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,6 +22,9 @@ public class LectureServiceImpl implements LectureService {
     @Resource
     private LectureMapper lectureMapper;
 
+    @Resource
+    private UserService userService;
+
     @Override
     public ArrayList<Lecture>
     getLectureList(LectureCriteria lectureCriteria) throws Exception {
@@ -29,6 +34,45 @@ public class LectureServiceImpl implements LectureService {
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
         return lectureMapper.getLectureList(lectureCriteria);
+    }
+
+    @Override
+    public void scrapLecture(Lecture lecture) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())!=null)
+            throw new RequestInputException(ErrorMessage.ALREADY_SCRAP_LECTURE);
+
+        lectureMapper.scrapLecture(userId, lecture.getId());
+    }
+
+    @Override
+    public void deleteScrapLecture(Lecture lecture) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+
+        lectureMapper.deleteScrapLecture(userId, lecture.getId());
+    }
+
+    @Override
+    public ArrayList<Lecture> getScrapLectureList() throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 없는 경우 예외 처리
+        if (user==null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
+
+        return lectureMapper.getScrapLectureList(userId);
     }
 
     @Override

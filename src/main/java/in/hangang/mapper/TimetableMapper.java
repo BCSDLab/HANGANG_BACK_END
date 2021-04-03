@@ -1,5 +1,6 @@
 package in.hangang.mapper;
 
+import in.hangang.domain.Lecture;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.TimeTableMap;
 import in.hangang.domain.UserTimeTable;
@@ -34,6 +35,7 @@ public interface TimetableMapper {
     void assignMainTimeTable(Long timeTableId);
     Long getMainTimeTableId(Long userId);
     void createScrapLecture(Long userId, Long lectureId);
+    ArrayList<Lecture> getLectureByScrap(Long userId);
     ArrayList<LectureTimeTable> getScrapLectureList(Long userId);
     Long getScrapLectureByLectureId(Long userId, Long lectureId);
     void deleteScrapLecture(Long userId, Long lectureId);
