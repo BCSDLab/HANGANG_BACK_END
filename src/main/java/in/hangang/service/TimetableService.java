@@ -19,6 +19,10 @@ public interface TimetableService {
     ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception;
     TimeTableMap getMainTimeTable() throws Exception;
     void updateMainTimeTable(TimeTable timeTable) throws Exception;
+    void createScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
+    ArrayList<LectureTimeTable> getScrapLectureList() throws Exception;
+    void deleteScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
+
 
 
 }

@@ -117,12 +117,27 @@ public class TimeTableController {
         return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
     }
 
-    /*
-    TODO : 메모 CRUD
     @Auth
-    @ApiOperation( value = "메모 추가", notes = "강의에 메모를 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @RequestMapping(value = "/timetable/lecture/memo", method = RequestMethod.POST)
-    public ResponseEntity createMemo(@Validated(ValidationGroups.createMemo.class) @RequestBody Memo memo) throws Exception{
+    @ApiOperation( value = "강의 찜", notes = "강의를 스크랩(찜)합니다", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/scrap", method = RequestMethod.POST)
+    public ResponseEntity createScrapLecture(@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
+        timetableService.createScrapLecture(lectureTimeTable);
+        return new ResponseEntity( new BaseResponse("해당 강의를 정상적으로 찜 했습니다.", HttpStatus.OK), HttpStatus.OK);
     }
-    */
+
+    @Auth
+    @ApiOperation( value = "자신이 찜 한 강의 확인", notes = "자신이 스크랩(찜)한 강의를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/scrap", method = RequestMethod.GET)
+    public ResponseEntity<ArrayList<LectureTimeTable>> getScrapLectureList() throws Exception{
+        return new ResponseEntity<ArrayList<LectureTimeTable>>(timetableService.getScrapLectureList(), HttpStatus.OK);
+    }
+
+    @Auth
+    @ApiOperation( value = "자신이 찜 한 강의 삭제", notes = "자신이 스크랩(찜)한 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @RequestMapping(value = "/timetable/scrap", method = RequestMethod.DELETE)
+    public ResponseEntity deleteScrapLecture(@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
+        timetableService.deleteScrapLecture(lectureTimeTable);
+        return new ResponseEntity( new BaseResponse("해당 강의를 정상적으로 삭제했습니다.", HttpStatus.OK), HttpStatus.OK);
+    }
+
 }

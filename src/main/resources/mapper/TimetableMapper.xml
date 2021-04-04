@@ -14,7 +14,19 @@
         </choose>
         <choose>
             <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
-                AND ((name like concat('%',#{keyword},'%')) OR (professor like concat('%',#{keyword},'%')))
+                <choose>
+                    <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(criteria)">
+                        <if test='(criteria eq "교수명".toString())'>
+                            AND (professor like concat('%',#{keyword},'%'))
+                        </if>
+                        <if test='(criteria eq "교과명".toString())'>
+                            AND (name like concat('%',#{keyword},'%'))
+                        </if>
+                    </when>
+                    <otherwise>
+                        AND ((name like concat('%',#{keyword},'%')) OR (professor like concat('%',#{keyword},'%')))
+                    </otherwise>
+                </choose>
             </when>
         </choose>
         <choose>
@@ -151,6 +163,29 @@
     <select id="getMainTimeTableId" resultType="Long">
         SELECT id FROM hangang.user_timetables WHERE user_id = #{userId} AND is_main = 1 AND is_deleted = 0
     </select>
+
+    <insert id="createScrapLecture">
+        INSERT INTO hangang.scrap_lecture(user_id, lecture_timetable_id) VALUES(#{userId}, #{lectureId});
+    </insert>
+
+    <select id="getLectureByScrap" resultMap="in.hangang.mapper.LectureMapper.lectureList">
+        SELECT * FROM lecture WHERE (name, professor)
+        IN (SELECT name, professor FROM lecture_timetable WHERE id
+        IN (SELECT lecture_timetable_id from scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0));
+    </select>
+
+    <select id="getScrapLectureList" resultMap="lectureList">
+        SELECT * FROM hangang.lecture_timetable
+        WHERE id = ANY(SELECT lecture_timetable_id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0);
+    </select>
+
+    <select id="getScrapLectureByLectureId" resultType="Long">
+        SELECT id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId} AND is_deleted = 0;
+    </select>
+
+    <update id="deleteScrapLecture">
+        UPDATE hangang.scrap_lecture SET is_deleted = 1 WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId};
+    </update>
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
