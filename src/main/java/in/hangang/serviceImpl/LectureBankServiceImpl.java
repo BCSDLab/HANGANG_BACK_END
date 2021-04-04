@@ -13,6 +13,7 @@ import io.github.makbn.thumbnailer.*;
 import io.github.makbn.thumbnailer.listener.ThumbnailListener;
 import io.github.makbn.thumbnailer.model.ThumbnailCandidate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     private UserMapper userMapper;
 
     @Autowired
+    @Qualifier("UserServiceImpl")
     private UserService userService;
 
     @Autowired

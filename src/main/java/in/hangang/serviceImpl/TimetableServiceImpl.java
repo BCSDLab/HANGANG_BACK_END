@@ -6,6 +6,7 @@ import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.TimetableService;
 import in.hangang.service.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -21,6 +22,7 @@ public class TimetableServiceImpl implements TimetableService {
     TimetableMapper timetableMapper;
 
     @Resource
+    @Qualifier("UserServiceImpl")
     UserService userService;
 
     @Override

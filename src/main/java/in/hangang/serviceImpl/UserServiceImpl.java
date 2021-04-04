@@ -35,11 +35,11 @@ import java.util.*;
 
 
 @Transactional
-@Service
+@Service("UserServiceImpl")
 public class UserServiceImpl implements UserService {
 
     @Resource
-    private UserMapper userMapper;
+    protected UserMapper userMapper;
     @Resource
     private Jwt jwt;
     @Value("${refresh.user.name}")

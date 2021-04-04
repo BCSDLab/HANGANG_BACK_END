@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -34,6 +35,10 @@ public class User {
 
     @ApiModelProperty(hidden = true)
     private String salt;
+    @ApiModelProperty(hidden = true)
+    private String role;
+    @ApiModelProperty(hidden = true)
+    private List<Authority> authorityList;
     @ApiModelProperty(hidden = true )
     private String profile_image_url;
     @ApiModelProperty(hidden = true)
@@ -44,6 +49,23 @@ public class User {
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
+
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public List<Authority> getAuthorityList() {
+        return authorityList;
+    }
+
+    public void setAuthorityList(List<Authority> authorityList) {
+        this.authorityList = authorityList;
+    }
 
     public ArrayList<String> getMajor() {
         return major;

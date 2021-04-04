@@ -36,7 +36,10 @@ public enum ErrorMessage {
 	TIME_TABLE_LIMIT_TOTAL(31, "시간표는 총 50개만 생성 가능합니다.", HttpStatus.BAD_REQUEST),
 	NOT_ENOUGH_POINT(32, "point가 부족합니다", HttpStatus.BAD_REQUEST),
 	ALREADY_REPORTED(33, "이미 신고한 기록이 있습니다.", HttpStatus.BAD_REQUEST),
-	ALREADY_SCRAP_LECTURE(34, "이미 찜한 강의입니다.", HttpStatus.BAD_REQUEST);
+	ALREADY_SCRAP_LECTURE(34, "이미 찜한 강의입니다.", HttpStatus.BAD_REQUEST),
+	FORBIDDEN_EXCEPTION(35, "작업을 수행할 수 있는 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
+	ROOT_AUTHORITY_CAN_NOT_DELETE_EXCEPTION(36,"루트 어드민의 권한은 건들 수 없습니다", HttpStatus.FORBIDDEN),
+	USER_IS_NOT_MANAGER(37,"해당 유저는 뺏을 권한이 없습니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

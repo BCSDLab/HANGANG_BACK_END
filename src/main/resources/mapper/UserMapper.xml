@@ -64,16 +64,25 @@
         UPDATE hangang.auth_number SET is_deleted = 1 WHERE id=#{id}
     </update>
 
-    <select id="getMe" resultMap="userAll">
+    <select id="getRole" resultType="String">
         SELECT
-        <include refid="user-all">
-            <property name="prefix" value=""/>
-            <property name="alias" value=""/>
-        </include>
-        FROM hangang.user
-        WHERE id = #{id}
+        r.role
+        FROM hangang.user AS u
+        JOIN hangang.admin AS a ON a.user_id = u.id
+        JOIN hangang.admin_role AS r ON a.admin_role_id = r.id
+        WHERE u.id = #{U_id}
+        LIMIT 1;
     </select>
 
+    <select id = "getMe" resultMap="userAll">
+        SELECT
+        <include refid="user-all">
+            <property name="prefix" value="U_"/>
+            <property name="alias" value=""/>
+        </include>
+        FROM hangang.user WHERE id = #{id} and is_deleted = 0
+        LIMIT 1;
+    </select>
     <select id="getLectureBankCount" resultType="Long">
         SELECT COUNT(*) FROM hangang.lecture_bank WHERE user_id=#{id};
     </select>
@@ -98,16 +107,25 @@
         WHERE up.user_id = #{id}
     </select>
     <resultMap id="userAll" type="in.hangang.domain.User">
-        <result column="id" property="id"/>
-        <result column="portal_account" property="portal_account"/>
-        <result column="nickname" property="nickname"/>
-        <result column="profile_image_url" property="profile_image_url"/>
-        <result column="point" property="point"/>
-        <result column="is_deleted" property="is_deleted"/>
-        <result column="created_at" property="created_at"/>
-        <result column="updated_at" property="updated_at"/>
-        <collection  column="id" property="major" javaType="java.util.ArrayList"  ofType="String" select="getMajor"> </collection>
+        <result column="U_id" property="id"/>
+        <result column="U_portal_account" property="portal_account"/>
+        <result column="U_nickname" property="nickname"/>
+        <result column="U_profile_image_url" property="profile_image_url"/>
+        <result column="U_point" property="point"/>
+        <result column="U_is_deleted" property="is_deleted"/>
+        <result column="U_created_at" property="created_at"/>
+        <result column="U_updated_at" property="updated_at"/>
+        <association property="role" column="U_id" javaType="String" select="getRole"></association>
+        <collection column="U_id" property="authorityList" javaType="java.util.ArrayList" ofType="in.hangang.domain.Authority" select="getAuthority"/>
+        <collection  column="U_id" property="major" javaType="java.util.ArrayList"  ofType="String" select="getMajor"> </collection>
     </resultMap>
+
+    <select id="getAuthority" resultType="in.hangang.domain.Authority">
+        SELECT au.id, au.authority FROM hangang.user AS u
+        JOIN hangang.admin AS a ON a.user_id = u.id
+        JOIN hangang.admin_authority AS au ON a.admin_authority_id = au.id
+        WHERE u.id = #{U_id};
+    </select>
 
 
     <sql id="user-all">
@@ -221,5 +239,10 @@
         WHERE u.id=#{P_user_id};
     </select>
 
-
+    <insert id="grantAuthority">
+        INSERT INTO hangang.admin(user_id, admin_authority_id, admin_role_id) VALUES(#{id}, #{flag}, 2)
+    </insert>
+    <delete id="deleteAuthority">
+        DELETE FROM hangang.admin WHERE user_id = #{id} and admin_authority_id = #{flag}
+    </delete>
 </mapper>

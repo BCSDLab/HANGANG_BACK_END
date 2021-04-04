@@ -7,6 +7,7 @@ import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.ReportMapper;
 import in.hangang.service.ReportService;
 import in.hangang.service.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -18,6 +19,7 @@ public class ReportServiceImpl implements ReportService {
     ReportMapper reportMapper;
 
     @Resource
+    @Qualifier("UserServiceImpl")
     UserService userService;
 
     @Override

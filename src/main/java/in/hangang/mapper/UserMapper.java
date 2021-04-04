@@ -2,10 +2,8 @@ package in.hangang.mapper;
 
 
 import in.hangang.annotation.Auth;
-import in.hangang.domain.AuthNumber;
-import in.hangang.domain.PointHistory;
-import in.hangang.domain.User;
-import in.hangang.domain.UserLectureBank;
+import in.hangang.domain.*;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -43,4 +41,9 @@ public interface UserMapper {
     void softDeleteUser(Long id, String nickname);
     void reSignMajors(Long id, List<String> major);
     List<UserLectureBank> getUserPurchasedLectureBank(Long id);
+    String getRole(Long id);
+    List<Authority> getAuthority(Long id);
+    void grantAuthority(Long id, Integer flag);
+    void deleteAuthority(Long id, Integer flag);
+
 }

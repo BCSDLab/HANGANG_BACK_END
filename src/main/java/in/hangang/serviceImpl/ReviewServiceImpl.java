@@ -12,6 +12,7 @@ import in.hangang.mapper.*;
 import in.hangang.service.LectureService;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -35,6 +36,7 @@ public class ReviewServiceImpl implements ReviewService {
     private LikesMapper likesMapper;
 
     @Resource
+    @Qualifier("UserServiceImpl")
     private UserService userService;
 
     @Resource

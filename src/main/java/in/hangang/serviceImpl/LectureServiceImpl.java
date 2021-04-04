@@ -9,6 +9,7 @@ import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureMapper;
 import in.hangang.service.LectureService;
 import in.hangang.service.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,8 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-rg.apache.commons.lang3.ObjectUtil;
-import org.apache.commons.lang3.ObjectUtils
+import org.apache.commons.lang3.ObjectUtils;
 
 @Service
 public class LectureServiceImpl implements LectureService {
@@ -25,6 +25,7 @@ public class LectureServiceImpl implements LectureService {
     @Resource
     private LectureMapper lectureMapper;
 
+    @Qualifier("UserServiceImpl")
     @Resource
     private UserService userService;
 
