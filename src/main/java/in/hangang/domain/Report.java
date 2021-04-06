@@ -6,6 +6,8 @@ import javax.validation.constraints.NotNull;
 
 public class Report {
     @ApiModelProperty(hidden = true)
+    private Long id;
+    @ApiModelProperty(hidden = true)
     Integer type_id;
     @NotNull(message = "신고할 컨텐츠의 id는 비워둘 수 없습니다.")
     Long content_id;
@@ -13,6 +15,14 @@ public class Report {
     Long report_id;
     @ApiModelProperty(hidden = true)
     Long user_id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Integer getType_id() {
         return type_id;

@@ -16,7 +16,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/admin")
-public class AdminTestController {
+public class AdminAuthorityController {
 
     @Autowired
     @Qualifier("AdminUserServiceImpl")
