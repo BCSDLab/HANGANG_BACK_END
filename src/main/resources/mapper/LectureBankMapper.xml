@@ -98,7 +98,7 @@
 
 
         <select id="getLectureBank" resultType="in.hangang.domain.LectureBank">
-            SELECT * FROM lecture_bank WHERE id = #{id}
+            SELECT * FROM lecture_bank WHERE id = #{id} and is_deleted = 0
         </select>
 
     <select id="getLectureInfo" resultMap="lecture">
@@ -261,7 +261,7 @@
 
     <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
         SELECT * FROM lecture_bank_comment WHERE reported = 0
-        AND lecture_bank_id = #{lecture_bank_id};
+        AND lecture_bank_id = #{lecture_bank_id} and is_deleted = 0;
     </select>
 
     <insert id="addComment">
@@ -272,6 +272,8 @@
         UPDATE lecture_bank_comment SET comments = #{comments}
         where id = #{id};
     </update>
+
+    <!-- 어드민에서도 사용중 -->
     <update id="deleteComment">
         UPDATE lecture_bank_comment SET is_deleted = 1
         where id = #{id};

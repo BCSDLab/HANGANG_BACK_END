@@ -1,13 +1,13 @@
-package in.hangang.serviceImpl;
+package in.hangang.serviceImpl.admin;
 
 import in.hangang.annotation.Auth;
 import in.hangang.domain.Authority;
 import in.hangang.domain.GrantAdmin;
-import in.hangang.domain.User;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.response.BaseResponse;
-import in.hangang.service.AdminUserService;
+import in.hangang.service.admin.AdminUserService;
+import in.hangang.serviceImpl.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 

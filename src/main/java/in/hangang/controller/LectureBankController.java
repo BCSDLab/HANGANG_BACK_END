@@ -5,6 +5,7 @@ import in.hangang.domain.*;
 import in.hangang.service.LectureBankService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.List;
 public class LectureBankController {
 
     @Autowired
+    @Qualifier("LectureBankServiceImpl")
     private LectureBankService lectureBankService;
 
     // 강의자료 MAIN------------------------------------------------------------------------------------

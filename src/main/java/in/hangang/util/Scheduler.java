@@ -4,6 +4,7 @@ import in.hangang.mapper.LectureMapper;
 import in.hangang.service.HashTagService;
 import in.hangang.service.LectureBankService;
 import in.hangang.service.LectureService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +17,11 @@ public class Scheduler {
     private HashTagService hashTagService;
 
     @Resource
+    @Qualifier("LectureServiceImpl")
     private LectureService lectureService;
 
     @Resource
+    @Qualifier("LectureBankServiceImpl")
     private LectureBankService lectureBankService;
 
     /**

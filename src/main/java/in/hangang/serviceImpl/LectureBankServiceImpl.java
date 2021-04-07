@@ -25,11 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Service
+@Service("LectureBankServiceImpl")
 public class LectureBankServiceImpl implements LectureBankService {
 
     @Autowired
-    private LectureBankMapper lectureBankMapper;
+    protected LectureBankMapper lectureBankMapper;
 
     @Autowired
     private UserMapper userMapper;

@@ -2,14 +2,13 @@ package in.hangang.controller.admin;
 
 import in.hangang.annotation.Auth;
 import in.hangang.domain.GrantAdmin;
-import in.hangang.service.AdminUserService;
+import in.hangang.service.admin.AdminUserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -48,6 +47,8 @@ public class AdminAuthorityController {
     public String test4(){
         return "test4 Success";
     }
+
+
     @Auth(role = Auth.Role.ROOT)
     @PostMapping("/authority")
     @ApiOperation( value = "관리자의 권한을 추가하는 api", notes = "유저를 권한을 가진 관리자로 만드는 api, 루트관리자만 사용 가능 1-강의자료 2 강의평 3 시간표", authorizations = @Authorization(value = "Bearer +accessToken"))

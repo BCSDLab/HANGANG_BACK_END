@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-@Service
+@Service("ReviewServiceImpl")
 public class ReviewServiceImpl implements ReviewService {
 
     @Resource
-    private ReviewMapper reviewMapper;
+    protected ReviewMapper reviewMapper;
 
     @Resource
     private HashTagMapper hashtagMapper;

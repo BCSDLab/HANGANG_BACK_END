@@ -10,6 +10,7 @@ import in.hangang.response.BaseResponse;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,8 @@ public class UserController {
     @Qualifier("UserServiceImpl")
     private UserService userService;
 
-    @Resource
+    @Autowired
+    @Qualifier("ReviewServiceImpl")
     private ReviewService reviewService;
 
     // 로그인

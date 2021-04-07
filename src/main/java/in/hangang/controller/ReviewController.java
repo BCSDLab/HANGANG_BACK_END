@@ -12,6 +12,8 @@ import in.hangang.service.ReportService;
 import in.hangang.service.ReviewService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +25,8 @@ import java.util.ArrayList;
 @RestController
 public class ReviewController {
 
-    @Resource
+    @Autowired
+    @Qualifier("ReviewServiceImpl")
     ReviewService reviewService;
 
     @Resource

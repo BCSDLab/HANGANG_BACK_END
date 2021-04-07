@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-@Service
+@Service("LectureServiceImpl")
 public class LectureServiceImpl implements LectureService {
 
     @Resource

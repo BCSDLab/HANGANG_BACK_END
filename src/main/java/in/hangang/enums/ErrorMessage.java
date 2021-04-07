@@ -39,7 +39,9 @@ public enum ErrorMessage {
 	ALREADY_SCRAP_LECTURE(34, "이미 찜한 강의입니다.", HttpStatus.BAD_REQUEST),
 	FORBIDDEN_EXCEPTION(35, "작업을 수행할 수 있는 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
 	ROOT_AUTHORITY_CAN_NOT_DELETE_EXCEPTION(36,"루트 어드민의 권한은 건들 수 없습니다", HttpStatus.FORBIDDEN),
-	USER_IS_NOT_MANAGER(37,"해당 유저는 뺏을 권한이 없습니다.", HttpStatus.BAD_REQUEST);
+	USER_IS_NOT_MANAGER(37,"해당 유저는 뺏을 권한이 없습니다.", HttpStatus.BAD_REQUEST),
+	COMMENT_NOT_EXIST(38, "존재하지 않는 강의자료 댓글입니다.", HttpStatus.BAD_REQUEST),
+	REVIEW_NOT_EXIST(39,"존재하지 않는 강의평입니다.",HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

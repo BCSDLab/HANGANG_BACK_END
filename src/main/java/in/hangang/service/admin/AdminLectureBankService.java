@@ -1,16 +1,14 @@
-package in.hangang.mapper;
-
+package in.hangang.service.admin;
 
 import in.hangang.domain.report.LectureBankCommentReport;
 import in.hangang.domain.report.LectureBankReport;
-import in.hangang.domain.report.ReviewReport;
-import org.springframework.stereotype.Repository;
+import in.hangang.response.BaseResponse;
+import in.hangang.service.LectureBankService;
 
 import java.util.List;
 
-@Repository
-public interface AdminReportMapper {
-    List<ReviewReport> getReportedReview();
+public interface AdminLectureBankService extends LectureBankService {
     List<LectureBankReport> getReportedLectureBank();
     List<LectureBankCommentReport> getReportedLectureBankComment();
+    BaseResponse deleteReportedCommentForAdmin(Long id);
 }
