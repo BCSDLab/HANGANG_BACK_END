@@ -289,4 +289,10 @@ public class LectureBankController {
 
 
 
+    // TODO 썸네일 테스트 정수현
+    @PostMapping("/test")
+    public ResponseEntity tngusTest(@RequestBody MultipartFile multipartFile) throws Exception {
+        return new ResponseEntity(lectureBankService.tngusTest(multipartFile), HttpStatus.OK);
+    }
+
 }

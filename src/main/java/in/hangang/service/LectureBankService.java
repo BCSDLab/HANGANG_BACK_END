@@ -56,4 +56,5 @@ public interface LectureBankService {
     void reportLectureBank(Long lecture_bank_id, Long report_id) throws Exception;
     void reportLectureBankComment(Long lecture_bank_comment_id, Long report_id) throws Exception;
 
+    String tngusTest(MultipartFile multipartFile)throws Exception ;
 }

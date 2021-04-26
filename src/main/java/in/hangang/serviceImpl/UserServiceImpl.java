@@ -536,4 +536,5 @@ public class UserServiceImpl implements UserService {
         userMapper.setSalt(salt,userId);
         return new BaseResponse("모든 기기에서 로그아웃 되었습니다.", HttpStatus.OK);
     }
+
 }
