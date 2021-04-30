@@ -90,8 +90,8 @@ public class TimetableServiceImpl implements TimetableService {
     }
 
     @Override
-    public void deleteTimetable(TimeTable timeTable) throws Exception {
-        Long timeTableId = timeTable.getUser_timetable_id();
+    public void deleteTimetable(UserTimeTable userTimeTable) throws Exception {
+        Long timeTableId = userTimeTable.getId();
         //id가 비어있다면 에러
         if(timeTableId == null)
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
@@ -104,7 +104,7 @@ public class TimetableServiceImpl implements TimetableService {
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         //해당 시간표를 삭제할 권한이 있는지 확인
-       if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
+        if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         timetableMapper.deleteTimetable(timeTableId);
@@ -117,17 +117,16 @@ public class TimetableServiceImpl implements TimetableService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
         Long timeTableId = timetableMapper.getMainTimeTableId(userId);
+        TimeTableMap timeTableMap = new TimeTableMap();
+        timeTableMap = timetableMapper.getTableById(timeTableId);
+        timeTableMap.setLectureList(timetableMapper.getLectureListByTimeTableId(timeTableId));
 
-        //HashMap<ArrayList<UserTimeTable>, ArrayList<LectureTimeTable>> mainTable =
-        //        new HashMap<ArrayList<UserTimeTable>, ArrayList<LectureTimeTable>>();
-        //mainTable.put(timetableMapper.getTableById(timeTableId), getLectureListByTimeTableId(timeTableId));
-
-        return timetableMapper.getTableById(timeTableId);
+        return timeTableMap;
     }
 
-    public void updateMainTimeTable(TimeTable timeTable) throws Exception {
+    public void updateMainTimeTable(UserTimeTable userTimeTable) throws Exception {
         //id가 비어있다면 에러
-        Long timeTableId = timeTable.getUser_timetable_id();
+        Long timeTableId = userTimeTable.getId();
         if(timeTableId == null)
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
         User user = userService.getLoginUser();
@@ -192,6 +191,9 @@ public class TimetableServiceImpl implements TimetableService {
         //해당 테이블의 유저가 로그인 정보와 일치하는지 확인
         if(!userId.equals(timetableMapper.getUserIdByTimeTableId(timeTableId)))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+
+        if(timetableMapper.isAlreadyExists(timeTableId, lectureId)==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         //삭제 방식에 대한 고민
         timetableMapper.deleteLectureOnTimeTable(timeTableId, lectureId);

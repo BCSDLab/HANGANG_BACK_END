@@ -14,6 +14,7 @@ import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -84,6 +85,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public void createReview(Review review) throws Exception {
 
         //해당 강의가 존재하는지 확인.
@@ -141,6 +143,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public void likesReview(Review review) throws Exception {
         Long reviewId = review.getId();
         //id가 비어있는지 확
@@ -169,6 +172,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 
     @Override
+    @Transactional
     public void scrapReview(Review review) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 있는지 확인.
@@ -199,6 +203,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public void deleteScrapReview(Review review) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 있는지 확인

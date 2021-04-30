@@ -55,8 +55,10 @@
         <result column="id" property="id"/>
         <result column="semester_date_id" property="tableSemesterDate"/>
         <result column="name" property="tableName"/>
+        <!--
         <collection property="lectureList" ofType="in.hangang.domain.LectureTimeTable" column="{id=id}" select="getLectureListByTimeTableId">
         </collection>
+        -->
     </resultMap>
 
     <select id="getClassTimeByLectureId" resultType="String">
@@ -207,6 +209,9 @@
         <result column="class_time" property="class_time"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
+        <collection
+                property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
+        </collection>
     </resultMap>
 
     <resultMap id="lectureList" type="in.hangang.domain.LectureTimeTable">

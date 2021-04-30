@@ -11,7 +11,7 @@ import java.util.HashMap;
 @Repository
 public interface LectureMapper {
     void scrapLecture(Long userId, Long lectureId);
-    void deleteScrapLecture(Long userId, Long lectureId);
+    void deleteScrapLecture(Long userId, ArrayList<Long> lectureId);
     ArrayList<Lecture> getScrapLectureList(Long userId);
     Long checkAlreadyScraped(Long userId, Long lectureId);
     ArrayList<Lecture> getLectureList(LectureCriteria lectureCriteria);

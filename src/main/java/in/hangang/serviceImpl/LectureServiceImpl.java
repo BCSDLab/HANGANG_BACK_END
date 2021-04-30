@@ -55,17 +55,18 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public void deleteScrapLecture(Lecture lecture) throws Exception {
+    public void deleteScrapLecture(ArrayList<Long> lectureId) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
+        for(int i = 0; i< lectureId.size(); i++){
+            if(lectureMapper.checkAlreadyScraped(userId, lectureId.get(i))==null)
+                throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        }
 
-        if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())==null)
-            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-
-        lectureMapper.deleteScrapLecture(userId, lecture.getId());
+        lectureMapper.deleteScrapLecture(userId, lectureId);
     }
 
     @Override

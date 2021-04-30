@@ -49,8 +49,8 @@ public class LectureController {
     @Auth
     @ApiOperation(value = "강의 스크랩 삭제", notes = "스크랩했던 강의를 삭제합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/scrap/lecture", method = RequestMethod.DELETE)
-    public ResponseEntity deleteScrapLecture(@RequestBody Lecture lecture) throws Exception{
-        lectureService.deleteScrapLecture(lecture);
+    public ResponseEntity deleteScrapLecture(@RequestBody ArrayList<Long> id) throws Exception{
+        lectureService.deleteScrapLecture(id);
         return new ResponseEntity( new BaseResponse("스크랩을 정상적으로 삭제했습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 

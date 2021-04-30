@@ -13,7 +13,10 @@
         INSERT INTO hangang.scraps(user_id, lecture_id) VALUES(#{userId}, #{lectureId});
     </insert>
     <update id="deleteScrapLecture">
-        UPDATE hangang.scraps SET is_deleted = 1 WHERE user_id = #{userId} AND lecture_id = #{lectureId};
+        UPDATE hangang.scraps SET is_deleted = 1 WHERE user_id = #{userId} AND
+        <foreach collection="lectureId" item="lectureId" open="(" close=")" separator="or">
+            lecture_id = #{lectureId}
+        </foreach>
     </update>
 
     <select id="checkAlreadyScraped" resultType="Long">
@@ -131,11 +134,6 @@
         <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
                     ofType="in.hangang.domain.HashTag" select="in.hangang.mapper.HashTagMapper.getTop3HashTag">
         </collection>
-        <!--
-        <collection property="total_rating" javaType="String" column="id"
-                    select="in.hangang.mapper.TotalEvaluationMapper.getTotalRating">
-        </collection>
-        -->
     </resultMap>
 
     <select id="checkLectureExists" resultType="Long">
