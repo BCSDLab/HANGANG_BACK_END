@@ -48,9 +48,11 @@ public class Scheduler {
         hashTagService.updateTop3HashTag();
     }
 
-    @Scheduled(cron = "0 0 0 */1 * *")
-    public void updateReviewCount() {lectureService.updateReviewCount();}
 
-    @Scheduled(cron = "0 0 0 ? * 6")
-    public void cleanUnavailableFiles() throws Exception {lectureBankService.hardDeleteFile();}
+    //@Scheduled(cron = "0 0 0 1 * *")
+    //public void updateReviewCount() {lectureService.updateReviewCount();}
+
+    // 에러나서 주석처리했습니다.
+    //@Scheduled(cron = "0 0 0 ? * 6")
+    //public void cleanUnavailableFiles() throws Exception {lectureBankService.hardDeleteFile();}
 }

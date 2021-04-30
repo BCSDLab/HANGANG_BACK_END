@@ -58,8 +58,8 @@ public class TimeTableController {
     @Auth
     @ApiOperation( value = "시간표 삭제", notes = "자신의 시간표를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable", method = RequestMethod.DELETE)
-    public ResponseEntity deleteTimeTable(@RequestBody TimeTable timeTable) throws Exception{
-        timetableService.deleteTimetable(timeTable);
+    public ResponseEntity deleteTimeTable(@RequestBody UserTimeTable userTimeTable) throws Exception{
+        timetableService.deleteTimetable(userTimeTable);
         return new ResponseEntity( new BaseResponse("시간표가 삭제되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
@@ -88,8 +88,8 @@ public class TimeTableController {
     @Auth
     @ApiOperation( value = "메인 시간표 변경", notes = "메인 시간표를 변경할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/main/lecture", method = RequestMethod.PATCH)
-    public ResponseEntity updateMainTimeTable(@RequestBody TimeTable timeTable) throws Exception{
-        timetableService.updateMainTimeTable(timeTable);
+    public ResponseEntity updateMainTimeTable(@RequestBody UserTimeTable userTimeTable) throws Exception{
+        timetableService.updateMainTimeTable(userTimeTable);
         return new ResponseEntity( new BaseResponse("메인 시간표가 변경되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 

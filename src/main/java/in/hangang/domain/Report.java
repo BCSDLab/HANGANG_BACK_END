@@ -8,7 +8,7 @@ public class Report {
     @ApiModelProperty(hidden = true)
     private Long id;
     @ApiModelProperty(hidden = true)
-    Integer type_id;
+    Integer board_type_id;
     @NotNull(message = "신고할 컨텐츠의 id는 비워둘 수 없습니다.")
     Long content_id;
     @NotNull(message = "신고 내용은 비워둘 수 없습니다.")
@@ -24,12 +24,12 @@ public class Report {
         this.id = id;
     }
 
-    public Integer getType_id() {
-        return type_id;
+    public Integer getBoard_type_id() {
+        return board_type_id;
     }
 
-    public void setType_id(Integer type_id) {
-        this.type_id = type_id;
+    public void setBoard_type_id(Integer board_type_id) {
+        this.board_type_id = board_type_id;
     }
 
     public Long getContent_id() {

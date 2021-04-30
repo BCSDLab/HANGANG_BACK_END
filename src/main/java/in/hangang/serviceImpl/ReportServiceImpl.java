@@ -23,8 +23,8 @@ public class ReportServiceImpl implements ReportService {
     UserService userService;
 
     @Override
-    public void createReport(Integer typeId, Report report) throws Exception{
-        report.setType_id(typeId);
+    public void createReport(Integer boardTypeId, Report report) throws Exception{
+        report.setBoard_type_id(boardTypeId);
 
         if(report.getReport_id()==null)
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);

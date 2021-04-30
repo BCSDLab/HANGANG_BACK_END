@@ -11,14 +11,14 @@ public interface TimetableService {
     ArrayList<UserTimeTable> getTableListByUserId(Long semesterDateId) throws Exception;
     void createTimetable(UserTimeTable userTimetable) throws Exception;
     void updateTimeTable(UserTimeTable userTimeTable) throws Exception;
-    void deleteTimetable(TimeTable timeTable) throws Exception;
+    void deleteTimetable(UserTimeTable userTimeTable) throws Exception;
     void createLectureOnTimeTable(TimeTable timeTable) throws Exception;
     void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception;
     void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception;
     void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception;
     ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception;
     TimeTableMap getMainTimeTable() throws Exception;
-    void updateMainTimeTable(TimeTable timeTable) throws Exception;
+    void updateMainTimeTable(UserTimeTable userTimeTable) throws Exception;
     void createScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
     ArrayList<LectureTimeTable> getScrapLectureList() throws Exception;
     void deleteScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
