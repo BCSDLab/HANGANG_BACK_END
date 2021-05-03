@@ -37,6 +37,9 @@ public class LectureServiceImpl implements LectureService {
         if(lectureCriteria.getSort()!=null && !Arrays.asList(sortList).contains(lectureCriteria.getSort()))
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
+        if(lectureCriteria.getDepartment().size()>2)
+            throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
+
         return lectureMapper.getLectureList(lectureCriteria);
     }
 
