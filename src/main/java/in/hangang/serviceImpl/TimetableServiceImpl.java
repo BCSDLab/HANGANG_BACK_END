@@ -250,7 +250,7 @@ public class TimetableServiceImpl implements TimetableService {
     }
 
     @Override
-    public ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId) throws Exception {
+    public TimeTableMap getLectureListByTimeTableId(Long timeTableId) throws Exception {
         if(timeTableId==null)
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
         User user = userService.getLoginUser();
@@ -265,7 +265,11 @@ public class TimetableServiceImpl implements TimetableService {
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
-        return timetableMapper.getLectureListByTimeTableId(timeTableId);
+        TimeTableMap timeTableMap = new TimeTableMap();
+        timeTableMap = timetableMapper.getTableById(timeTableId);
+        timeTableMap.setLectureList(timetableMapper.getLectureListByTimeTableId(timeTableId));
+
+        return timeTableMap;
     }
 
     @Override
