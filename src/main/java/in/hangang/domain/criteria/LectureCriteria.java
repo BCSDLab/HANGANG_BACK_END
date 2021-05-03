@@ -9,7 +9,7 @@ public class LectureCriteria extends Criteria{
     private String keyword;
     private ArrayList<String> classification;
     private ArrayList<Long> hashtag;
-    private String department;
+    private ArrayList<String> department;
     private String sort;
 
     public String getKeyword() {
@@ -36,11 +36,11 @@ public class LectureCriteria extends Criteria{
         this.hashtag = hashtag;
     }
 
-    public String getDepartment() {
+    public ArrayList<String> getDepartment() {
         return department;
     }
 
-    public void setDepartment(String department) {
+    public void setDepartment(ArrayList<String> department) {
         this.department = department;
     }
 

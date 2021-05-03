@@ -66,7 +66,10 @@
         </choose>
         <choose>
             <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
-                AND LEC.department = #{department}
+                AND
+                <foreach collection="department" item="department" open="(" close=")" separator="or">
+                    LEC.department = #{department}
+                </foreach>
             </when>
         </choose>
 
