@@ -66,8 +66,8 @@ public class TimeTableController {
     @Auth
     @ApiOperation( value = "시간표 보기", notes = "시간표에 등록된 강의 목록을 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<LectureTimeTable>> getTimeTableWithLecture (@RequestParam Long timeTableId) throws Exception{
-        return new ResponseEntity<ArrayList<LectureTimeTable>>(timetableService.getLectureListByTimeTableId(timeTableId), HttpStatus.OK);
+    public ResponseEntity<TimeTableMap> getTimeTableWithLecture (@RequestParam Long timeTableId) throws Exception{
+        return new ResponseEntity<TimeTableMap>(timetableService.getLectureListByTimeTableId(timeTableId), HttpStatus.OK);
     }
 
     @Auth
