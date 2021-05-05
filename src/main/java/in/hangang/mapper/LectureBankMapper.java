@@ -51,7 +51,7 @@ public interface LectureBankMapper {
 
 
     //purchase
-    Integer checkPurchased(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    Long checkPurchased(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void purchaseInsert(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void setPoint(@Param("user_id")Long user_id, @Param("point")Integer point);
     List<Long> getPurchaseId(@Param("lecture_bank_id")Long lecture_bank_id);
@@ -62,7 +62,7 @@ public interface LectureBankMapper {
 
 
     //hits
-    Integer checkHits(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    Long checkHits(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void addHit(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void subHit(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void addHit_lecture_bank(@Param("lecture_bank_id")Long lecture_bank_id);

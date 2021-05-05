@@ -180,8 +180,8 @@
 
 <!--purchase-->
 
-    <select id="checkPurchased" resultType="Integer">
-        SELECT purchased FROM lecture_bank_purchase
+    <select id="checkPurchased" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_purchase
         WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
     </select>
     <insert id="purchaseInsert">
@@ -219,8 +219,8 @@
 
 
     <!--Hit-->
-    <select id="checkHits" resultType="Integer">
-        SELECT hit FROM lecture_bank_hit WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
+    <select id="checkHits" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_hit WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
     </select>
 
     <update id="subHit">

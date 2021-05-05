@@ -258,7 +258,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     public Boolean checkPurchase(Long lecture_bank_id) throws Exception {
         User user = userService.getLoginUser();
-        Integer purchase = lectureBankMapper.checkPurchased(user.getId(), lecture_bank_id);
+        Long purchase = lectureBankMapper.checkPurchased(user.getId(), lecture_bank_id);
         return purchase != null;
     }
 
@@ -293,7 +293,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     public Boolean checkHits(Long lecture_bank_id) throws  Exception {
 
         Long userID = userService.getLoginUser().getId();
-        Integer hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
+        Long hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
         return hits != null;
     }
 
@@ -302,12 +302,12 @@ public class LectureBankServiceImpl implements LectureBankService {
     public void pushHit(Long lecture_bank_id) throws Exception{
         Long userID = userService.getLoginUser().getId();
 
-        Integer hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
+        Long hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
 
         if(hits == null){ // TODO 안누른경우
             lectureBankMapper.hitInsert(userID, lecture_bank_id);
             lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
-        } else if(hits.intValue()==1){ // TODO 누른 경우
+        }else if(hits.intValue()==1){ // TODO 누른 경우
             lectureBankMapper.subHit(userID, lecture_bank_id);
             lectureBankMapper.subHit_lecture_bank(lecture_bank_id);
         }else{ // TODO ???
@@ -411,40 +411,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     //Thumbnail------------------------------------------------------------------------------------
     @Override
     public String makeThumbnail(MultipartFile multipartFile) throws Exception{
-/*
-        final String[] path = {"PATH","------"};
-        try {
-        //TODO install OpenOffice
-
-            AppSettings.init(new String[]{"","/Users/ki_sol/Downloads","","/Users/ki_sol/Downloads","100","100"});
-            Thumbnailer.start();
-
-            File in = new File(multipartFile.getOriginalFilename());
-            multipartFile.transferTo(in);
-            if(in.exists()) {
-                ThumbnailCandidate candidate = new ThumbnailCandidate(in,"unique_code");
-
-                Thumbnailer.createThumbnail(candidate, new ThumbnailListener() {
-                    @Override
-                    public void onThumbnailReady(String hash, File thumbnail) {
-                        path[0] = thumbnail.getAbsolutePath();
-                        System.out.println("FILE created in : " + path[0]);
-                    }
-
-                    @Override
-                    public void onThumbnailFailed(String hash, String message, int code) {
-
-                    }
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return path[0];
-
-*/
         return "test_thumbnail_url_path";
-        
     }
 
 
