@@ -36,6 +36,10 @@ public class LectureBank {
 
     @ApiModelProperty(hidden = true)
     private Boolean reported = false;
+    @ApiModelProperty(hidden = true)
+    private Boolean is_deleted = false;
+    @ApiModelProperty(hidden = true)
+    private Boolean is_hit = false;
 
     @ApiModelProperty(hidden = true)
     private User user;
@@ -165,5 +169,21 @@ public class LectureBank {
 
     public void setReported(Boolean reported) {
         this.reported = reported;
+    }
+
+    public Boolean getIs_deleted() {
+        return is_deleted;
+    }
+
+    public void setIs_deleted(Boolean is_deleted) {
+        this.is_deleted = is_deleted;
+    }
+
+    public Boolean getIs_hit() {
+        return is_hit;
+    }
+
+    public void setIs_hit(Boolean is_hit) {
+        this.is_hit = is_hit;
     }
 }

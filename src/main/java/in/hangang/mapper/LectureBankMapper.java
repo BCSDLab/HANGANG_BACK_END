@@ -48,6 +48,7 @@ public interface LectureBankMapper {
     Long getCommentWriterId(@Param("id") Long id);
     ArrayList<Long> getCommentIdList(@Param("lecture_bank_id")Long lecture_bank_id);
     void deleteMultiComment(@Param("id_list") ArrayList<Long> id_list);
+    LectureBankComment getComment(@Param("id") Long id);
 
 
     //purchase

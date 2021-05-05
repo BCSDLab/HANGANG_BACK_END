@@ -42,7 +42,8 @@ public enum ErrorMessage {
 	USER_IS_NOT_MANAGER(37,"해당 유저는 뺏을 권한이 없습니다.", HttpStatus.BAD_REQUEST),
 	COMMENT_NOT_EXIST(38, "존재하지 않는 강의자료 댓글입니다.", HttpStatus.BAD_REQUEST),
 	REVIEW_NOT_EXIST(39,"존재하지 않는 강의평입니다.",HttpStatus.BAD_REQUEST),
-	LECTURE_CRITERIA_LIMIT_DEPARTMENT(40, "학부 정보는 최대 2개까지만 선택 가능합니다", HttpStatus.BAD_REQUEST);
+	LECTURE_CRITERIA_LIMIT_DEPARTMENT(40, "학부 정보는 최대 2개까지만 선택 가능합니다", HttpStatus.BAD_REQUEST),
+	REPORTED_CONTENT(41, "신고된 강의자료에는 댓글을 달 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

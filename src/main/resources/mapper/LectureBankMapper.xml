@@ -297,6 +297,11 @@
         </foreach>;
     </update>
 
+    <select id="getComment" resultType="in.hangang.domain.LectureBankComment">
+        SELECT * FROM lecture_bank_comment WHERE reported = 0
+        AND id = #{id} and is_deleted = 0;
+    </select>
+
 
 <!--File-->
 

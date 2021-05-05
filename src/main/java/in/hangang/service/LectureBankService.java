@@ -19,6 +19,7 @@ public interface LectureBankService {
     void deleteLectureBank(Long id) throws Exception;
     void cancelLectureBank(Long id) throws Exception;
     Boolean checkWriter(Long lecture_bank_id) throws Exception;
+    Boolean checkLectureBankAvailable(Long lecture_bank_id) throws Exception;
 
 
     //comment====================================================================================
@@ -56,5 +57,5 @@ public interface LectureBankService {
     void reportLectureBank(Long lecture_bank_id, Long report_id) throws Exception;
     void reportLectureBankComment(Long lecture_bank_comment_id, Long report_id) throws Exception;
 
-    String tngusTest(MultipartFile multipartFile)throws Exception ;
+    String tngusTest(MultipartFile multipartFile)throws Exception;
 }
