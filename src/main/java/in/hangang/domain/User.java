@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 @Component
 public class User {
     @ApiModelProperty(hidden = true)
@@ -26,6 +26,7 @@ public class User {
     private String password;
     @Size(min = 1, max=30 , groups = {ValidationGroups.updateUser.class, ValidationGroups.signUp.class}, message = "닉네임은 1글자이상 30글자 이하입니다.")
     @NotNull(groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class} , message = "닉네임은 비워둘 수 없습니다.")
+    @Pattern(regexp = "^[a-zA-Z가-힣0-9]{1,20}$", groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class} , message = "닉네임의 특수문자와 초성은 사용불가능합니다")
     private String nickname;
 
     @NotNull(groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class} , message = "전공은 비워둘 수 없습니다.")
@@ -49,7 +50,16 @@ public class User {
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
+    @ApiModelProperty(hidden = true)
+    private String name;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getRole() {
         return role;

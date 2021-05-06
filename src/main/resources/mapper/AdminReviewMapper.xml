@@ -3,12 +3,12 @@
 <mapper namespace="in.hangang.mapper.admin.AdminReviewMapper">
 
     <select id="getReportedReview" resultType="in.hangang.domain.report.ReviewReport">
-        SELECT l.id, r.content,t.type, l.user_id, l.content_id, re.comment, l.created_at, l.updated_at
+        SELECT l.id, r.content,b.type, l.user_id, l.content_id, re.comment, l.created_at, l.updated_at
         FROM hangang.report_log AS l
                  JOIN hangang.report AS r ON l.report_id = r.id
-                 JOIN hangang.report_type AS t ON l.type_id = t.id
+                 JOIN hangang.board_type AS b ON l.board_type_id = b.id
                  JOIN hangang.review AS re ON l.content_id = re.id
-        WHERE l.type_id = 1 AND l.is_deleted = 0 AND re.is_deleted = 0;
+        WHERE l.board_type_id = 1 AND l.is_deleted = 0 AND re.is_deleted = 0;
     </select>
 
     <delete id="deleteReviewReported">
@@ -17,7 +17,7 @@
         UPDATE hangang.review_hash_tag SET is_deleted = 1 WHERE review_id = #{id};
         UPDATE hangang.scrap SET is_deleted = 1 WHERE review_id = #{id};
         UPDATE hangang.likes SET is_deleted = 1 WHERE board_id = #{id};
-        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{id} AND type_id = 1;
+        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{id} AND board_type_id = 1;
     </delete>
 
 

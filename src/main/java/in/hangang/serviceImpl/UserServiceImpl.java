@@ -433,14 +433,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
-    public String setProfile(MultipartFile multipartFile) throws Exception{
-        // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
-        Long id = this.getLoginUserId();
-        String url = s3Util.uploadObject(multipartFile);
-        userMapper.setProfile(id, url);
-        return "프로필 사진이 설정되었습니다";
-    }
+
 
     @Override
     public Map<String, Long> getLectureBankCount(){
@@ -483,7 +476,6 @@ public class UserServiceImpl implements UserService {
         if  (user.getMajor().size() == 0 ){
             throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
-
         Long id = this.getLoginUserId();
 
         // 전공값의 내용이 올바르지 않다면
@@ -492,9 +484,8 @@ public class UserServiceImpl implements UserService {
             if ( !result )
                 throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
-
         //updateUser
-        userMapper.updateUser(id,user.getNickname(),user.getMajor());
+        userMapper.updateUser(id,user.getNickname(),user.getMajor(), user.getName());
 
     }
     @Override

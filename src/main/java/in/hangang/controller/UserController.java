@@ -112,12 +112,6 @@ public class UserController {
         return new ResponseEntity( userService.getLoginUser(), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/profile")
-    @ApiOperation(value ="프로필 사진 설정" , notes = "프로필 사진을 설정합니다")
-    public ResponseEntity setProfile(@RequestBody MultipartFile multiPartFile) throws Exception{
-        return new ResponseEntity( new BaseResponse(userService.setProfile(multiPartFile), HttpStatus.OK), HttpStatus.OK);
-    }
-
     @Auth
     @ApiOperation( value = "자신이 쓴 강의후기 불러오기",notes = "해당 유저가 작성한 게시글들을 불러옵니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping( value = "/review", method = RequestMethod.GET)

@@ -11,30 +11,16 @@ import in.hangang.service.LectureBankService;
 import in.hangang.service.ReportService;
 import in.hangang.service.UserService;
 import in.hangang.util.S3Util;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.io.IOUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 @Service("LectureBankServiceImpl")
@@ -511,77 +497,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
 
-    //TODO 썸네일 테스트 --  정수현
-    //파일이 n개라면 가장 첫 파일을 기준으로 썸네일을 만든다.
-    @Override
-    @Transactional
-    public String tngusTest(MultipartFile multipartFile) throws Exception{
-        /* TODO
-            jpeg, png,
-            txt,
-            hwp, pdf, docs, ppt
-            xlsx
-         */
-
-        String tmp;
-        tmp = multipartFile.getContentType();
-
-        // 이미지인 경우
-        if( multipartFile.getContentType().equals("image/jpeg") || multipartFile.getContentType().equals("image/png")) {
-            return s3Util.uploadObject(multipartFile);  // 그대로 업로드하여 return한다.
-        }
-
-        //txt 파일인 경우
-        if ( multipartFile.getContentType().equals("text/plain")){
-            return tmp;
-        }
-
-        //pdf 파일인 경우
-        if ( multipartFile.getContentType().equals("application/pdf")) {
-            try {
-                UUID uuid = UUID.randomUUID();
-                String fileName = uuid.toString()+".jpg";
-
-                InputStream is = multipartFile.getInputStream();
-                PDDocument pdfDoc = PDDocument.load(is );
-                is.close();
-
-                PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
-                BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
-                ImageIOUtil.writeImage(bim,  fileName, 300); // 이미지 생성
-                bim.flush();
-                pdfDoc.close();
-
-                File file = new File(fileName);
-                FileItem fileItem = new DiskFileItem("mainFile", Files.probeContentType(file.toPath()), false, file.getName(), (int) file.length(), file.getParentFile());
-                try {
-                    OutputStream os = fileItem.getOutputStream();
-                    IOUtils.copy(new FileInputStream(file), os);
-                    os.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                MultipartFile thumbnail = new CommonsMultipartFile(fileItem);
-                fileItem.delete();
-                System.gc();
-                if ( file.delete()){
-                    System.out.println("성공");
-                }else{
-                    throw new Exception();
-                }
-
-                return s3Util.uploadObject(thumbnail);
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
-        }
-
-
-
-        return tmp;
-    }
 
     @Override
     public void doc2pdf(String pathToFile) throws Exception{

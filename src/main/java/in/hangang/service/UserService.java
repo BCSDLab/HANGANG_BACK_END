@@ -21,7 +21,6 @@ public interface UserService {
     boolean checkNickname(String nickname);
     void findPassword(User user)throws  Exception;
     User getLoginUser() throws Exception;
-    String setProfile(MultipartFile multipartFile) throws Exception;
     Map<String, Long> getLectureBankCount();
     List<PointHistory> getUserPointHistory();
     void updateUser(User user);

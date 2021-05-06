@@ -56,7 +56,5 @@ public interface LectureBankService {
     //REPORT------------------------------------------------------------------------------------
     void reportLectureBank(Report report) throws Exception;
     void reportLectureBankComment(Report report) throws Exception;
-
-    String tngusTest(MultipartFile multipartFile)throws Exception;
     void doc2pdf(String pathToFile) throws Exception;
 }

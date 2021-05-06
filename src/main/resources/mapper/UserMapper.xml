@@ -108,9 +108,9 @@
     </select>
     <resultMap id="userAll" type="in.hangang.domain.User">
         <result column="U_id" property="id"/>
+        <result column="U_name" property="name"/>
         <result column="U_portal_account" property="portal_account"/>
         <result column="U_nickname" property="nickname"/>
-        <result column="U_profile_image_url" property="profile_image_url"/>
         <result column="U_point" property="point"/>
         <result column="U_is_deleted" property="is_deleted"/>
         <result column="U_created_at" property="created_at"/>
@@ -130,19 +130,14 @@
 
     <sql id="user-all">
         ${alias}id AS ${prefix}id
+        ,${alias}name AS ${prefix}name
 		,${alias}portal_account AS ${prefix}portal_account
 		,${alias}nickname AS ${prefix}nickname
-		,${alias}profile_image_url AS ${prefix}profile_image_url
 		,${alias}point AS ${prefix}point
 		,${alias}is_deleted AS ${prefix}is_deleted
         ,${alias}created_at AS ${prefix}created_at
         ,${alias}updated_at AS ${prefix}updated_at
     </sql>
-
-    <update id="setProfile">
-        UPDATE hangang.user SET profile_image_url = #{url} WHERE id = #{id} and is_deleted=0
-    </update>
-
 
 
     <insert id="insertMajors" >
@@ -162,13 +157,24 @@
 
 
     <insert id="updateUser" >
-        UPDATE hangang.user SET nickname = #{nickname} WHERE id = #{id} and is_deleted=0;
+        UPDATE hangang.user SET nickname = #{nickname}
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(name)">
+                ,name = #{name}
+            </when>
+            <otherwise>
+                ,name = null
+            </otherwise>
+        </choose>
+        WHERE id = #{id} and is_deleted=0;
         DELETE FROM hangang.major WHERE user_id = #{id};
         INSERT INTO hangang.major(user_id, major) VALUES
         <foreach collection="major" item="m" separator=",">
             (#{id}, #{m})
         </foreach>
     </insert>
+
+
 
     <update id="reSignUp" >
         UPDATE hangang.user SET is_deleted = 0, nickname = #{nickname}, password=#{password}, salt=#{salt} where id = #{id}

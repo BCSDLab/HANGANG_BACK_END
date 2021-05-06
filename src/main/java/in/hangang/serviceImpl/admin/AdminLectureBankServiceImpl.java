@@ -53,6 +53,7 @@ public class AdminLectureBankServiceImpl extends LectureBankServiceImpl implemen
     @Override
     public void deleteLectureBank(Long id){
         //delete LectureBank - soft
+        //user_id 무시
         adminLectureBankMapper.deleteLectureBank(id);
         //delete Comment : soft
         List<Long> commentIdList= lectureBankMapper.getCommentIdList(id);
