@@ -261,7 +261,7 @@ public class LectureBankController {
 
     // 신고하기------------------------------------------------------------------------------------
     @Auth
-    @RequestMapping(value = "/report/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/report", method = RequestMethod.POST)
     @ApiOperation(value ="강의자료 신고" , notes = "파라미터는 강의 자료 id 입니다\n REPORT 내용 별 id =>"
             +"1: \"욕설/비하\" ,2 : \"유출/사칭/저작권 위배\", 3: \"허위/부적절한 정보\"\n" +
             "    4: \"광고/도배\", 5: \"음란물\""
@@ -273,7 +273,7 @@ public class LectureBankController {
     }
 
     @Auth
-    @RequestMapping(value = "/report/comment/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/report/comment", method = RequestMethod.POST)
     @ApiOperation(value ="강의자료 신고" , notes = "파라미터는 강의 자료의 댓글 id 입니다\n REPORT 내용 별 id =>"
             +"1: \"욕설/비하\" ,2 : \"유출/사칭/저작권 위배\", 3: \"허위/부적절한 정보\"\n" +
             "    4: \"광고/도배\", 5: \"음란물\""
