@@ -38,6 +38,7 @@ public class LectureBank {
     private Boolean reported = false;
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted = false;
+
     @ApiModelProperty(hidden = true)
     private Boolean is_hit = false;
 

@@ -53,6 +53,6 @@ public class Scheduler {
     //public void updateReviewCount() {lectureService.updateReviewCount();}
 
     // 에러나서 주석처리했습니다.
-    //@Scheduled(cron = "0 0 0 ? * 6")
-    //public void cleanUnavailableFiles() throws Exception {lectureBankService.hardDeleteFile();}
+    @Scheduled(cron = "0 50 23 ? * 6")
+    public void cleanUnavailableFiles() throws Exception {lectureBankService.hardDeleteFile();}
 }

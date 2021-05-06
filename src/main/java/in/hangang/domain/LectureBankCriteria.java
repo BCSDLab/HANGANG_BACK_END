@@ -21,6 +21,8 @@ public class LectureBankCriteria {
     private String keyword = "";
     @ApiParam(required = false, defaultValue = "")
     private String department = "";
+    @ApiParam(required = false, defaultValue = "")
+    private String filter = "";
 
     public String getDepartment() {
         return department;
@@ -74,4 +76,11 @@ public class LectureBankCriteria {
         return keyword;
     }
 
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
 }

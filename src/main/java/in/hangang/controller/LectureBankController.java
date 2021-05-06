@@ -2,7 +2,9 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.domain.*;
+import in.hangang.response.BaseResponse;
 import in.hangang.service.LectureBankService;
+import in.hangang.service.ReportService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,18 +23,21 @@ public class LectureBankController {
     @Qualifier("LectureBankServiceImpl")
     private LectureBankService lectureBankService;
 
+
     // 강의자료 MAIN------------------------------------------------------------------------------------
     @RequestMapping(value = "/search", method = RequestMethod.GET)
-    @ApiOperation(value ="강의자료 목록 가져오기" , notes = "강의자료 목록을 전체, 필터별로 가져올 수 있습니다.")
+    @ApiOperation(value ="강의자료 목록 가져오기" , notes = "강의자료 목록을 전체, 필터별로 가져올 수 있습니다."
+            , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity getSearchLectureBanks(@ModelAttribute("criteria") LectureBankCriteria lectureBankCriteria) {
+    ResponseEntity getSearchLectureBanks(@ModelAttribute("criteria") LectureBankCriteria lectureBankCriteria) throws Exception {
         //TODO THUMBNAIL URL 추가****************************************************************************************
         return new ResponseEntity<List<LectureBank>>(lectureBankService.searchLectureBanks(lectureBankCriteria), HttpStatus.OK);
     }
 
 
     @RequestMapping(value = "/main/{id}", method = RequestMethod.GET)
-    @ApiOperation(value ="강의자료 상세 페이지" , notes = "강의자료의  상세한 정보\n파라미터는 강의 자료 id 입니다.")
+    @ApiOperation(value ="강의자료 상세 페이지" , notes = "강의자료의  상세한 정보\n파라미터는 강의 자료 id 입니다."
+            , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity<LectureBank> getLectureBank(@PathVariable Long id) throws Exception {
         //TODO THUMBNAIL URL 추가****************************************************************************************
@@ -57,7 +62,8 @@ public class LectureBankController {
     //**add semester to LectureBank*******************************************************
     @Auth
     @RequestMapping(value = "/write", method = RequestMethod.GET)
-    @ApiOperation(value ="강의자료 작성하기" , notes = "작성하기를 누르면 lecturebank id가 생성되어 반환됩니다", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation(value ="강의자료 작성하기" , notes = "작성하기를 누르면 lecturebank id가 생성되어 반환됩니다"
+            , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity<Long> createLectureBank() throws Exception {
         return new ResponseEntity<Long>(lectureBankService.createLectureBank(), HttpStatus.CREATED);
@@ -86,7 +92,7 @@ public class LectureBankController {
     }
 
     @Auth
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value ="강의자료 작성 삭제" , notes = "강의 자료를 삭제합니다\n파리미터는 강의자료 id 입니다"
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
@@ -217,7 +223,7 @@ public class LectureBankController {
 
 
     @Auth
-    @RequestMapping(value = "/comment/delete/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value ="강의자료 댓글 삭제" , notes = "강의자료 댓글을 삭제합니다\n파라미터는 댓글 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
@@ -229,6 +235,7 @@ public class LectureBankController {
 
     //hit------------------------------------------------------------------------------------
 
+    /*
     @Auth
     @RequestMapping(value = "/hit/check/{id}", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 hit 눌렀는지 체크" , notes = "유저가 hit를 눌렀는지 확인합니다\n파라미터는 강의 자료 id 입니다."
@@ -237,6 +244,8 @@ public class LectureBankController {
     ResponseEntity<Boolean> checkHit(@PathVariable Long id) throws Exception{
         return new ResponseEntity<Boolean>(lectureBankService.checkHits(id), HttpStatus.OK);
     }
+
+     */
 
 
     @Auth
@@ -258,9 +267,9 @@ public class LectureBankController {
             "    4: \"광고/도배\", 5: \"음란물\""
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity reportLectureBank(@PathVariable Long id, @RequestParam(value = "ReportID") Long report_id) throws Exception {
-        lectureBankService.reportLectureBank(id,report_id);
-        return new ResponseEntity(HttpStatus.OK);
+    ResponseEntity reportLectureBank(@RequestBody Report report) throws Exception {
+        lectureBankService.reportLectureBank(report);
+        return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
     @Auth
@@ -270,10 +279,9 @@ public class LectureBankController {
             "    4: \"광고/도배\", 5: \"음란물\""
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity reportLectureBankCommment(@PathVariable Long id
-            , @RequestParam(value = "ReportID") Long report_id) throws Exception {
-        lectureBankService.reportLectureBank(id,report_id);
-        return new ResponseEntity(HttpStatus.OK);
+    ResponseEntity reportLectureBankCommment(@RequestBody Report report) throws Exception {
+        lectureBankService.reportLectureBank(report);
+        return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
 

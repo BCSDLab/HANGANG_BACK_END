@@ -1,12 +1,14 @@
 package in.hangang.serviceImpl;
 
 import in.hangang.domain.*;
+import in.hangang.enums.Board;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureBankMapper;
 import in.hangang.mapper.UserMapper;
 import in.hangang.service.LectureBankService;
+import in.hangang.service.ReportService;
 import in.hangang.service.UserService;
 import in.hangang.util.S3Util;
 import org.apache.commons.fileupload.FileItem;
@@ -51,17 +53,23 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Autowired
     private S3Util s3Util;
 
+    @Autowired
+    private ReportService reportService;
+
     //Main------------------------------------------------------------------------------------
 
     @Override
-    public List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) {
+    public List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception{
 
         List<LectureBank> result =  lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria.getCursor(),
-                lectureBankCriteria.getLimit(),
-                lectureBankCriteria.getOrder(), lectureBankCriteria.getCategory(),
-                lectureBankCriteria.getKeyword(), lectureBankCriteria.getDepartment());
+                lectureBankCriteria.getLimit(), lectureBankCriteria.getOrder(),
+                lectureBankCriteria.getCategory(), lectureBankCriteria.getKeyword(),
+                lectureBankCriteria.getDepartment(),lectureBankCriteria.getFilter());
+
+
 
         //TODO MYBATIS 의 COLLCETION 과 ASSOCIATION을 사용하면 개선할 수 있을것 같다는 느낌이 듭니다.
+        //강의자료의 카테고리를 lecture_bank_category 테이블에서 가져와 넣어준다.
         for(int i=0; i<result.size(); i++){
             List<LectureBankCategory> categories = lectureBankMapper.getCategoryList(result.get(i).getId());
             ArrayList<String> categoryList = new ArrayList<>();
@@ -69,8 +77,27 @@ public class LectureBankServiceImpl implements LectureBankService {
                 categoryList.add(categories.get(j).getCategory());
             }
             result.get(i).setCategory(categoryList);
+
+            //checkHit 추가됨
+
+            User user = userService.getLoginUser();
+            if(user != null){
+                Long hits = lectureBankMapper.checkHits(user.getId(), result.get(i).getId());
+                //System.out.println("checkHit: "+hits+" "+user.getId() + " " + result.get(i).getId());
+                if(hits !=null)
+                    result.get(i).setIs_hit(true);
+                else
+                    result.get(i).setIs_hit(false);
+            }else{
+                //System.out.println("user is null..?!");
+                result.get(i).setIs_hit(false);
+            }
+
+
+
+
         }
-        //강의자료의 카테고리를 lecture_bank_category테이블에서 가져와 넣어준다.
+
         return result;
     }
 
@@ -80,11 +107,20 @@ public class LectureBankServiceImpl implements LectureBankService {
         if(lectureBank == null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
+        //TODO 멀티쿼리이용?
         User user = userMapper.getMe(lectureBank.getUser_id());
         lectureBank.setUser(user);
 
         Lecture lecture = getLecture(lectureBank.getLecture_id());
         lectureBank.setLecture(lecture);
+
+        User logineduser = userService.getLoginUser();
+        if(logineduser!=null){
+            Long hits = lectureBankMapper.checkHits(logineduser.getId(), id);
+            if(hits!=null)
+                lectureBank.setIs_hit(true);
+        }
+
 
         return lectureBank;
     }
@@ -182,7 +218,7 @@ public class LectureBankServiceImpl implements LectureBankService {
             //delete Purchase : soft
             List<Long> purchaseId = lectureBankMapper.getPurchaseId(id);
             if(purchaseId.size() != 0)
-            lectureBankMapper.deleteMultiPurchase((ArrayList<Long>)purchaseId);
+                lectureBankMapper.deleteMultiPurchase((ArrayList<Long>)purchaseId);
         }
         else throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
@@ -209,8 +245,23 @@ public class LectureBankServiceImpl implements LectureBankService {
     public Boolean checkWriter(Long lecture_bank_id) throws Exception{
         Long userId = userService.getLoginUser().getId();
         Long writerId = lectureBankMapper.getWriterId(lecture_bank_id);
-        System.out.println("ID:---------------" +userId +" " +writerId);
+        //System.out.println("ID:---------------" +userId +" " +writerId);
         return userId.equals(writerId);
+    }
+
+    @Override
+    public Boolean checkLectureBankAvailable(Long lecture_bank_id) throws Exception{
+        LectureBank lectureBank = lectureBankMapper.getLectureBank(lecture_bank_id);
+        if(lectureBank!=null){
+            //reported, is_deleted
+            if(lectureBank.getIs_deleted())
+                throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+            if(lectureBank.getReported())
+                throw new RequestInputException(ErrorMessage.REPORTED_CONTENT);
+        }else{
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        }
+        return true;
     }
 
     //comments------------------------------------------------------------------------------------
@@ -221,30 +272,49 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public void addComment(Long lecture_bank_id, String comments) throws Exception{
-        // lecture_bank의 is_deleted, reported 검사?
-        // TODO 만약 없는 강의자료에 커멘트를 다는 경우가 처리되어야할 것 같습니다.
-        // TODO  comments 유효성 검사를 해줘야 할 것 같습니다 null, size... 등등..
-        lectureBankMapper.addComment(userService.getLoginUser().getId(), lecture_bank_id, comments);
+        if(comments == null || comments.length() <= 0){
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+        }else{
+            // lecture_bank의 is_deleted, reported 검사
+            if(checkLectureBankAvailable(lecture_bank_id))
+                lectureBankMapper.addComment(userService.getLoginUser().getId(), lecture_bank_id, comments);
+        }
+
     }
 
     @Override
     public void setComment(Long lecture_bank_comment_id, String comments) throws Exception{
-        // TODO 만약 없는 강의자료에 커멘트를 다는 경우가 처리되어야할 것 같습니다.
-        // TODO  comments 유효성 검사를 해줘야 할 것 같습니다 null, size... 등등..
-        if(checkCommentWriter(lecture_bank_comment_id))
-            lectureBankMapper.setComment(lecture_bank_comment_id, comments);
-        else
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        if(comments == null || comments.length() <= 0){
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+        }else{
+            LectureBankComment comment = lectureBankMapper.getComment(lecture_bank_comment_id);
+            if (comment != null) {
+                if(checkLectureBankAvailable(comment.getLecture_bank_id())){
+                    if(checkCommentWriter(lecture_bank_comment_id))
+                        lectureBankMapper.setComment(lecture_bank_comment_id, comments);
+                    else
+                        throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+                }
+            }
+
+        }
+
     }
 
     @Override
     public void deleteComment(Long lecture_bank_comment_id) throws Exception{
-        // TODO 만약 없는 강의자료에 커멘트를 다는 경우가 처리되어야할 것 같습니다.
-        if(checkCommentWriter(lecture_bank_comment_id))
-            lectureBankMapper.deleteComment(lecture_bank_comment_id);
-        else
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        LectureBankComment comment = lectureBankMapper.getComment(lecture_bank_comment_id);
+        if(comment!= null){
+            if(checkCommentWriter(lecture_bank_comment_id))
+                lectureBankMapper.deleteComment(lecture_bank_comment_id);
+            else
+                throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        }else{
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+        }
+
     }
+
 
     @Override
     public Boolean checkCommentWriter(Long lecture_bank_comment_id)throws Exception{
@@ -265,14 +335,14 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     @Transactional
     public void purchase(Long lecture_bank_id) throws Exception{
-        if(checkPurchase(lecture_bank_id)) throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        if(checkPurchase(lecture_bank_id)) throw new RequestInputException(ErrorMessage.ALREADY_PURCHASED);
 
         Long userID = userService.getLoginUser().getId();
         LectureBank lectureBank = getLectureBank(lecture_bank_id);
         Integer point_price = lectureBank.getPoint_price();
         Integer user_point = lectureBankMapper.getUserPoint(userID);
 
-        if(checkWriter(lecture_bank_id)) throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        if(checkWriter(lecture_bank_id)) throw new RequestInputException(ErrorMessage.PURCHASE_EXCEPTION);
         if(user_point < point_price) throw new RequestInputException(ErrorMessage.NOT_ENOUGH_POINT);
 
 
@@ -291,7 +361,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     //hits------------------------------------------------------------------------------------
     @Override
     public Boolean checkHits(Long lecture_bank_id) throws  Exception {
-
         Long userID = userService.getLoginUser().getId();
         Long hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
         return hits != null;
@@ -302,16 +371,22 @@ public class LectureBankServiceImpl implements LectureBankService {
     public void pushHit(Long lecture_bank_id) throws Exception{
         Long userID = userService.getLoginUser().getId();
 
-        Long hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
+        Long hitID = lectureBankMapper.checkHits(userID, lecture_bank_id);
+        Boolean deleted = lectureBankMapper.checkHitIsdeleted(hitID);
 
-        if(hits == null){ // TODO 안누른경우
+        if(hitID !=null){
+            if(deleted){
+                //취소 후 다시 누른 경우
+                lectureBankMapper.addHit(userID, lecture_bank_id);
+                lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
+            }else{
+                //누른 경우
+                lectureBankMapper.subHit(userID, lecture_bank_id);
+                lectureBankMapper.subHit_lecture_bank(lecture_bank_id);
+            }
+        }else{
+            //안누른경우
             lectureBankMapper.hitInsert(userID, lecture_bank_id);
-            lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
-        }else if(hits.intValue()==1){ // TODO 누른 경우
-            lectureBankMapper.subHit(userID, lecture_bank_id);
-            lectureBankMapper.subHit_lecture_bank(lecture_bank_id);
-        }else{ // TODO ???
-            lectureBankMapper.addHit(userID, lecture_bank_id);
             lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
         }
     }
@@ -360,14 +435,15 @@ public class LectureBankServiceImpl implements LectureBankService {
     public void hardDeleteFile() throws Exception{
 
         List<String> objectKeys = lectureBankMapper.getDelObjectList();
-        //delete on S3
-        for(String key : objectKeys){
-            s3Util.deleteObjectbyKey(key);
+        if(objectKeys != null && objectKeys.size() > 0){
+            //delete on S3
+            for(String key : objectKeys){
+                s3Util.deleteObjectbyKey(key);
+            }
+            List<Long> id_list = lectureBankMapper.getDelIDList();
+            if(id_list != null && id_list.size() > 0)
+                lectureBankMapper.hardDeleteMultiFile((ArrayList<Long>) id_list);
         }
-        List<Long> id_list = lectureBankMapper.getDelIDList();
-        lectureBankMapper.hardDeleteMultiFile((ArrayList<Long>) id_list);
-
-
     }
 
     //DOWNLOAD====================================================================================
@@ -411,6 +487,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     //Thumbnail------------------------------------------------------------------------------------
     @Override
     public String makeThumbnail(MultipartFile multipartFile) throws Exception{
+        doc2pdf("/Users/ki_sol/Desktop/lecture5.pptx");
         return "test_thumbnail_url_path";
     }
 
@@ -418,18 +495,19 @@ public class LectureBankServiceImpl implements LectureBankService {
     //REPORT------------------------------------------------------------------------------------
     @Override
     @Transactional
-    public void reportLectureBank(Long lecture_bank_id, Long report_id) throws Exception{
+    public void reportLectureBank(Report report) throws Exception{
         //TODO 신고기능은 SLACK 노티를 보내는 것이 좋을것 같습니다
-        lectureBankMapper.reportLectureBank(lecture_bank_id, report_id);
-        lectureBankMapper.makeLectureBankReported(lecture_bank_id);
+        reportService.createReport(Board.LECTURE_BANK.getId(), report);
+        lectureBankMapper.makeLectureBankReported(report.getContent_id());
+
     }
 
     @Override
     @Transactional
-    public void reportLectureBankComment(Long lecture_bank_comment_id, Long report_id) throws Exception{
+    public void reportLectureBankComment(Report report) throws Exception{
         //TODO 신고기능은 SLACK 노티를 보내는 것이 좋을것 같습니다
-        lectureBankMapper.reportLectureBankComment(lecture_bank_comment_id, report_id);
-        lectureBankMapper.makeLectureBankCommentReported(lecture_bank_comment_id);
+        reportService.createReport(Board.LECTURE_BANK_COMMENT.getId(), report);
+        lectureBankMapper.makeLectureBankCommentReported(report.getContent_id());
     }
 
 
@@ -457,7 +535,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         if ( multipartFile.getContentType().equals("text/plain")){
             return tmp;
         }
-        
+
         //pdf 파일인 경우
         if ( multipartFile.getContentType().equals("application/pdf")) {
             try {
@@ -481,7 +559,7 @@ public class LectureBankServiceImpl implements LectureBankService {
                     IOUtils.copy(new FileInputStream(file), os);
                     os.close();
                 } catch (Exception e) {
-                   e.printStackTrace();
+                    e.printStackTrace();
                 }
                 MultipartFile thumbnail = new CommonsMultipartFile(fileItem);
                 fileItem.delete();
@@ -503,6 +581,31 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
         return tmp;
+    }
+
+    @Override
+    public void doc2pdf(String pathToFile) throws Exception{
+        try {
+            List<String> commands = new ArrayList<>();
+            commands.add("java");
+            commands.add("-jar");
+            commands.add("/Users/ki_sol/Desktop/ConvertJAR/docs-to-pdf-converter.jar");
+            commands.add("-input");
+            commands.add(pathToFile);
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            try {
+                Process p = pb.start();
+                int j = p.waitFor();
+                int exitValue = p.exitValue();
+                System.out.println("Finished with code: " + j);
+                System.out.println("Finished with exitValue: " + exitValue);
+            } catch (Exception e) {
+                System.out.println("exception: " + e);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface LectureBankService {
     //Main====================================================================================
-    List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria);
+    List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception;
     LectureBank getLectureBank(Long id) throws Exception;
     Lecture getLecture(Long id);
     Long createLectureBank() throws Exception;
@@ -54,8 +54,9 @@ public interface LectureBankService {
     String makeThumbnail(MultipartFile multipartFile) throws Exception;
 
     //REPORT------------------------------------------------------------------------------------
-    void reportLectureBank(Long lecture_bank_id, Long report_id) throws Exception;
-    void reportLectureBankComment(Long lecture_bank_comment_id, Long report_id) throws Exception;
+    void reportLectureBank(Report report) throws Exception;
+    void reportLectureBankComment(Report report) throws Exception;
 
     String tngusTest(MultipartFile multipartFile)throws Exception;
+    void doc2pdf(String pathToFile) throws Exception;
 }

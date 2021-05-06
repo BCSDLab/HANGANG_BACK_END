@@ -16,7 +16,8 @@ public interface LectureBankMapper {
                                                @Param("order") String order,
                                                @Param("category")ArrayList<String> category,
                                                @Param("keyword")String keyword,
-                                               @Param("department")String department);
+                                               @Param("department")String department,
+                                               @Param("filter")String filter);
 
     List<LectureBankCategory> getCategoryList(Long id);
     LectureBank getLectureBank(@Param("id")Long id);
@@ -72,6 +73,8 @@ public interface LectureBankMapper {
     void deleteHit(@Param("id") Long id);
     void deleteMultiHit(@Param("id_list") ArrayList<Long> id_list);
     List<Long> getHitId(@Param("lecture_bank_id")Long lecture_bank_id);
+    Boolean checkHitIsdeleted(@Param("id")Long id);
+
 
 
     //file
@@ -99,8 +102,6 @@ public interface LectureBankMapper {
 
 
     //report
-    void reportLectureBank(@Param("lecture_bank_id")Long lecture_bank_id, @Param("report_id") Long report_id);
-    void reportLectureBankComment(@Param("lecture_bank_comment_id")Long lecture_bank_comment_id, @Param("report_id") Long report_id);
     void makeLectureBankReported(@Param("lecture_bank_id")Long lecture_bank_id);
     void makeLectureBankCommentReported(@Param("lecture_bank_comment_id")Long lecture_bank_comment_id);
 /*
