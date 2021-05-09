@@ -23,7 +23,6 @@
             (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id)
             and LB.available = 1
             and LB.is_deleted = 0
-            and LB.reported = 0
             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(category)">
             and
             <foreach collection="category" item="category" open="(" close=")"  separator="or">
@@ -32,7 +31,7 @@
             </if>
 
             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
-
+            <!--
                 <choose>
                     <when test="filter.equals('name')">
                         and (L.name like concat('%',#{keyword},'%'))
@@ -47,6 +46,12 @@
                         or L.professor like concat('%',#{keyword},'%'))
                     </otherwise>
                 </choose>
+-->
+                and
+                (LB.title like concat('%',#{keyword},'%')
+                or L.name like concat('%',#{keyword},'%')
+                or L.professor like concat('%',#{keyword},'%'))
+
             </if>
             <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
                 and
@@ -88,7 +93,6 @@
             <result column="created_at" property="created_at"/>
             <result column="updated_at" property="updated_at"/>
             <result column="is_deleted" property="is_deleted"/>
-            <result column="reported" property="reported"/>
             <association property="user" resultMap="user"/>
             <association property="lecture" resultMap="lecture"/>
         </resultMap>
@@ -230,6 +234,19 @@
         WHERE id = #{user_id};
     </select>
 
+    <insert id="purchase">
+        INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id)
+        VALUES (#{user_id}, #{lecture_bank_id});
+        UPDATE user set point = point - #{point_price}
+        where id = #{user_id};
+        INSERT INTO user_point_history(user_id, variance, point_type_id)
+        VALUES (#{user_id}, #{point_price} * (-1), #{point_type_id_purchase});
+        UPDATE user set point = point + #{point_price}
+        where id = #{writer_id};
+        INSERT INTO user_point_history(user_id, variance, point_type_id)
+        VALUES (#{writer_id}, #{point_price}, #{point_type_id_sell});
+    </insert>
+
 
 
     <!--Hit-->
@@ -281,8 +298,8 @@
 <!--Comment-->
 
     <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
-        SELECT * FROM lecture_bank_comment WHERE reported = 0
-        AND lecture_bank_id = #{lecture_bank_id} and is_deleted = 0;
+        SELECT * FROM lecture_bank_comment
+        WHERE lecture_bank_id = #{lecture_bank_id} and is_deleted = 0;
     </select>
 
     <insert id="addComment">
@@ -319,8 +336,8 @@
     </update>
 
     <select id="getComment" resultType="in.hangang.domain.LectureBankComment">
-        SELECT * FROM lecture_bank_comment WHERE reported = 0
-        AND id = #{id} and is_deleted = 0;
+        SELECT * FROM lecture_bank_comment
+        WHERE id = #{id} and is_deleted = 0;
     </select>
 
 
@@ -411,23 +428,18 @@
         SELECT lecture_bank_id FROM upload_file
         WHERE id = #{upload_file_id};
     </select>
+    <select id="getFileExtofOne" resultType="java.lang.String">
+        SELECT ext FROM upload_file
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc limit 1;
+    </select>
+
 <!--else-->
 
     <insert id="addPointHistory">
         INSERT INTO user_point_history(user_id, variance, point_type_id)
         VALUES (#{user_id}, #{variance}, #{point_type_id});
     </insert>
-
-<!--REPORT-->
-
-    <update id="makeLectureBankReported">
-        UPDATE lecture_bank SET reported = 1
-        WHERE id = #{lecture_bank_id};
-    </update>
-    <update id="makeLectureBankCommentReported">
-        UPDATE lecture_bank_comment SET reported = 1
-        WHERE id = #{lecture_bank_comment_id};
-    </update>
 
 
 

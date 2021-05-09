@@ -2,6 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.domain.*;
+import in.hangang.enums.Board;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.LectureBankService;
 import in.hangang.service.ReportService;
@@ -23,6 +24,9 @@ public class LectureBankController {
     @Qualifier("LectureBankServiceImpl")
     private LectureBankService lectureBankService;
 
+    @Autowired
+    private ReportService reportService;
+
 
     // 강의자료 MAIN------------------------------------------------------------------------------------
     @RequestMapping(value = "/search", method = RequestMethod.GET)
@@ -30,7 +34,6 @@ public class LectureBankController {
             , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity getSearchLectureBanks(@ModelAttribute("criteria") LectureBankCriteria lectureBankCriteria) throws Exception {
-        //TODO THUMBNAIL URL 추가****************************************************************************************
         return new ResponseEntity<List<LectureBank>>(lectureBankService.searchLectureBanks(lectureBankCriteria), HttpStatus.OK);
     }
 
@@ -40,7 +43,6 @@ public class LectureBankController {
             , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity<LectureBank> getLectureBank(@PathVariable Long id) throws Exception {
-        //TODO THUMBNAIL URL 추가****************************************************************************************
         return new ResponseEntity<LectureBank>(lectureBankService.getLectureBank(id), HttpStatus.OK);
     }
 
@@ -165,7 +167,7 @@ public class LectureBankController {
         return new ResponseEntity<String>(lectureBankService.getObjectUrl(id),HttpStatus.OK);
     }
 
-    //TODO file - 삭제, 수정시의 업로드
+    //TODO file - 삭제, 수정시의 업로드?
 
 
     //구매------------------------------------------------------------------------------------
@@ -268,29 +270,22 @@ public class LectureBankController {
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity reportLectureBank(@RequestBody Report report) throws Exception {
-        lectureBankService.reportLectureBank(report);
+        reportService.createReport(Board.LECTURE_BANK.getId(), report);
         return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
     @Auth
     @RequestMapping(value = "/report/comment", method = RequestMethod.POST)
-    @ApiOperation(value ="강의자료 신고" , notes = "파라미터는 강의 자료의 댓글 id 입니다\n REPORT 내용 별 id =>"
+    @ApiOperation(value ="강의자료 댓글 신고" , notes = "파라미터는 강의 자료의 댓글 id 입니다\n REPORT 내용 별 id =>"
             +"1: \"욕설/비하\" ,2 : \"유출/사칭/저작권 위배\", 3: \"허위/부적절한 정보\"\n" +
             "    4: \"광고/도배\", 5: \"음란물\""
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity reportLectureBankCommment(@RequestBody Report report) throws Exception {
-        lectureBankService.reportLectureBank(report);
+        reportService.createReport(Board.LECTURE_BANK_COMMENT.getId(), report);
+
         return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
 
-    //TODO test------------------------------------------------------------------------------------
-    @RequestMapping(value = "/file/test", method = RequestMethod.POST)
-    @ApiOperation(value ="Thumbnail test" , notes = "섬네일 테스트")
-    public @ResponseBody
-    ResponseEntity<String> test(MultipartFile file) throws Exception {
-        return new ResponseEntity<String>(lectureBankService.makeThumbnail(file),HttpStatus.CREATED);
-        //return new ResponseEntity<String>("{}",HttpStatus.OK);
-    }
 }

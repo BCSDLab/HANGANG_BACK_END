@@ -35,12 +35,12 @@ public class LectureBank {
     private Timestamp updated_at;
 
     @ApiModelProperty(hidden = true)
-    private Boolean reported = false;
-    @ApiModelProperty(hidden = true)
     private Boolean is_deleted = false;
 
     @ApiModelProperty(hidden = true)
     private Boolean is_hit = false;
+    @ApiModelProperty(hidden = true)
+    private String thumbnail_ext;
 
     @ApiModelProperty(hidden = true)
     private User user;
@@ -164,14 +164,6 @@ public class LectureBank {
         this.semester_date = semester_date;
     }
 
-    public Boolean getReported() {
-        return reported;
-    }
-
-    public void setReported(Boolean reported) {
-        this.reported = reported;
-    }
-
     public Boolean getIs_deleted() {
         return is_deleted;
     }
@@ -186,5 +178,13 @@ public class LectureBank {
 
     public void setIs_hit(Boolean is_hit) {
         this.is_hit = is_hit;
+    }
+
+    public String getThumbnail_ext() {
+        return thumbnail_ext;
+    }
+
+    public void setThumbnail_ext(String thumbnail_ext) {
+        this.thumbnail_ext = thumbnail_ext;
     }
 }

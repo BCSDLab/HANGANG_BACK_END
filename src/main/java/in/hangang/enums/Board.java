@@ -28,4 +28,23 @@ public enum Board {
     public void setId(int id) {
         this.id = id;
     }
+
+
+    public static String nameOf(int id){
+        String name=null;
+        switch(id){
+            case 1:
+                name = Board.LECTURE_BANK.getName();
+                break;
+            case 2:
+                name = Board.LECTURE_BANK_COMMENT.getName();
+                break;
+            case 3:
+                name = Board.REVIEW.getName();
+                break;
+        }
+        return name;
+    }
+
+
 }

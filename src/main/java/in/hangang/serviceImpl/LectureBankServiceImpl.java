@@ -1,23 +1,19 @@
 package in.hangang.serviceImpl;
 
 import in.hangang.domain.*;
-import in.hangang.enums.Board;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureBankMapper;
 import in.hangang.mapper.UserMapper;
 import in.hangang.service.LectureBankService;
-import in.hangang.service.ReportService;
 import in.hangang.service.UserService;
 import in.hangang.util.S3Util;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +35,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Autowired
     private S3Util s3Util;
 
-    @Autowired
-    private ReportService reportService;
-
     //Main------------------------------------------------------------------------------------
 
     @Override
@@ -50,7 +43,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         List<LectureBank> result =  lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria.getCursor(),
                 lectureBankCriteria.getLimit(), lectureBankCriteria.getOrder(),
                 lectureBankCriteria.getCategory(), lectureBankCriteria.getKeyword(),
-                lectureBankCriteria.getDepartment(),lectureBankCriteria.getFilter());
+                lectureBankCriteria.getDepartment());
 
 
 
@@ -65,7 +58,6 @@ public class LectureBankServiceImpl implements LectureBankService {
             result.get(i).setCategory(categoryList);
 
             //checkHit 추가됨
-
             User user = userService.getLoginUser();
             if(user != null){
                 Long hits = lectureBankMapper.checkHits(user.getId(), result.get(i).getId());
@@ -79,8 +71,9 @@ public class LectureBankServiceImpl implements LectureBankService {
                 result.get(i).setIs_hit(false);
             }
 
-
-
+            //thumbnail Ext 추가
+            String thExt = lectureBankMapper.getFileExtofOne(result.get(i).getId());
+            result.get(i).setThumbnail_ext(thExt);
 
         }
 
@@ -100,12 +93,17 @@ public class LectureBankServiceImpl implements LectureBankService {
         Lecture lecture = getLecture(lectureBank.getLecture_id());
         lectureBank.setLecture(lecture);
 
+        //checkHit 추가됨
         User logineduser = userService.getLoginUser();
         if(logineduser!=null){
             Long hits = lectureBankMapper.checkHits(logineduser.getId(), id);
             if(hits!=null)
                 lectureBank.setIs_hit(true);
         }
+
+        //thumbnail
+        String thExt = lectureBankMapper.getFileExtofOne(id);
+        lectureBank.setThumbnail_ext(thExt);
 
 
         return lectureBank;
@@ -156,7 +154,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     @Transactional
     public void submitLectureBank(LectureBank lectureBank) throws Exception{
-        // TODO 섬네일 생성 및 등록하기
         setLectureBank(lectureBank);
         lectureBankMapper.setLectureBankAvailable(lectureBank.getId());
 
@@ -242,8 +239,6 @@ public class LectureBankServiceImpl implements LectureBankService {
             //reported, is_deleted
             if(lectureBank.getIs_deleted())
                 throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-            if(lectureBank.getReported())
-                throw new RequestInputException(ErrorMessage.REPORTED_CONTENT);
         }else{
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         }
@@ -333,13 +328,17 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
         //TODO 자바에서 5번 다녀오는 것 보다 한번에 할 수 있도록 멀티쿼리를 사용하면 좋을 것 같습니다
+        /*
         lectureBankMapper.purchaseInsert(userID, lecture_bank_id);
         // 구매한 유저 포인트-- 자료주인은 포인트++
+        //user_id, lecture_bank_id, point_price_purchase, writer_id, point_price_sell
         lectureBankMapper.setPoint(userID, -point_price);
         lectureBankMapper.addPointHistory(userID,-point_price, Point.LECTURE_PURCHASE.getTypeId());
         lectureBankMapper.setPoint(lectureBank.getUser_id(), point_price);
         lectureBankMapper.addPointHistory(lectureBank.getUser_id(),point_price,Point.LECTURE_SELL.getTypeId());
-
+         */
+        lectureBankMapper.purchase(userID,lecture_bank_id,point_price
+                ,lectureBank.getUser_id(),Point.LECTURE_PURCHASE.getTypeId(),Point.LECTURE_SELL.getTypeId());
 
     }
 
@@ -401,8 +400,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     public Long fileUpload(MultipartFile file, Long lecture_bank_id) throws Exception{
         String uploadUrl = s3Util.privateUpload(file);
         String fileName = file.getOriginalFilename();
-        int index = fileName.lastIndexOf(".");
-        String fileExt = fileName.substring(index+1);
+        String fileExt = file.getContentType();
         lectureBankMapper.insertUpload_file(lecture_bank_id, uploadUrl,fileName, fileExt);
         return lectureBankMapper.getUploadFileId(lecture_bank_id);
     }
@@ -432,6 +430,15 @@ public class LectureBankServiceImpl implements LectureBankService {
         }
     }
 
+    @Override
+    public void deleteFile(Long id) throws Exception{
+        Long lectureBankID = lectureBankMapper.getLectureBankIDFile(id);
+        if(checkWriter(lectureBankID))
+            lectureBankMapper.setFileAvailable(id,2);
+        else
+            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+    }
+
     //DOWNLOAD====================================================================================
 
     @Override
@@ -448,10 +455,6 @@ public class LectureBankServiceImpl implements LectureBankService {
         return resource;
 
     }
-
-
-
-
      */
 
     @Override
@@ -473,54 +476,10 @@ public class LectureBankServiceImpl implements LectureBankService {
     //Thumbnail------------------------------------------------------------------------------------
     @Override
     public String makeThumbnail(MultipartFile multipartFile) throws Exception{
-        doc2pdf("/Users/ki_sol/Desktop/lecture5.pptx");
+        //multipartFile.getContentType();
+
         return "test_thumbnail_url_path";
     }
 
-
-    //REPORT------------------------------------------------------------------------------------
-    @Override
-    @Transactional
-    public void reportLectureBank(Report report) throws Exception{
-        //TODO 신고기능은 SLACK 노티를 보내는 것이 좋을것 같습니다
-        reportService.createReport(Board.LECTURE_BANK.getId(), report);
-        lectureBankMapper.makeLectureBankReported(report.getContent_id());
-
-    }
-
-    @Override
-    @Transactional
-    public void reportLectureBankComment(Report report) throws Exception{
-        //TODO 신고기능은 SLACK 노티를 보내는 것이 좋을것 같습니다
-        reportService.createReport(Board.LECTURE_BANK_COMMENT.getId(), report);
-        lectureBankMapper.makeLectureBankCommentReported(report.getContent_id());
-    }
-
-
-
-    @Override
-    public void doc2pdf(String pathToFile) throws Exception{
-        try {
-            List<String> commands = new ArrayList<>();
-            commands.add("java");
-            commands.add("-jar");
-            commands.add("/Users/ki_sol/Desktop/ConvertJAR/docs-to-pdf-converter.jar");
-            commands.add("-input");
-            commands.add(pathToFile);
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            try {
-                Process p = pb.start();
-                int j = p.waitFor();
-                int exitValue = p.exitValue();
-                System.out.println("Finished with code: " + j);
-                System.out.println("Finished with exitValue: " + exitValue);
-            } catch (Exception e) {
-                System.out.println("exception: " + e);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
 }

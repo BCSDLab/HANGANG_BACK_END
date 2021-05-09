@@ -16,8 +16,7 @@ public interface LectureBankMapper {
                                                @Param("order") String order,
                                                @Param("category")ArrayList<String> category,
                                                @Param("keyword")String keyword,
-                                               @Param("department")String department,
-                                               @Param("filter")String filter);
+                                               @Param("department")String department);
 
     List<LectureBankCategory> getCategoryList(Long id);
     LectureBank getLectureBank(@Param("id")Long id);
@@ -60,6 +59,11 @@ public interface LectureBankMapper {
     void deletePurchase(@Param("id") Long id);
     void deleteMultiPurchase(@Param("id_list") ArrayList<Long> id_list);
     Integer getUserPoint(@Param("user_id")Long user_id);
+    //<!--user_id, lecture_bank_id, point_price point_type_id_purchase, writer_id, point_type_id_sell-->
+    void purchase(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id,
+                  @Param("point_price")Integer point_price, @Param("writer_id")Long writer_id
+            , @Param("point_type_id_purchase")Integer point_type_id_purchase
+            , @Param("point_type_id_sell")Integer point_type_id_sell);
 
 
 
@@ -95,15 +99,12 @@ public interface LectureBankMapper {
     void hardDeleteFile(@Param("id")Long id);
     void hardDeleteMultiFile(@Param("id_list")ArrayList<Long> id_list);
     Long getLectureBankIDFile(@Param("upload_file_id")Long upload_file_id);
-
+    String getFileExtofOne(@Param("lecture_bank_id")Long lecture_bank_id);
 
     //else
-    void addPointHistory(@Param("user_id")Long user_id, @Param("variance")Integer variance, @Param("point_type_id")Integer point_type_id);
+    void addPointHistory(@Param("user_id")Long user_id, @Param("variance")Integer variance
+            , @Param("point_type_id")Integer point_type_id);
 
-
-    //report
-    void makeLectureBankReported(@Param("lecture_bank_id")Long lecture_bank_id);
-    void makeLectureBankCommentReported(@Param("lecture_bank_comment_id")Long lecture_bank_comment_id);
 /*
 <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
             #{id}

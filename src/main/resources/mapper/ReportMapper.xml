@@ -8,4 +8,20 @@
     <select id="checkAlreadyReported" resultType="Long">
         SELECT id FROM hangang.report_log WHERE board_type_id = #{board_type_id} AND content_id = #{content_id} AND user_id = #{user_id};
     </select>
+    <select id="getlatestReport" resultType="in.hangang.domain.Report">
+        SELECT * FROM report_log
+        ORDER BY id desc limit 1;
+    </select>
+    <select id="getReportedLectureBank" resultType="in.hangang.domain.LectureBank">
+        SELECT * FROM lecture_bank
+        WHERE id = #{id} AND is_deleted = 0;
+    </select>
+    <select id="getReportedLectureBankComment" resultType="in.hangang.domain.LectureBankComment">
+        SELECT * FROM lecture_bank_comment
+        WHERE id = #{id} AND is_deleted = 0;
+    </select>
+    <select id="getReportedReview" resultType="in.hangang.domain.Review">
+        SELECT * FROM review
+        WHERE id = #{id} AND is_deleted = 0;
+    </select>
 </mapper>

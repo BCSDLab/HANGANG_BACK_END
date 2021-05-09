@@ -45,6 +45,7 @@ public interface LectureBankService {
     Long fileUpload(MultipartFile file, Long id) throws Exception;
     void cancelUpload(Long id) throws Exception;
     void hardDeleteFile() throws Exception;
+    void deleteFile(Long id) throws Exception;
     //DOWNLOAD
     List<UploadFile> getFileList(Long lecture_bank_id) throws Exception;
     //org.springframework.core.io.Resource getprivateObject(Long id) throws Exception;
@@ -53,8 +54,4 @@ public interface LectureBankService {
     //Thumbnail====================================================================================
     String makeThumbnail(MultipartFile multipartFile) throws Exception;
 
-    //REPORT------------------------------------------------------------------------------------
-    void reportLectureBank(Report report) throws Exception;
-    void reportLectureBankComment(Report report) throws Exception;
-    void doc2pdf(String pathToFile) throws Exception;
 }
