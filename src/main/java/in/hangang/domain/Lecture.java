@@ -13,6 +13,10 @@ import java.util.ArrayList;
 public class Lecture {
     @ApiModelProperty(hidden = true)
     private Long id;
+    @ApiModelProperty(hidden = true)
+    private Long user_id;
+    @ApiModelProperty(hidden = true)
+    private Boolean is_scraped;
     private ArrayList<String> semester_data;
     private ArrayList<HashTag> top3_hash_tag;
     private String code;
@@ -140,5 +144,21 @@ public class Lecture {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public Boolean getIs_scraped() {
+        return is_scraped;
+    }
+
+    public void setIs_scraped(Boolean is_scraped) {
+        this.is_scraped = is_scraped;
+    }
+
+    public Long getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(Long user_id) {
+        this.user_id = user_id;
     }
 }

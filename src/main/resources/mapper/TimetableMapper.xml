@@ -31,7 +31,10 @@
         </choose>
         <choose>
             <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
-                AND department = #{department}
+                AND
+                <foreach collection="department" item="department" open="(" close=")" separator="or">
+                    department = #{department}
+                </foreach>
             </when>
         </choose>
 
@@ -167,26 +170,26 @@
     </select>
 
     <insert id="createScrapLecture">
-        INSERT INTO hangang.scrap_lecture(user_id, lecture_timetable_id) VALUES(#{userId}, #{lectureId});
+        INSERT INTO hangang.scrap_timetable(user_id, lecture_timetable_id) VALUES(#{userId}, #{lectureId});
     </insert>
 
     <select id="getLectureByScrap" resultMap="in.hangang.mapper.LectureMapper.lectureList">
         SELECT * FROM lecture WHERE (name, professor)
         IN (SELECT name, professor FROM lecture_timetable WHERE id
-        IN (SELECT lecture_timetable_id from scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0));
+        IN (SELECT lecture_timetable_id from scrap_timetable WHERE user_id = #{userId} AND is_deleted = 0));
     </select>
 
     <select id="getScrapLectureList" resultMap="lectureList">
         SELECT * FROM hangang.lecture_timetable
-        WHERE id = ANY(SELECT lecture_timetable_id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0);
+        WHERE id = ANY(SELECT lecture_timetable_id FROM hangang.scrap_timetable WHERE user_id = #{userId} AND is_deleted = 0);
     </select>
 
     <select id="getScrapLectureByLectureId" resultType="Long">
-        SELECT id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId} AND is_deleted = 0;
+        SELECT id FROM hangang.scrap_timetable WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId} AND is_deleted = 0;
     </select>
 
     <update id="deleteScrapLecture">
-        UPDATE hangang.scrap_lecture SET is_deleted = 1 WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId};
+        UPDATE hangang.scrap_timetable SET is_deleted = 1 WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId};
     </update>
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
