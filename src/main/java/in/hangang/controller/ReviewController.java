@@ -95,23 +95,25 @@ public class ReviewController {
             +"1: \"욕설/비하\" ,2 : \"유출/사칭/저작권 위배\", 3: \"허위/부적절한 정보\"\n" +
             "    4: \"광고/도배\", 5: \"음란물\""
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity reportLectureBank(@RequestBody Report report) throws Exception {
+    public ResponseEntity reportReview(@RequestBody Report report) throws Exception {
         reportService.createReport(Board.REVIEW.getId(), report);
         return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
-    // 스크랩 기능 ------------------------------------------------------------------------------------------------------
+    /*
+    스크랩 기능 ------------------------------------------------------------------------------------------------------
     // 스크랩 READ
+
     @Auth
-    @ApiOperation( value = "자신이 스크랩한 리뷰 조회", notes = "해당 유저가 스크랩한 모든 리뷰를 조회할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "자신이 스크랩한 강의 조회", notes = "해당 유저가 스크랩한 모든 강의를 조회할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/scrap", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<Review>> getScrapReviewList() throws Exception{
+    public ResponseEntity<ArrayList<Review>> getScrapLectureList() throws Exception{
         return new ResponseEntity<ArrayList<Review>>(reviewService.getScrapReviewList(), HttpStatus.OK);
     }
 
     // 스크랩 CREATE
     @Auth
-    @ApiOperation( value = "강의 리뷰 스크랩", notes = "강의 리뷰를 스크랩합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "강의 스크랩", notes = "강의를 스크랩합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/scrap", method = RequestMethod.POST)
     public ResponseEntity scrapReview(@RequestBody Review review) throws Exception{
         reviewService.scrapReview(review);
@@ -133,6 +135,7 @@ public class ReviewController {
     public ResponseEntity getCountScrap() throws Exception{
         return new ResponseEntity(reviewService.getCountScrapReview(), HttpStatus.OK);
     }
+    */
 
 
 

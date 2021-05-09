@@ -7,20 +7,20 @@
             <property name="prefix" value=""/>
             <property name="alias" value="LEC."/>
         </include>
-        FROM hangang.lecture LEC WHERE id IN (SELECT lecture_id FROM hangang.scraps WHERE user_id = #{userId} AND is_deleted = 0);
+        FROM hangang.lecture LEC WHERE id IN (SELECT lecture_id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0);
     </select>
     <insert id="scrapLecture">
-        INSERT INTO hangang.scraps(user_id, lecture_id) VALUES(#{userId}, #{lectureId});
+        INSERT INTO hangang.scrap_lecture(user_id, lecture_id) VALUES(#{userId}, #{lectureId});
     </insert>
     <update id="deleteScrapLecture">
-        UPDATE hangang.scraps SET is_deleted = 1 WHERE user_id = #{userId} AND
+        UPDATE hangang.scrap_lecture SET is_deleted = 1 WHERE user_id = #{userId} AND
         <foreach collection="lectureId" item="lectureId" open="(" close=")" separator="or">
             lecture_id = #{lectureId}
         </foreach>
     </update>
 
-    <select id="checkAlreadyScraped" resultType="Long">
-        SELECT id FROM hangang.scraps WHERE user_id = #{userId} AND lecture_id = #{lectureId} AND is_deleted = 0;
+    <select id="checkAlreadyScraped" resultType="boolean">
+        SELECT count(*) FROM hangang.scrap_lecture WHERE user_id = #{userId} AND lecture_id = #{lectureId} AND is_deleted = 0;
     </select>
     <select id="getLectureList" resultMap="lectureList">
         SELECT

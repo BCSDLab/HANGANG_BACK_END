@@ -26,6 +26,8 @@ public class Review {
     private String semester_date;
     @ApiModelProperty(hidden = true)
     private String nickname;
+    @ApiModelProperty(hidden = true)
+    private boolean is_scraped;
 
     @DecimalMax(groups = {ValidationGroups.createReview.class}, value = "5.0", message = "별점의 최대값은 5.0입니다.")
     @DecimalMin(groups = {ValidationGroups.createReview.class}, value = "0.5", message = "별점의 최소값은 0.5입니다.")
@@ -218,5 +220,13 @@ public class Review {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public boolean isIs_scraped() {
+        return is_scraped;
+    }
+
+    public void setIs_scraped(boolean is_scraped) {
+        this.is_scraped = is_scraped;
     }
 }

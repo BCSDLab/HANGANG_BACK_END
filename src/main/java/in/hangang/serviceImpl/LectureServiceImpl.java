@@ -32,12 +32,13 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public ArrayList<Lecture>
     getLectureList(LectureCriteria lectureCriteria) throws Exception {
-
+        //User user = userService.getLoginUser();
+        //Long userId = user.getId();
         String[] sortList = {"최신순", "평점순", "평가순"};
         if(lectureCriteria.getSort()!=null && !Arrays.asList(sortList).contains(lectureCriteria.getSort()))
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
-        if(lectureCriteria.getDepartment().size()>2)
+        if(lectureCriteria.getDepartment()!=null && lectureCriteria.getDepartment().size()>2)
             throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
 
         return lectureMapper.getLectureList(lectureCriteria);
@@ -51,7 +52,7 @@ public class LectureServiceImpl implements LectureService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())!=null)
+        if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())==true)
             throw new RequestInputException(ErrorMessage.ALREADY_SCRAP_LECTURE);
 
         lectureMapper.scrapLecture(userId, lecture.getId());
@@ -65,7 +66,7 @@ public class LectureServiceImpl implements LectureService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
         for(int i = 0; i< lectureId.size(); i++){
-            if(lectureMapper.checkAlreadyScraped(userId, lectureId.get(i))==null)
+            if(lectureMapper.checkAlreadyScraped(userId, lectureId.get(i))==false)
                 throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         }
 
