@@ -33,8 +33,6 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public ArrayList<Lecture>
     getLectureList(LectureCriteria lectureCriteria) throws Exception {
-        User user = userService.getLoginUser();
-        Long userId = user.getId();
         String[] sortList = {"최신순", "평점순", "평가순"};
         if(lectureCriteria.getSort()!=null && !Arrays.asList(sortList).contains(lectureCriteria.getSort()))
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
@@ -42,11 +40,15 @@ public class LectureServiceImpl implements LectureService {
         if(lectureCriteria.getDepartment()!=null && lectureCriteria.getDepartment().size()>2)
             throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
 
+        User user = userService.getLoginUser();
         ArrayList<Lecture> lectures = lectureMapper.getLectureList(lectureCriteria);
-        ArrayList<Long> scrapId = lectureMapper.getScrapLectureId(userId);
-        for(int i = 0; i< lectures.size(); i++){
-            if(scrapId.contains(lectures.get(i).getId()))
-                lectures.get(i).setIs_scraped(true);
+        if(user != null) {
+            Long userId = user.getId();
+            ArrayList<Long> scrapId = lectureMapper.getScrapLectureId(userId);
+            for (int i = 0; i < lectures.size(); i++) {
+                if (scrapId.contains(lectures.get(i).getId()))
+                    lectures.get(i).setIs_scraped(true);
+            }
         }
 
         return lectures;
