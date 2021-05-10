@@ -12,6 +12,7 @@ import java.util.List;
 public interface AdminReviewService extends ReviewService {
     List<ReviewReport> getReportedReview();
     BaseResponse deleteReportedReviewForAdmin(Long id);
+    BaseResponse deleteReport(Long id);
 
 
 }

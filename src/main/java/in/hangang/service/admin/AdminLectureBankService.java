@@ -11,4 +11,6 @@ public interface AdminLectureBankService extends LectureBankService {
     List<LectureBankReport> getReportedLectureBank();
     List<LectureBankCommentReport> getReportedLectureBankComment();
     BaseResponse deleteReportedCommentForAdmin(Long id);
+    BaseResponse deleteReport(Long id);
+    BaseResponse deleteCommentReport(Long id);
 }

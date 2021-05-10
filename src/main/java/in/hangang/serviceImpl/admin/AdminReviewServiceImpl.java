@@ -48,4 +48,26 @@ public class AdminReviewServiceImpl extends ReviewServiceImpl implements AdminRe
 
         return new BaseResponse("강의평이 삭제되었습니다.", HttpStatus.OK);
     }
+    @Override
+    public BaseResponse deleteReport(Long id){
+
+        ReviewReport reviewReport = adminReviewMapper.getReport(id);
+
+        // 신고내역이 없다면
+        if ( reviewReport == null){
+            throw new RequestInputException(ErrorMessage.REPORT_NOT_EXIST);
+        }
+        // 해당 신고가 강의평에 대한 내용이 아니라면 
+        if ( reviewReport.getBoard_type_id() != 3 ){
+            throw new RequestInputException(ErrorMessage.REPORT_TYPE_EXCEPTION);
+        }
+        //해당 강의자료가 이미 삭제되엇거나 존재하지 않는경우
+        if ( adminReviewMapper.getContent(reviewReport.getContent_id()) == null){
+            throw new RequestInputException(ErrorMessage.REPORT_CONTENT_EXCEPTION);
+        }
+
+        //신고내역에서 삭제한다
+        adminReviewMapper.deleteReport(id);
+        return new BaseResponse("신고 강의평이 기각되었습니다.", HttpStatus.OK);
+    }
 }

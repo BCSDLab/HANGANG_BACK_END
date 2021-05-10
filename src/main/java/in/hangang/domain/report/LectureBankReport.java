@@ -18,6 +18,15 @@ public class LectureBankReport {
     private Timestamp created_at;
     private Timestamp updated_at;
     private List<UploadFile> files;
+    private Long board_type_id;
+
+    public Long getBoard_type_id() {
+        return board_type_id;
+    }
+
+    public void setBoard_type_id(Long board_type_id) {
+        this.board_type_id = board_type_id;
+    }
 
     public Integer getPoint_price() {
         return point_price;

@@ -9,4 +9,7 @@ import java.util.List;
 public interface AdminReviewMapper {
     List<ReviewReport> getReportedReview();
     void deleteReviewReported(Long id);
+    ReviewReport getReport(Long id);
+    Long getContent(Long id);
+    void deleteReport(Long id);
 }

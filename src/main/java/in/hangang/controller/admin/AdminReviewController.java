@@ -30,4 +30,10 @@ public class AdminReviewController {
     public ResponseEntity deleteReportedReviewForAdmin(@PathVariable Long id ){
         return new ResponseEntity(adminReviewService.deleteReportedReviewForAdmin(id), HttpStatus.OK);
     }
+    @DeleteMapping("/report/{id}")
+    @ApiOperation(value = "신고 강의평 댓글 기각하기", notes = "신고 내용을 기각한다. 강의평의 board_type_id = 3 ", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.Lecture)
+    public ResponseEntity deleteReport(@PathVariable Long id ){
+        return new ResponseEntity(adminReviewService.deleteReport(id), HttpStatus.OK);
+    }
 }
