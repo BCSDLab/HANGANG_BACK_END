@@ -45,7 +45,8 @@ public enum ErrorMessage {
 	LECTURE_CRITERIA_LIMIT_DEPARTMENT(40, "학부 정보는 최대 2개까지만 선택 가능합니다", HttpStatus.BAD_REQUEST),
 	REPORTED_CONTENT(41, "신고된 강의자료에는 댓글을 달 수 없습니다.", HttpStatus.BAD_REQUEST),
 	ALREADY_PURCHASED(42, "이미 구입한 강의자료 입니다.", HttpStatus.BAD_REQUEST),
-	PURCHASE_EXCEPTION(43, "자신의 강의자료는 구매할 수 없습니다.", HttpStatus.BAD_REQUEST);
+	PURCHASE_EXCEPTION(43, "자신의 강의자료는 구매할 수 없습니다.", HttpStatus.BAD_REQUEST),
+	DIDNT_PURCHASED(44, "구입하지 않은 강의자료에 접근하실 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

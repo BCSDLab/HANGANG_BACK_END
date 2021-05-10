@@ -350,7 +350,8 @@
 
     <select id="getFileList" resultType="in.hangang.domain.UploadFile">
         SELECT * FROM upload_file
-        where lecture_bank_id = #{lecture_bank_id};
+        where lecture_bank_id = #{lecture_bank_id}
+        AND available = 1;
     </select>
     <select id="getUploadFileId" resultType="java.lang.Long">
         SELECT id FROM upload_file

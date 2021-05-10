@@ -468,7 +468,7 @@ public class LectureBankServiceImpl implements LectureBankService {
             URL url = s3Util.getPrivateObjectURL(objectKey);
             return url.toString();
         }else{
-            return null;
+            throw new RequestInputException(ErrorMessage.DIDNT_PURCHASED);
         }
 
     }
