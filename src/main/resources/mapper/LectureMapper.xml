@@ -93,6 +93,7 @@
                         ,LEC.review_count DESC
                     </if>
                 </if>
+                ,LEC.id ASC
                 <!--정렬 옵션이 없을 때-->
             </when>
 
@@ -102,13 +103,13 @@
                 <if test="sort!=null">
                     ORDER BY
                     <if test='(sort eq "평점순".toString())'>
-                        LEC.total_rating DESC
+                        LEC.total_rating DESC, LEC.id ASC
                     </if>
                     <if test='(sort eq "최신순".toString())'>
-                        LEC.last_reviewed_at DESC
+                        LEC.last_reviewed_at DESC, LEC.id ASC
                     </if>
                     <if test='(sort eq "평가순".toString())'>
-                        LEC.review_count DESC
+                        LEC.review_count DESC, LEC.id ASC
                     </if>
                 </if>
                 <!--정렬 옵션이 없을 때-->
