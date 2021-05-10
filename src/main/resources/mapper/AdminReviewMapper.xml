@@ -15,10 +15,7 @@
         UPDATE hangang.review SET is_deleted = 1 WHERE id = #{id};
         UPDATE hangang.review_assignment SET is_deleted = 1 WHERE review_id = #{id};
         UPDATE hangang.review_hash_tag SET is_deleted = 1 WHERE review_id = #{id};
-        <!--
-        UPDATE hangang.scrap_lecture SET is_deleted = 1 WHERE review_id = #{id};
-        -->
-        UPDATE hangang.likes SET is_deleted = 1 WHERE board_id = #{id};
+        UPDATE hangang.review_like SET is_deleted = 1 WHERE review_id = #{id};
         UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{id} AND board_type_id = 1;
     </delete>
 
