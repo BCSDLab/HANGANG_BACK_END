@@ -387,6 +387,7 @@ public class LectureBankServiceImpl implements LectureBankService {
             for(MultipartFile file : fileList){
                 String uploadUrl = s3Util.privateUpload(file);
                 String fileName = file.getOriginalFilename();
+                // TODO Thumbnail 방식 정해지면 수정 String fileExt = file.getContentType();
                 int index = fileName.lastIndexOf(".");
                 String fileExt = fileName.substring(index+1);
                 lectureBankMapper.insertUpload_file(lecture_bank_id, uploadUrl,fileName, fileExt);
@@ -400,7 +401,9 @@ public class LectureBankServiceImpl implements LectureBankService {
     public Long fileUpload(MultipartFile file, Long lecture_bank_id) throws Exception{
         String uploadUrl = s3Util.privateUpload(file);
         String fileName = file.getOriginalFilename();
-        String fileExt = file.getContentType();
+        // TODO Thumbnail 방식 정해지면 수정 String fileExt = file.getContentType();
+        int index = fileName.lastIndexOf(".");
+        String fileExt = fileName.substring(index+1);
         lectureBankMapper.insertUpload_file(lecture_bank_id, uploadUrl,fileName, fileExt);
         return lectureBankMapper.getUploadFileId(lecture_bank_id);
     }
