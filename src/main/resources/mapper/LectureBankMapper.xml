@@ -256,6 +256,14 @@
         AND is_deleted = 0;
     </select>
 
+    <select id="checkHitExist" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_hit
+        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id}
+        ORDER BY id desc limit 1;
+    </select>
+
+
+
     <update id="subHit">
         UPDATE lecture_bank_hit SET is_deleted = 1
         WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
@@ -290,7 +298,7 @@
         WHERE lecture_bank_id=#{lecture_bank_id};
     </select>
 
-    <select id="checkHitIsdeleted" resultType="java.lang.Boolean">
+    <select id="checkHitIsdeleted" resultType="java.lang.Integer">
         SELECT is_deleted FROM lecture_bank_hit
         WHERE id=#{id};
     </select>
@@ -351,12 +359,12 @@
     <select id="getFileList" resultType="in.hangang.domain.UploadFile">
         SELECT * FROM upload_file
         where lecture_bank_id = #{lecture_bank_id}
-        AND available = 1;
+        AND available != 2;
     </select>
     <select id="getUploadFileId" resultType="java.lang.Long">
         SELECT id FROM upload_file
-        where lecture_bank_id = #{lecture_bank_id}
-        ORDER BY created_at desc LIMIT 1;
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc LIMIT 1;
     </select>
     <select id="getFileIdList" resultType="java.lang.Long">
         SELECT id FROM upload_file
@@ -433,6 +441,12 @@
         SELECT ext FROM upload_file
         WHERE lecture_bank_id = #{lecture_bank_id}
         ORDER BY id desc limit 1;
+    </select>
+
+    <select id="getUploadFileId_limit" resultType="java.lang.Long">
+        SELECT id FROM upload_file
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc LIMIT #{limit};
     </select>
 
 <!--else-->
