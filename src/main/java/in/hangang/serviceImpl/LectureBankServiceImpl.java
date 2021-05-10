@@ -399,6 +399,8 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public Long fileUpload(MultipartFile file, Long lecture_bank_id) throws Exception{
+        if(file == null)
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
         String uploadUrl = s3Util.privateUpload(file);
         String fileName = file.getOriginalFilename();
         // TODO Thumbnail 방식 정해지면 수정 String fileExt = file.getContentType();
