@@ -19,6 +19,10 @@
         </foreach>
     </update>
 
+    <select id="getScrapLectureId" resultType="java.lang.Long">
+        SELECT lecture_id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0;
+    </select>
+
     <select id="checkAlreadyScraped" resultType="boolean">
         SELECT count(*) FROM hangang.scrap_lecture WHERE user_id = #{userId} AND lecture_id = #{lectureId} AND is_deleted = 0;
     </select>
