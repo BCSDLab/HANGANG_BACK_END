@@ -14,9 +14,7 @@ public class Lecture {
     @ApiModelProperty(hidden = true)
     private Long id;
     @ApiModelProperty(hidden = true)
-    private Long user_id;
-    @ApiModelProperty(hidden = true)
-    private Boolean is_scraped;
+    private Boolean is_scraped = false;
     private ArrayList<String> semester_data;
     private ArrayList<HashTag> top3_hash_tag;
     private String code;
@@ -154,11 +152,4 @@ public class Lecture {
         this.is_scraped = is_scraped;
     }
 
-    public Long getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
-    }
 }

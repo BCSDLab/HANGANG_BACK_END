@@ -59,7 +59,7 @@ public class ReviewController {
 
     // 강의별 후기 READ : 시간표에 등록된 강의의 강의 후기를 읽을 때 사용
     @Auth
-    @ApiOperation( value = "강의에 등록된 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.\n강의 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @ApiOperation( value = "강의에 등록된 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.\n강의 ID를   파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/timetable/lecture", method = RequestMethod.GET)
     public ResponseEntity<Lecture> getReviewByTimeTableLecture(Long lectureId) throws Exception{
         return new ResponseEntity<Lecture>(reviewService.getReviewByTimeTableLecture(lectureId), HttpStatus.OK);

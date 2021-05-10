@@ -48,7 +48,16 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ArrayList<Review> getReviewList(Criteria criteria) throws Exception {
-        return reviewMapper.getReviewList(criteria.getCursor(), criteria.getLimit());
+        User user = userService.getLoginUser();
+        Long userId = user.getId();
+        ArrayList<Long> likedReview = likesMapper.getLikedReviewList(userId);
+        ArrayList<Review> reviews = reviewMapper.getReviewList(criteria.getCursor(), criteria.getLimit());
+        for(int i = 0; i<reviews.size(); i++){
+            if(likedReview.contains(reviews.get(i).getId()))
+                reviews.get(i).setIs_liked(true);
+        }
+
+        return reviews;
     }
 
     @Override
@@ -79,9 +88,20 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ArrayList<Review> getReviewByLectureId(Long id, Criteria criteria) throws Exception {
+        User user = userService.getLoginUser();
+        //유저 정보가 있는지 확인.
+        if(user == null)
+            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        Long userId = user.getId();
         if(lectureMapper.checkLectureExists(id)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-        return reviewMapper.getReviewByLectureId(id, criteria.getCursor(), criteria.getLimit());
+        ArrayList<Review> reviews = reviewMapper.getReviewByLectureId(id, criteria.getCursor(), criteria.getLimit());
+        ArrayList<Long> likedReview = likesMapper.getLikedReviewList(userId);
+        for(int i = 0; i<reviews.size(); i++){
+            if(likedReview.contains(reviews.get(i).getId()))
+                reviews.get(i).setIs_liked(true);
+        }
+        return reviews;
     }
 
     @Override
@@ -162,9 +182,9 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         if(isLiked == 0)
-            likesMapper.createLikesReview(0, userId, reviewId);
+            likesMapper.createLikesReview(userId, reviewId);
         else if (isLiked == 1)
-            likesMapper.deleteLikesReview(0, userId, reviewId);
+            likesMapper.deleteLikesReview(userId, reviewId);
         //어떠한 이유로든 추천이 두번 이상 되었는지 확인.
         else
             throw new RequestInputException(ErrorMessage.INVALID_RECOMMENDATION);

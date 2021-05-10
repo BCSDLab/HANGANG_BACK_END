@@ -27,7 +27,7 @@ public class Review {
     @ApiModelProperty(hidden = true)
     private String nickname;
     @ApiModelProperty(hidden = true)
-    private boolean is_scraped;
+    private boolean is_liked = false;
 
     @DecimalMax(groups = {ValidationGroups.createReview.class}, value = "5.0", message = "별점의 최대값은 5.0입니다.")
     @DecimalMin(groups = {ValidationGroups.createReview.class}, value = "0.5", message = "별점의 최소값은 0.5입니다.")
@@ -222,11 +222,11 @@ public class Review {
         this.updated_at = updated_at;
     }
 
-    public boolean isIs_scraped() {
-        return is_scraped;
+    public boolean isIs_liked() {
+        return is_liked;
     }
 
-    public void setIs_scraped(boolean is_scraped) {
-        this.is_scraped = is_scraped;
+    public void setIs_liked(boolean is_liked) {
+        this.is_liked = is_liked;
     }
 }

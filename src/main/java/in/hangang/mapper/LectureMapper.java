@@ -15,6 +15,7 @@ public interface LectureMapper {
     ArrayList<Lecture> getScrapLectureList(Long userId);
     Boolean checkAlreadyScraped(Long userId, Long lectureId);
     ArrayList<Lecture> getLectureList(LectureCriteria lectureCriteria);
+    ArrayList<Long> getScrapLectureId(Long userId);
     ArrayList<String> getSemesterDateByNameAndProfessor(String name, String professor);
     Long checkLectureExists(Long id);
     String getProfessorById(Long id);
