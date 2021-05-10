@@ -126,6 +126,7 @@
     <resultMap id="lectureList" type="in.hangang.domain.Lecture">
         <result column="id" property="id"/>
         <result column="name" property="name"/>
+        <result column="code" property="code"/>
         <result column="department" property="department"/>
         <result column="professor" property="professor"/>
         <result column="total_rating" property="total_rating"/>
@@ -181,6 +182,7 @@
     <sql id="lecture-list">
         ${alias}id AS ${prefix}id
 		,${alias}name AS ${prefix}name
+		,${alias}code AS ${prefix}code
 		,${alias}department AS ${prefix}department
 		,${alias}professor AS ${prefix}professor
 		,${alias}classification AS ${prefix}classification
