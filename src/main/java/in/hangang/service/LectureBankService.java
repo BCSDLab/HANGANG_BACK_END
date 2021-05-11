@@ -35,7 +35,7 @@ public interface LectureBankService {
 
 
     //hits====================================================================================
-    Boolean checkHits(Long lecture_bank_id) throws  Exception;
+    //Boolean checkHits(Long lecture_bank_id) throws  Exception;
     void pushHit(Long lecture_bank_id) throws Exception;
 
     //file====================================================================================

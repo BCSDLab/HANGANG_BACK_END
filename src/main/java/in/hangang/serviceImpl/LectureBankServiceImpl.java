@@ -344,23 +344,17 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
     //hits------------------------------------------------------------------------------------
-    @Override
-    public Boolean checkHits(Long lecture_bank_id) throws  Exception {
-        Long userID = userService.getLoginUser().getId();
-        Long hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
-        return hits != null;
-    }
 
     @Override
     @Transactional
     public void pushHit(Long lecture_bank_id) throws Exception{
         Long userID = userService.getLoginUser().getId();
 
-        Long hitID = lectureBankMapper.checkHits(userID, lecture_bank_id);
-        Boolean deleted = lectureBankMapper.checkHitIsdeleted(hitID);
+        Long hitID = lectureBankMapper.checkHitExist(userID, lecture_bank_id);
+        Integer deleted = lectureBankMapper.checkHitIsdeleted(hitID);
 
         if(hitID !=null){
-            if(deleted){
+            if(deleted==1){
                 //취소 후 다시 누른 경우
                 lectureBankMapper.addHit(userID, lecture_bank_id);
                 lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
@@ -381,8 +375,9 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     //UPLOAD====================================================================================
     @Override
+    @Transactional
     public List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long lecture_bank_id) throws Exception {
-        List<Long> result = new ArrayList<>();
+        List<Long> res = new ArrayList<>();
         if(!fileList.isEmpty()){
             for(MultipartFile file : fileList){
                 String uploadUrl = s3Util.privateUpload(file);
@@ -391,13 +386,20 @@ public class LectureBankServiceImpl implements LectureBankService {
                 int index = fileName.lastIndexOf(".");
                 String fileExt = fileName.substring(index+1);
                 lectureBankMapper.insertUpload_file(lecture_bank_id, uploadUrl,fileName, fileExt);
-                result.add(lectureBankMapper.getUploadFileId(lecture_bank_id));
+                //result.add(lectureBankMapper.getUploadFileId(lecture_bank_id));
+            }
+
+            List<Long> list = new ArrayList<>();
+            list = lectureBankMapper.getUploadFileId_limit(lecture_bank_id,fileList.size());
+            for(int i=fileList.size()-1; i>=0; i--){
+                res.add(list.get(i));
             }
         }
-        return result;
+        return res;
     }
 
     @Override
+    @Transactional
     public Long fileUpload(MultipartFile file, Long lecture_bank_id) throws Exception{
         if(file == null)
             throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);

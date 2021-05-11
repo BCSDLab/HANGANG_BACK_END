@@ -47,7 +47,7 @@ public class LectureBankController {
     }
 
     @RequestMapping(value = "/main/file/{id}", method = RequestMethod.GET)
-    @ApiOperation(value ="강의자료 파일 목록" , notes = "강의자료록에 해당하는 파일의 목록만을 가져옵니다(파일이름, 확장자)\n파라미터는 강의 자료 id 입니다.")
+    @ApiOperation(value ="강의자료 파일 목록" , notes = "강의자료에 해당하는 파일의 목록만을 가져옵니다(파일이름, 확장자)\n파라미터는 강의 자료 id 입니다.")
     public @ResponseBody
     ResponseEntity<List<UploadFile>> getFileList(@PathVariable Long id) throws Exception {
         return new ResponseEntity<List<UploadFile>>(lectureBankService.getFileList(id),HttpStatus.OK);
@@ -148,7 +148,7 @@ public class LectureBankController {
 
     //upload_file table - available FLAG 0:업로드 대기 /  1: 업로드 완료 /  2: 삭제
     @Auth
-    @RequestMapping(value = "/file/cancel_upload/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/file/cancel_upload/{id}", method = RequestMethod.GET)
     @ApiOperation(value ="업로드 취소" , notes = "파일 업로드가 취소 됩니다\n해당파일을 제외하고 업로드 할 시 사용합니다\n파라미터는 파일의 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
