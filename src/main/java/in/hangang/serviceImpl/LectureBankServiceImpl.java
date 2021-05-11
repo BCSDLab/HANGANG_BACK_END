@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -175,6 +176,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Transactional
     public void deleteLectureBank(Long id) throws Exception{
         //delete LectureBank - soft
+        //TODO scrap 수정
         Long userId = userService.getLoginUser().getId();
         if(checkWriter(id)){
             lectureBankMapper.deleteLectureBank(id, userId);
@@ -482,10 +484,65 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     //Thumbnail------------------------------------------------------------------------------------
     @Override
-    public String makeThumbnail(MultipartFile multipartFile) throws Exception{
-        //multipartFile.getContentType();
+    public String getThumbnailURL() throws Exception{
+        String url = "https://static.hangang.in/lecture_bank_default_image.png";
+        return url;
+    }
 
-        return "test_thumbnail_url_path";
+    //TODO SCRAP TEST
+    @Override
+    public void createScrap(Long lecture_bank_id) throws Exception{
+        Long user_id = userService.getLoginUser().getId();
+
+        if(lecture_bank_id != null){
+            Boolean check = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id);
+            System.out.println(check);
+            if(check == null){
+                lectureBankMapper.createScrap(user_id, lecture_bank_id);
+            }else if(check){
+                lectureBankMapper.unDeleteScrap(user_id,lecture_bank_id);
+            }else{
+                throw new RequestInputException(ErrorMessage.SCRAP_ALREADY_EXISTS);
+            }
+        }
+        else
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+    }
+
+    @Override
+    public void deleteScrap(ArrayList<Long> lectureBank_IDList) throws Exception{
+        if(lectureBank_IDList!= null && lectureBank_IDList.size() > 0){
+            List<Boolean> check = lectureBankMapper.checkScrapDeletedList(lectureBank_IDList);
+            for(Boolean b : check){
+                if(b==null){
+                    throw new RequestInputException(ErrorMessage.DIDNT_SCRAPED);
+                }else if(b){
+                    throw new RequestInputException(ErrorMessage.ALREADY_DELETED_SCRAP);
+                }
+            }
+            lectureBankMapper.deleteScrapList(lectureBank_IDList);
+        }else{
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+        }
+
+    }
+
+    //TODO Scrap class 만들기? && updated_at desc
+    @Override
+    public HashMap<String,Object> getScrapList() throws Exception{
+        HashMap<String,Object> hashMap = new HashMap<>();
+        Long user_id = userService.getLoginUser().getId();
+
+        List<Long> scrapIdList = lectureBankMapper.getScrapIDList(user_id);
+        if(scrapIdList!=null && scrapIdList.size()>0){
+            hashMap.put("scrapIdList",scrapIdList);
+        }
+        List<LectureBank> lectureBankList = lectureBankMapper.getScrapList(user_id);
+        if(lectureBankList!=null && lectureBankList.size()>0){
+            hashMap.put("lecture_bank_list",lectureBankList);
+        }
+        //scrapedID, LectureBank match해 반환
+        return hashMap;
     }
 
 

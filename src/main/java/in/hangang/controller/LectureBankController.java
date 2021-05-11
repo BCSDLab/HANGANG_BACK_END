@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -123,7 +124,7 @@ public class LectureBankController {
     @ApiOperation(value ="단일 파일 업로드" , notes = "파일을 1개 업로드 합니다.\n파라미터는 강의 자료 id 입니다.\n업로드된 파일의 id가 반환됩니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity<Long> uploadFile(@ApiParam(required = true) @RequestBody MultipartFile file,
+    ResponseEntity<Long> uploadFile(@ApiParam(required = true) @RequestParam MultipartFile file,
                                     @PathVariable Long id) throws Exception {
         return new ResponseEntity<Long>(lectureBankService.fileUpload(file, id),HttpStatus.CREATED);
     }
@@ -286,6 +287,42 @@ public class LectureBankController {
 
         return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
+
+    // Scrap------------------------------------------------------------------------------------
+    @Auth
+    @RequestMapping(value = "/scrap", method = RequestMethod.POST)
+    @ApiOperation(value ="scrap 하기" , notes = "강의자료를 스크랩합니다.\n파라미터는 강의 자료 id 입니다."
+            ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public @ResponseBody
+    ResponseEntity createScrap(@ApiParam(required = true) @RequestParam(value = "id") Long id) throws Exception{
+        lectureBankService.createScrap(id);
+        return new ResponseEntity( new BaseResponse("강의자료가 정상적으로 스크랩되었습니다", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @RequestMapping(value = "/scrap", method = RequestMethod.DELETE)
+    @ApiOperation(value ="scrap 취소하기" , notes = "스크랩된 강의자료들을 편집(삭제)합니다.\n파라미터는 스크랩한 id 입니다."
+            ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public @ResponseBody
+    ResponseEntity deleteScrap(@ApiParam(required = true) @RequestParam Long[] lectureBank_IDList) throws Exception{
+        List<Long> list = new ArrayList<>();
+        for(Long id : lectureBank_IDList){
+            list.add(id);
+        }
+        lectureBankService.deleteScrap((ArrayList<Long>)list);
+        return new ResponseEntity( new BaseResponse("스크랩한 강의자료가 정상적으로 삭제되었습니다", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @Auth
+    @RequestMapping(value = "/scrap", method = RequestMethod.GET)
+    @ApiOperation(value ="scrap 목록 가져오기" , notes = "사용자가 스크랩한 자료를 가져옵니다."
+            ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public @ResponseBody
+    ResponseEntity<HashMap<String,Object>> getScrap() throws Exception{
+        HashMap<String,Object> hashMap = lectureBankService.getScrapList();
+        return new ResponseEntity<HashMap<String,Object>>( hashMap, HttpStatus.OK);
+    }
+
 
 
 }
