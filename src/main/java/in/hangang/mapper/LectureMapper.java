@@ -1,5 +1,6 @@
 package in.hangang.mapper;
 
+import in.hangang.domain.ClassTimeMap;
 import in.hangang.domain.HashTag;
 import in.hangang.domain.Lecture;
 import in.hangang.domain.criteria.LectureCriteria;
@@ -23,5 +24,6 @@ public interface LectureMapper {
     void updateReviewCountById(Long id);
     void updateReviewCount();
     String getNameById(Long id);
-    ArrayList<HashMap<String, String>> getClassByLectureId(Long lecture_id);
+    ArrayList<ClassTimeMap> getClassByLectureId(Long lecture_id);
+    Lecture getLecture(Long id);
 }
