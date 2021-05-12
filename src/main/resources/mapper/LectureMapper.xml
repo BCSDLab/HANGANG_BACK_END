@@ -19,6 +19,16 @@
         </foreach>
     </update>
 
+    <select id="getLecture" resultMap="lectureList">
+        SELECT
+        <include refid="lecture-list">
+            <property name="prefix" value=""/>
+            <property name="alias" value=""/>
+        </include>
+        FROM hangang.lecture
+        WHERE id = #{id}
+    </select>
+
     <select id="getScrapLectureId" resultType="java.lang.Long">
         SELECT lecture_id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0;
     </select>
@@ -123,6 +133,9 @@
         UPDATE lecture SET total_rating = (SELECT ROUND(AVG(rating), 2) FROM hangang.review WHERE lecture_id = #{id}) WHERE id = #{id}
     </update>
 
+    <select id="getGrade" resultType="Long">
+        SELECT grades FROM hangang.lecture_timetable WHERE name = #{name} AND professor = #{professor} AND code = #{code} ORDER BY id DESC LIMIT 1;
+    </select>
 
     <resultMap id="lectureList" type="in.hangang.domain.Lecture">
         <result column="id" property="id"/>
@@ -142,6 +155,9 @@
         </collection>
         <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
                     ofType="in.hangang.domain.HashTag" select="in.hangang.mapper.HashTagMapper.getTop3HashTag">
+        </collection>
+        <collection property="grade" ofType="Long" column="{name=name, professor=professor, code=code}"
+                    select="getGrade">
         </collection>
     </resultMap>
 
@@ -167,8 +183,8 @@
         WHERE lecture.id = REV.lecture_id
     </update>
 
-    <select id="getClassByLectureId" resultType="java.util.HashMap">
-        SELECT id, class, target FROM lecture_timetable
+    <select id="getClassByLectureId" resultMap="classMap">
+        SELECT id, class, target, professor, class_time, name FROM lecture_timetable
         WHERE name = (SELECT name FROM lecture WHERE id = #{lecture_id})
           AND professor = (SELECT professor FROM lecture WHERE id = #{lecture_id})
           AND semester_date = 5
@@ -179,6 +195,14 @@
         SELECT semester FROM hangang.semester_date
         WHERE id IN(SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)
     </select>
+
+    <resultMap id="classMap" type="in.hangang.domain.ClassTimeMap">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="class" property="classNumber"/>
+        <result column="target" property="target"/>
+        <result column="class_time" property="classTime"/>
+    </resultMap>
 
     <sql id="lecture-list">
         ${alias}id AS ${prefix}id

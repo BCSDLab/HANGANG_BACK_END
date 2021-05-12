@@ -1,5 +1,7 @@
 package in.hangang.serviceImpl;
 
+import in.hangang.domain.ClassTimeMap;
+import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.User;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Lecture;
@@ -7,6 +9,7 @@ import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureMapper;
+import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.LectureService;
 import in.hangang.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,6 +33,9 @@ public class LectureServiceImpl implements LectureService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private TimetableMapper timetableMapper;
+
     @Override
     public ArrayList<Lecture>
     getLectureList(LectureCriteria lectureCriteria) throws Exception {
@@ -52,6 +58,19 @@ public class LectureServiceImpl implements LectureService {
         }
 
         return lectures;
+    }
+
+    @Override
+    public Lecture getLecture(Long lectureId) throws Exception {
+        User user = userService.getLoginUser();
+        Long userId = user.getId();
+        ArrayList<Long> scrapId = lectureMapper.getScrapLectureId(userId);
+
+        Lecture resultLecture = lectureMapper.getLecture(lectureId);
+        if(scrapId.contains(lectureId))
+            resultLecture.setIs_scraped(true);
+
+        return resultLecture;
     }
 
     @Override
@@ -100,12 +119,18 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public ArrayList<HashMap<String, String>> getClassByLectureId(Long id) throws Exception {
+    public ArrayList<ClassTimeMap> getClassByLectureId(Long id) throws Exception {
+        User user = userService.getLoginUser();
+        Long userId = user.getId();
         //해당 강의가 존재하는지 확인.
         if(lectureMapper.checkLectureExists(id)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
-        return lectureMapper.getClassByLectureId(id);
+        ArrayList<ClassTimeMap> resultList = lectureMapper.getClassByLectureId(id);
+        for(int i = 0; i<resultList.size(); i++){
+            resultList.get(i).setSelectedTableId(timetableMapper.getTimeTableIdByLecture(userId, resultList.get(i).getId()));
+        }
+        return resultList;
     }
 
     @Override

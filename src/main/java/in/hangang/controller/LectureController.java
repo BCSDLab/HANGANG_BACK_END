@@ -28,9 +28,17 @@ public class LectureController {
             authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/lectures", method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity getReviewList(@ModelAttribute LectureCriteria lectureCriteria) throws Exception {
+    ResponseEntity getLectureList(@ModelAttribute LectureCriteria lectureCriteria) throws Exception {
         return new ResponseEntity (lectureService.getLectureList(lectureCriteria), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/lectures/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "강의 정보 조회", notes = "강의 id를 통하여 강의 정보를 조회할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public @ResponseBody
+    ResponseEntity getLecture(@PathVariable Long id) throws Exception {
+        return new ResponseEntity (lectureService.getLecture(id), HttpStatus.OK);
+    }
+
 
     @Auth
     @ApiOperation(value = "강의 스크랩", notes = "해당 강의를 스크랩합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
