@@ -64,6 +64,12 @@
         -->
     </resultMap>
 
+    <select id="getTimeTableIdByLecture" resultType="Long">
+        SELECT user_timetable_id FROM timetables TT
+        INNER JOIN user_timetables UT ON TT.user_timetable_id = UT.id
+        WHERE TT.lecture_id = #{lectureId} AND UT.user_id = #{userId} AND TT.is_deleted = 0
+    </select>
+
     <select id="getClassTimeByLectureId" resultType="String">
         SELECT class_time FROM hangang.lecture_timetable WHERE id = #{lectureId};
     </select>
