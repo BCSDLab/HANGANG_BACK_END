@@ -256,6 +256,14 @@
         AND is_deleted = 0;
     </select>
 
+    <select id="checkHitExist" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_hit
+        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id}
+        ORDER BY id desc limit 1;
+    </select>
+
+
+
     <update id="subHit">
         UPDATE lecture_bank_hit SET is_deleted = 1
         WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
@@ -290,7 +298,7 @@
         WHERE lecture_bank_id=#{lecture_bank_id};
     </select>
 
-    <select id="checkHitIsdeleted" resultType="java.lang.Boolean">
+    <select id="checkHitIsdeleted" resultType="java.lang.Integer">
         SELECT is_deleted FROM lecture_bank_hit
         WHERE id=#{id};
     </select>
@@ -351,12 +359,12 @@
     <select id="getFileList" resultType="in.hangang.domain.UploadFile">
         SELECT * FROM upload_file
         where lecture_bank_id = #{lecture_bank_id}
-        AND available = 1;
+        AND available != 2;
     </select>
     <select id="getUploadFileId" resultType="java.lang.Long">
         SELECT id FROM upload_file
-        where lecture_bank_id = #{lecture_bank_id}
-        ORDER BY created_at desc LIMIT 1;
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc LIMIT 1;
     </select>
     <select id="getFileIdList" resultType="java.lang.Long">
         SELECT id FROM upload_file
@@ -435,12 +443,72 @@
         ORDER BY id desc limit 1;
     </select>
 
+    <select id="getUploadFileId_limit" resultType="java.lang.Long">
+        SELECT id FROM upload_file
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc LIMIT #{limit};
+    </select>
+
 <!--else-->
 
     <insert id="addPointHistory">
         INSERT INTO user_point_history(user_id, variance, point_type_id)
         VALUES (#{user_id}, #{variance}, #{point_type_id});
     </insert>
+
+
+<!--Scrap-->
+
+    <insert id="createScrap">
+        INSERT INTO scrap_lecture_bank(user_id, lecture_bank_id)
+        VALUES (#{user_id}, #{lecture_bank_id});
+    </insert>
+    <update id="unDeleteScrap">
+        UPDATE scrap_lecture_bank SET is_deleted = 0
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        AND user_id = #{user_id};
+    </update>
+    <update id="deleteScrapList" parameterType="java.util.List">
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(id_list)">
+            UPDATE scrap_lecture_bank SET is_deleted = 1
+            WHERE
+            <foreach collection="id_list" item="id" open="(" close=")"  separator="or">
+                id = #{id}
+            </foreach>;
+        </if>
+    </update>
+    <select id="getScrapList" resultType="in.hangang.domain.LectureBank">
+        SELECT * FROM lecture_bank
+        WHERE id in (SELECT lecture_bank_id FROM scrap_lecture_bank
+                     WHERE user_id = #{user_id} AND is_deleted = 0)
+        ORDER BY id desc;
+    </select>
+
+    <select id="checkScrapDeleted" resultType="java.lang.Boolean">
+        SELECT is_deleted FROM scrap_lecture_bank
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        AND user_id = #{user_id};
+    </select>
+    <select id="checkScrapDeletedList" resultType="java.lang.Boolean" parameterType="java.util.ArrayList">
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(id_list)">
+            SELECT is_deleted FROM scrap_lecture_bank
+            WHERE
+            <foreach collection="id_list" item="id" open="(" close=")"  separator="or">
+                id = #{id}
+            </foreach>
+        </if>
+    </select>
+    <select id="getScrapID" resultType="java.lang.Long">
+        SELECT id FROM scrap_lecture_bank
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        AND user_id = #{user_id}
+        ORDER BY id desc limit 1;
+    </select>
+    <select id="getScrapIDList" resultType="java.lang.Long">
+        SELECT id FROM scrap_lecture_bank
+        WHERE user_id = #{user_id} AND is_deleted = 0
+        ORDER BY lecture_bank_id desc;
+    </select>
 
 
 

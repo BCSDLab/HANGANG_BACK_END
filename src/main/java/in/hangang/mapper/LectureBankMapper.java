@@ -69,6 +69,7 @@ public interface LectureBankMapper {
 
     //hits
     Long checkHits(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    Long checkHitExist(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void addHit(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void subHit(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void addHit_lecture_bank(@Param("lecture_bank_id")Long lecture_bank_id);
@@ -77,7 +78,7 @@ public interface LectureBankMapper {
     void deleteHit(@Param("id") Long id);
     void deleteMultiHit(@Param("id_list") ArrayList<Long> id_list);
     List<Long> getHitId(@Param("lecture_bank_id")Long lecture_bank_id);
-    Boolean checkHitIsdeleted(@Param("id")Long id);
+    Integer checkHitIsdeleted(@Param("id")Long id);
 
 
 
@@ -100,15 +101,19 @@ public interface LectureBankMapper {
     void hardDeleteMultiFile(@Param("id_list")ArrayList<Long> id_list);
     Long getLectureBankIDFile(@Param("upload_file_id")Long upload_file_id);
     String getFileExtofOne(@Param("lecture_bank_id")Long lecture_bank_id);
+    List<Long> getUploadFileId_limit(@Param("lecture_bank_id")Long lecture_bank_id,@Param("limit")int limit);
 
     //else
     void addPointHistory(@Param("user_id")Long user_id, @Param("variance")Integer variance
             , @Param("point_type_id")Integer point_type_id);
 
-/*
-<foreach collection="id_list" item="id" open="(" close=")"  separator=",">
-            #{id}
-        </foreach>;
-*
-* */
+    //scrap
+    void createScrap(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    void unDeleteScrap(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    void deleteScrapList(@Param("id_list")ArrayList<Long> id_list);
+    ArrayList<LectureBank> getScrapList(@Param("user_id")Long user_id);
+    Boolean checkScrapDeleted(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    ArrayList<Boolean> checkScrapDeletedList(@Param("id_list")ArrayList<Long> id_list);
+    Long getScrapID(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    ArrayList<Long> getScrapIDList(@Param("user_id")Long user_id);
 }

@@ -46,7 +46,9 @@ public enum ErrorMessage {
 	REPORTED_CONTENT(41, "신고된 강의자료에는 댓글을 달 수 없습니다.", HttpStatus.BAD_REQUEST),
 	ALREADY_PURCHASED(42, "이미 구입한 강의자료 입니다.", HttpStatus.BAD_REQUEST),
 	PURCHASE_EXCEPTION(43, "자신의 강의자료는 구매할 수 없습니다.", HttpStatus.BAD_REQUEST),
-	DIDNT_PURCHASED(44, "구입하지 않은 강의자료에 접근하실 수 없습니다.", HttpStatus.BAD_REQUEST);
+	DIDNT_PURCHASED(44, "구입하지 않은 강의자료에 접근하실 수 없습니다.", HttpStatus.BAD_REQUEST),
+	ALREADY_DELETED_SCRAP(45, "이미 삭제된 스크랩입니다.", HttpStatus.BAD_REQUEST),
+	DIDNT_SCRAPED(46, "스크랩되지 않은 자료는 삭제하실 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

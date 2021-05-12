@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -175,6 +176,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Transactional
     public void deleteLectureBank(Long id) throws Exception{
         //delete LectureBank - soft
+        //TODO scrap 수정
         Long userId = userService.getLoginUser().getId();
         if(checkWriter(id)){
             lectureBankMapper.deleteLectureBank(id, userId);
@@ -344,23 +346,17 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
     //hits------------------------------------------------------------------------------------
-    @Override
-    public Boolean checkHits(Long lecture_bank_id) throws  Exception {
-        Long userID = userService.getLoginUser().getId();
-        Long hits = lectureBankMapper.checkHits(userID, lecture_bank_id);
-        return hits != null;
-    }
 
     @Override
     @Transactional
     public void pushHit(Long lecture_bank_id) throws Exception{
         Long userID = userService.getLoginUser().getId();
 
-        Long hitID = lectureBankMapper.checkHits(userID, lecture_bank_id);
-        Boolean deleted = lectureBankMapper.checkHitIsdeleted(hitID);
+        Long hitID = lectureBankMapper.checkHitExist(userID, lecture_bank_id);
+        Integer deleted = lectureBankMapper.checkHitIsdeleted(hitID);
 
         if(hitID !=null){
-            if(deleted){
+            if(deleted==1){
                 //취소 후 다시 누른 경우
                 lectureBankMapper.addHit(userID, lecture_bank_id);
                 lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
@@ -381,8 +377,9 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     //UPLOAD====================================================================================
     @Override
+    @Transactional
     public List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long lecture_bank_id) throws Exception {
-        List<Long> result = new ArrayList<>();
+        List<Long> res = new ArrayList<>();
         if(!fileList.isEmpty()){
             for(MultipartFile file : fileList){
                 String uploadUrl = s3Util.privateUpload(file);
@@ -391,14 +388,23 @@ public class LectureBankServiceImpl implements LectureBankService {
                 int index = fileName.lastIndexOf(".");
                 String fileExt = fileName.substring(index+1);
                 lectureBankMapper.insertUpload_file(lecture_bank_id, uploadUrl,fileName, fileExt);
-                result.add(lectureBankMapper.getUploadFileId(lecture_bank_id));
+                //result.add(lectureBankMapper.getUploadFileId(lecture_bank_id));
+            }
+
+            List<Long> list = new ArrayList<>();
+            list = lectureBankMapper.getUploadFileId_limit(lecture_bank_id,fileList.size());
+            for(int i=fileList.size()-1; i>=0; i--){
+                res.add(list.get(i));
             }
         }
-        return result;
+        return res;
     }
 
     @Override
+    @Transactional
     public Long fileUpload(MultipartFile file, Long lecture_bank_id) throws Exception{
+        if(file == null)
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
         String uploadUrl = s3Util.privateUpload(file);
         String fileName = file.getOriginalFilename();
         // TODO Thumbnail 방식 정해지면 수정 String fileExt = file.getContentType();
@@ -478,10 +484,65 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     //Thumbnail------------------------------------------------------------------------------------
     @Override
-    public String makeThumbnail(MultipartFile multipartFile) throws Exception{
-        //multipartFile.getContentType();
+    public String getThumbnailURL() throws Exception{
+        String url = "https://static.hangang.in/lecture_bank_default_image.png";
+        return url;
+    }
 
-        return "test_thumbnail_url_path";
+    //TODO SCRAP TEST
+    @Override
+    public void createScrap(Long lecture_bank_id) throws Exception{
+        Long user_id = userService.getLoginUser().getId();
+
+        if(lecture_bank_id != null){
+            Boolean check = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id);
+            System.out.println(check);
+            if(check == null){
+                lectureBankMapper.createScrap(user_id, lecture_bank_id);
+            }else if(check){
+                lectureBankMapper.unDeleteScrap(user_id,lecture_bank_id);
+            }else{
+                throw new RequestInputException(ErrorMessage.SCRAP_ALREADY_EXISTS);
+            }
+        }
+        else
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+    }
+
+    @Override
+    public void deleteScrap(ArrayList<Long> lectureBank_IDList) throws Exception{
+        if(lectureBank_IDList!= null && lectureBank_IDList.size() > 0){
+            List<Boolean> check = lectureBankMapper.checkScrapDeletedList(lectureBank_IDList);
+            for(Boolean b : check){
+                if(b==null){
+                    throw new RequestInputException(ErrorMessage.DIDNT_SCRAPED);
+                }else if(b){
+                    throw new RequestInputException(ErrorMessage.ALREADY_DELETED_SCRAP);
+                }
+            }
+            lectureBankMapper.deleteScrapList(lectureBank_IDList);
+        }else{
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+        }
+
+    }
+
+    //TODO Scrap class 만들기? && updated_at desc
+    @Override
+    public HashMap<String,Object> getScrapList() throws Exception{
+        HashMap<String,Object> hashMap = new HashMap<>();
+        Long user_id = userService.getLoginUser().getId();
+
+        List<Long> scrapIdList = lectureBankMapper.getScrapIDList(user_id);
+        if(scrapIdList!=null && scrapIdList.size()>0){
+            hashMap.put("scrapIdList",scrapIdList);
+        }
+        List<LectureBank> lectureBankList = lectureBankMapper.getScrapList(user_id);
+        if(lectureBankList!=null && lectureBankList.size()>0){
+            hashMap.put("lecture_bank_list",lectureBankList);
+        }
+        //scrapedID, LectureBank match해 반환
+        return hashMap;
     }
 
 

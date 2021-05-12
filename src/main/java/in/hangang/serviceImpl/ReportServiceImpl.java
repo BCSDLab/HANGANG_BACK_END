@@ -37,7 +37,7 @@ public class ReportServiceImpl implements ReportService {
     @Resource
     SlackNotiSender slackNotiSender;
 
-    @Value("${slack_url}")
+    @Value("${report_slack_url}")
     private String notifyReportUrl;
 
     @Override
