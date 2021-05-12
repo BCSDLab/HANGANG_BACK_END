@@ -81,6 +81,22 @@
         WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
     </select>
 
+    <select id="getClassMapByTimeTable" resultMap="classTimeMap">
+        SELECT id, name, class_time, professor FROM hangang.lecture_timetable
+        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timetableId} AND is_deleted = 0);
+    </select>
+
+    <select id="getClassMapByLectureId" resultMap="classTimeMap">
+        SELECT id, name, class_time, professor FROM hangang.lecture_timetable WHERE id = #{lectureId}
+    </select>
+
+    <resultMap id="classTimeMap" type="in.hangang.domain.LectureTimeTable">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="professor" property="professor"/>
+        <result column="class_time" property="class_time"/>
+    </resultMap>
+
     <select id="getUserIdByTimeTableId" resultType="Long">
         SELECT user_id FROM user_timetables WHERE id = #{timeTableId} AND is_deleted=0;
     </select>
@@ -191,6 +207,10 @@
     <update id="deleteScrapLecture">
         UPDATE hangang.scrap_timetable SET is_deleted = 1 WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId};
     </update>
+
+    <delete id="deleteLecture">
+        DELETE FROM hangang.lecture_timetable WHERE id = #{lectureId}
+    </delete>
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>

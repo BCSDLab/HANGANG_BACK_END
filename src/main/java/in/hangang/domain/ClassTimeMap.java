@@ -3,9 +3,9 @@ package in.hangang.domain;
 import java.util.ArrayList;
 
 public class ClassTimeMap {
+    private Long id;
     private String name;
     private String classTime;
-    private ArrayList<Integer> classTimeList;
 
     public String getName() {
         return name;
@@ -23,11 +23,11 @@ public class ClassTimeMap {
         this.classTime = classTime;
     }
 
-    public ArrayList<Integer> getClassTimeList() {
-        return classTimeList;
+    public Long getId() {
+        return id;
     }
 
-    public void setClassTimeList(ArrayList<Integer> classTimeList) {
-        this.classTimeList = classTimeList;
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -1,12 +1,10 @@
 package in.hangang.mapper;
 
-import in.hangang.domain.Lecture;
-import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.TimeTableMap;
-import in.hangang.domain.UserTimeTable;
+import in.hangang.domain.*;
 import in.hangang.domain.criteria.TimeTableCriteria;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public interface TimetableMapper {
     ArrayList<LectureTimeTable> getLectureList(TimeTableCriteria timeTableCriteria);
@@ -39,4 +37,7 @@ public interface TimetableMapper {
     ArrayList<LectureTimeTable> getScrapLectureList(Long userId);
     Long getScrapLectureByLectureId(Long userId, Long lectureId);
     void deleteScrapLecture(Long userId, Long lectureId);
+    ArrayList<LectureTimeTable>getClassMapByTimeTable(Long timetableId);
+    ArrayList<LectureTimeTable>getClassMapByLectureId(Long lectureId);
+    void deleteLecture(Long lectureId);
 }
