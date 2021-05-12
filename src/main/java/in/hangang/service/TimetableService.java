@@ -22,7 +22,5 @@ public interface TimetableService {
     void createScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
     ArrayList<LectureTimeTable> getScrapLectureList() throws Exception;
     void deleteScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
-
-
-
+    void checkCrashClassTime(ArrayList<LectureTimeTable> originClass, ArrayList<LectureTimeTable> newClass) throws Exception;
 }
