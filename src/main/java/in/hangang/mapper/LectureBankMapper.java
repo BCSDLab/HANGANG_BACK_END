@@ -1,6 +1,8 @@
 package in.hangang.mapper;
 
 import in.hangang.domain.*;
+import in.hangang.domain.scrap.Scrap;
+import in.hangang.domain.scrap.ScrapLectureBank;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -111,9 +113,11 @@ public interface LectureBankMapper {
     void createScrap(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void unDeleteScrap(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void deleteScrapList(@Param("id_list")ArrayList<Long> id_list);
-    ArrayList<LectureBank> getScrapList(@Param("user_id")Long user_id);
     Boolean checkScrapDeleted(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     ArrayList<Boolean> checkScrapDeletedList(@Param("id_list")ArrayList<Long> id_list);
     Long getScrapID(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
-    ArrayList<Long> getScrapIDList(@Param("user_id")Long user_id);
+    Long checkScrapExist(@Param("id")Long id);
+    ArrayList<ScrapLectureBank> getScrapLectureBankList(@Param("user_id")Long user_id);
+    ArrayList<Scrap> checkScrapList(@Param("id_list")ArrayList<Long> id_list);
+    Scrap checkScrap(@Param("id")Long id);
 }

@@ -1,6 +1,8 @@
 package in.hangang.serviceImpl;
 
 import in.hangang.domain.*;
+import in.hangang.domain.scrap.Scrap;
+import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
@@ -346,7 +348,6 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
     //hits------------------------------------------------------------------------------------
-
     @Override
     @Transactional
     public void pushHit(Long lecture_bank_id) throws Exception{
@@ -370,6 +371,21 @@ public class LectureBankServiceImpl implements LectureBankService {
             lectureBankMapper.hitInsert(userID, lecture_bank_id);
             lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
         }
+    }
+
+    @Override
+    @Transactional
+    public LectureBank pushHitLectureBank(Long lecture_bank_id) throws Exception{
+        pushHit(lecture_bank_id);
+        Long userID = userService.getLoginUser().getId();
+        LectureBank lectureBank = lectureBankMapper.getLectureBank(lecture_bank_id);
+
+        //is_hit 추가 - mapper에서도 추가 가능할듯 (추후에 추가해보기)
+        Long hits = lectureBankMapper.checkHits(userID, lectureBank.getId());
+        if(hits !=null)
+            lectureBank.setIs_hit(true);
+
+        return lectureBank;
     }
 
 
@@ -485,8 +501,9 @@ public class LectureBankServiceImpl implements LectureBankService {
     //Thumbnail------------------------------------------------------------------------------------
     @Override
     public String getThumbnailURL() throws Exception{
-        String url = "https://static.hangang.in/lecture_bank_default_image.png";
-        return url;
+        //TODO 확장자별 URL - enum 만들기
+        String default_url = "https://static.hangang.in/lecture_bank_default_image.png";
+        return default_url;
     }
 
     //TODO SCRAP TEST
@@ -510,39 +527,38 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
     @Override
-    public void deleteScrap(ArrayList<Long> lectureBank_IDList) throws Exception{
-        if(lectureBank_IDList!= null && lectureBank_IDList.size() > 0){
-            List<Boolean> check = lectureBankMapper.checkScrapDeletedList(lectureBank_IDList);
-            for(Boolean b : check){
-                if(b==null){
-                    throw new RequestInputException(ErrorMessage.DIDNT_SCRAPED);
-                }else if(b){
+    public void deleteScrap(ArrayList<Long> idList) throws Exception{
+
+        if(idList!= null && idList.size() > 0){
+            //mybatis foreach 사용시 null 이 아닌 empty가 된다???
+            List<Scrap> scList = new ArrayList<>();
+            for(Long id : idList){
+                scList.add(lectureBankMapper.checkScrap(id));
+            }
+
+            Long userID = userService.getLoginUser().getId();
+            for(Scrap ch : scList){
+                if(ch==null){
+                    throw new RequestInputException(ErrorMessage.SCRAP_DOES_NOT_EXIST);
+                }else if(ch.getIs_deleted()){
                     throw new RequestInputException(ErrorMessage.ALREADY_DELETED_SCRAP);
+                }else{
+                    if(!ch.getUser_id().equals(userID))
+                        throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
                 }
             }
-            lectureBankMapper.deleteScrapList(lectureBank_IDList);
+            lectureBankMapper.deleteScrapList(idList);
         }else{
             throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
         }
 
     }
 
-    //TODO Scrap class 만들기? && updated_at desc
     @Override
-    public HashMap<String,Object> getScrapList() throws Exception{
-        HashMap<String,Object> hashMap = new HashMap<>();
+    public List<ScrapLectureBank> getScrapList() throws Exception{
         Long user_id = userService.getLoginUser().getId();
-
-        List<Long> scrapIdList = lectureBankMapper.getScrapIDList(user_id);
-        if(scrapIdList!=null && scrapIdList.size()>0){
-            hashMap.put("scrapIdList",scrapIdList);
-        }
-        List<LectureBank> lectureBankList = lectureBankMapper.getScrapList(user_id);
-        if(lectureBankList!=null && lectureBankList.size()>0){
-            hashMap.put("lecture_bank_list",lectureBankList);
-        }
-        //scrapedID, LectureBank match해 반환
-        return hashMap;
+        List<ScrapLectureBank> scrapLectureBank = lectureBankMapper.getScrapLectureBankList(user_id);
+        return scrapLectureBank;
     }
 
 

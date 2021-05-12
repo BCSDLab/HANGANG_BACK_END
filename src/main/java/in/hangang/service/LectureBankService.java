@@ -2,6 +2,7 @@ package in.hangang.service;
 
 
 import in.hangang.domain.*;
+import in.hangang.domain.scrap.ScrapLectureBank;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -39,6 +40,7 @@ public interface LectureBankService {
     //hits====================================================================================
     //Boolean checkHits(Long lecture_bank_id) throws  Exception;
     void pushHit(Long lecture_bank_id) throws Exception;
+    LectureBank pushHitLectureBank(Long lecture_bank_id) throws Exception;
 
     //file====================================================================================
 
@@ -59,6 +61,6 @@ public interface LectureBankService {
     //Scrap====================================================================================
     void createScrap(Long lecture_bank_id) throws Exception;
     void deleteScrap(ArrayList<Long> lectureBank_IDList) throws Exception;
-    HashMap<String,Object> getScrapList() throws Exception;
+    List<ScrapLectureBank> getScrapList() throws Exception;
 
 }

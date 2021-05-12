@@ -48,7 +48,7 @@ public enum ErrorMessage {
 	PURCHASE_EXCEPTION(43, "자신의 강의자료는 구매할 수 없습니다.", HttpStatus.BAD_REQUEST),
 	DIDNT_PURCHASED(44, "구입하지 않은 강의자료에 접근하실 수 없습니다.", HttpStatus.BAD_REQUEST),
 	ALREADY_DELETED_SCRAP(45, "이미 삭제된 스크랩입니다.", HttpStatus.BAD_REQUEST),
-	DIDNT_SCRAPED(46, "스크랩되지 않은 자료는 삭제하실 수 없습니다.", HttpStatus.BAD_REQUEST);
+	SCRAP_DOES_NOT_EXIST(46, "존재하지 않는 스크랩입니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

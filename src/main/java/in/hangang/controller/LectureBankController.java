@@ -2,6 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.domain.*;
+import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.enums.Board;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.LectureBankService;
@@ -258,7 +259,17 @@ public class LectureBankController {
     public @ResponseBody
     ResponseEntity pushHit(@PathVariable Long id) throws Exception{
         lectureBankService.pushHit(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(new BaseResponse("정상적으로 Hit 가 눌렸습니다", HttpStatus.OK),HttpStatus.OK);
+    }
+
+    @Auth
+    @RequestMapping(value = "/hit/{id}", method = RequestMethod.GET)
+    @ApiOperation(value ="hit 누르기 w/ LectureBank RETURN" , notes = "hit를 누릅니다\n파라미터는 강의 자료 id 입니다."
+            ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public @ResponseBody
+    ResponseEntity<LectureBank> pushHitLectureBank(@PathVariable Long id) throws Exception{
+        LectureBank lb = lectureBankService.pushHitLectureBank(id);
+        return new ResponseEntity<LectureBank>(lb,HttpStatus.OK);
     }
 
 
@@ -318,9 +329,8 @@ public class LectureBankController {
     @ApiOperation(value ="scrap 목록 가져오기" , notes = "사용자가 스크랩한 자료를 가져옵니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity<HashMap<String,Object>> getScrap() throws Exception{
-        HashMap<String,Object> hashMap = lectureBankService.getScrapList();
-        return new ResponseEntity<HashMap<String,Object>>( hashMap, HttpStatus.OK);
+    ResponseEntity<List<ScrapLectureBank>> getScrap() throws Exception{
+        return new ResponseEntity<List<ScrapLectureBank>>(lectureBankService.getScrapList(),HttpStatus.OK);
     }
 
 
