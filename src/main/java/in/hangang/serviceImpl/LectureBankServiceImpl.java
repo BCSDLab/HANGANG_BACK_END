@@ -528,9 +528,8 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Override
     public void deleteScrap(ArrayList<Long> idList) throws Exception{
-
         if(idList!= null && idList.size() > 0){
-            //mybatis foreach 사용시 null 이 아닌 empty가 된다???
+            //mybatis foreach 사용시 null 이 아닌 empty가 된다??? - 찾아보기
             List<Scrap> scList = new ArrayList<>();
             for(Long id : idList){
                 scList.add(lectureBankMapper.checkScrap(id));
