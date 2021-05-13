@@ -47,9 +47,12 @@ public enum ErrorMessage {
 	ALREADY_PURCHASED(42, "이미 구입한 강의자료 입니다.", HttpStatus.BAD_REQUEST),
 	PURCHASE_EXCEPTION(43, "자신의 강의자료는 구매할 수 없습니다.", HttpStatus.BAD_REQUEST),
 	DIDNT_PURCHASED(44, "구입하지 않은 강의자료에 접근하실 수 없습니다.", HttpStatus.BAD_REQUEST),
-	REPORT_NOT_EXIST(45, "해당 신고내역이 존재하지 않습니다." , HttpStatus.BAD_REQUEST),
-	REPORT_TYPE_EXCEPTION(46, "신고 대상의 영역이 잘못되었습니다.", HttpStatus.BAD_REQUEST),
-	REPORT_CONTENT_EXCEPTION(47, "신고 대상이 이미 삭제되었거나 존재하지 않습니다", HttpStatus.BAD_REQUEST);
+	ALREADY_DELETED_SCRAP(45, "이미 삭제된 스크랩입니다.", HttpStatus.BAD_REQUEST),
+	SCRAP_DOES_NOT_EXIST(46, "존재하지 않는 스크랩입니다.", HttpStatus.BAD_REQUEST),
+	REPORT_NOT_EXIST(47, "해당 신고내역이 존재하지 않습니다." , HttpStatus.BAD_REQUEST),
+	REPORT_TYPE_EXCEPTION(48, "신고 대상의 영역이 잘못되었습니다.", HttpStatus.BAD_REQUEST),
+	REPORT_CONTENT_EXCEPTION(49, "신고 대상이 이미 삭제되었거나 존재하지 않습니다", HttpStatus.BAD_REQUEST),
+	TIME_TABLE_CRUSHED(50,"시간표 내용이 겹칩니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;
@@ -59,6 +62,7 @@ public enum ErrorMessage {
 		this.errorMessage = errorMessage;
 		this.httpStatus = httpStatus;
 	}
+
 	
 	
 	public Integer getCode() {

@@ -3,9 +3,13 @@ package in.hangang.domain;
 import java.util.ArrayList;
 
 public class ClassTimeMap {
+    private Long id;
     private String name;
     private String classTime;
-    private ArrayList<Integer> classTimeList;
+    private String classNumber;
+    private String professor;
+    private ArrayList<Long> selectedTableId;
+    private String target;
 
     public String getName() {
         return name;
@@ -23,11 +27,43 @@ public class ClassTimeMap {
         this.classTime = classTime;
     }
 
-    public ArrayList<Integer> getClassTimeList() {
-        return classTimeList;
+    public Long getId() {
+        return id;
     }
 
-    public void setClassTimeList(ArrayList<Integer> classTimeList) {
-        this.classTimeList = classTimeList;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getClassNumber() {
+        return classNumber;
+    }
+
+    public void setClassNumber(String classNumber) {
+        this.classNumber = classNumber;
+    }
+
+    public String getProfessor() {
+        return professor;
+    }
+
+    public void setProfessor(String professor) {
+        this.professor = professor;
+    }
+
+    public ArrayList<Long> getSelectedTableId() {
+        return selectedTableId;
+    }
+
+    public void setSelectedTableId(ArrayList<Long> selectedTableId) {
+        this.selectedTableId = selectedTableId;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 }

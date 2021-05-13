@@ -54,14 +54,17 @@ public class AdminLectureBankController {
     @ApiOperation(value = "신고 강의자료 기각하기", notes = "신고 내용을 기각한다. 강의자료의 board_type_id =1 ", authorizations = @Authorization(value = "Bearer +accessToken"))
     @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.Lecture)
     public ResponseEntity deleteReport(@PathVariable Long id ){
-        return new ResponseEntity(adminLectureBankService.deleteReport(id), HttpStatus.OK);
+
+        return new ResponseEntity(null,HttpStatus.OK);
+        //return new ResponseEntity(adminLectureBankService.deleteReport(id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/report/{id}")
+    @DeleteMapping("/rep2ort/{id}")
     @ApiOperation(value = "신고 강의자료 댓글 기각하기", notes = "신고 내용을 기각한다. 강의자료 댓글의 board_type_id = 2 ", authorizations = @Authorization(value = "Bearer +accessToken"))
     @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.Lecture)
     public ResponseEntity deleteCommentReport(@PathVariable Long id ){
-        return new ResponseEntity(adminLectureBankService.deleteCommentReport(id), HttpStatus.OK);
+        return new ResponseEntity(null,HttpStatus.OK);
+        //return new ResponseEntity(adminLectureBankService.deleteCommentReport(id), HttpStatus.OK);
     }
 
 }

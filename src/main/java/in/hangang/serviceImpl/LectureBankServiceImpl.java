@@ -1,6 +1,8 @@
 package in.hangang.serviceImpl;
 
 import in.hangang.domain.*;
+import in.hangang.domain.scrap.Scrap;
+import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -175,6 +178,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Transactional
     public void deleteLectureBank(Long id) throws Exception{
         //delete LectureBank - soft
+        //TODO scrap 수정
         Long userId = userService.getLoginUser().getId();
         if(checkWriter(id)){
             lectureBankMapper.deleteLectureBank(id, userId);
@@ -344,7 +348,6 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
     //hits------------------------------------------------------------------------------------
-
     @Override
     @Transactional
     public void pushHit(Long lecture_bank_id) throws Exception{
@@ -368,6 +371,21 @@ public class LectureBankServiceImpl implements LectureBankService {
             lectureBankMapper.hitInsert(userID, lecture_bank_id);
             lectureBankMapper.addHit_lecture_bank(lecture_bank_id);
         }
+    }
+
+    @Override
+    @Transactional
+    public LectureBank pushHitLectureBank(Long lecture_bank_id) throws Exception{
+        pushHit(lecture_bank_id);
+        Long userID = userService.getLoginUser().getId();
+        LectureBank lectureBank = lectureBankMapper.getLectureBank(lecture_bank_id);
+
+        //is_hit 추가 - mapper에서도 추가 가능할듯 (추후에 추가해보기)
+        Long hits = lectureBankMapper.checkHits(userID, lectureBank.getId());
+        if(hits !=null)
+            lectureBank.setIs_hit(true);
+
+        return lectureBank;
     }
 
 
@@ -482,10 +500,64 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     //Thumbnail------------------------------------------------------------------------------------
     @Override
-    public String makeThumbnail(MultipartFile multipartFile) throws Exception{
-        //multipartFile.getContentType();
+    public String getThumbnailURL() throws Exception{
+        //TODO 확장자별 URL - enum 만들기
+        String default_url = "https://static.hangang.in/lecture_bank_default_image.png";
+        return default_url;
+    }
 
-        return "test_thumbnail_url_path";
+    //TODO SCRAP TEST
+    @Override
+    public void createScrap(Long lecture_bank_id) throws Exception{
+        Long user_id = userService.getLoginUser().getId();
+
+        if(lecture_bank_id != null){
+            Boolean check = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id);
+            System.out.println(check);
+            if(check == null){
+                lectureBankMapper.createScrap(user_id, lecture_bank_id);
+            }else if(check){
+                lectureBankMapper.unDeleteScrap(user_id,lecture_bank_id);
+            }else{
+                throw new RequestInputException(ErrorMessage.SCRAP_ALREADY_EXISTS);
+            }
+        }
+        else
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+    }
+
+    @Override
+    public void deleteScrap(ArrayList<Long> idList) throws Exception{
+        if(idList!= null && idList.size() > 0){
+            //mybatis foreach 사용시 null 이 아닌 empty가 된다??? - 찾아보기
+            List<Scrap> scList = new ArrayList<>();
+            for(Long id : idList){
+                scList.add(lectureBankMapper.checkScrap(id));
+            }
+
+            Long userID = userService.getLoginUser().getId();
+            for(Scrap ch : scList){
+                if(ch==null){
+                    throw new RequestInputException(ErrorMessage.SCRAP_DOES_NOT_EXIST);
+                }else if(ch.getIs_deleted()){
+                    throw new RequestInputException(ErrorMessage.ALREADY_DELETED_SCRAP);
+                }else{
+                    if(!ch.getUser_id().equals(userID))
+                        throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+                }
+            }
+            lectureBankMapper.deleteScrapList(idList);
+        }else{
+            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+        }
+
+    }
+
+    @Override
+    public List<ScrapLectureBank> getScrapList() throws Exception{
+        Long user_id = userService.getLoginUser().getId();
+        List<ScrapLectureBank> scrapLectureBank = lectureBankMapper.getScrapLectureBankList(user_id);
+        return scrapLectureBank;
     }
 
 

@@ -15,6 +15,7 @@ public class Lecture {
     private Long id;
     @ApiModelProperty(hidden = true)
     private Boolean is_scraped = false;
+    private Long grade;
     private ArrayList<String> semester_data;
     private ArrayList<HashTag> top3_hash_tag;
     private String code;
@@ -152,4 +153,11 @@ public class Lecture {
         this.is_scraped = is_scraped;
     }
 
+    public Long getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Long grade) {
+        this.grade = grade;
+    }
 }

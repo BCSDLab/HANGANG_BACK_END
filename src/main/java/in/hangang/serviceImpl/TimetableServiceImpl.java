@@ -1,19 +1,20 @@
 package in.hangang.serviceImpl;
+import com.mpatric.mp3agic.BaseException;
 import in.hangang.domain.*;
 import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
+import in.hangang.exception.TimeTableException;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.TimetableService;
 import in.hangang.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class TimetableServiceImpl implements TimetableService {
@@ -144,7 +145,9 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.updateMainTimeTable(userId, timeTableId);
     }
 
+
     @Override
+    @Transactional
     public void createLectureOnTimeTable(TimeTable timeTable) throws Exception {
         Long lectureId = timeTable.getLecture_id();
         Long timeTableId = timeTable.getUser_timetable_id();
@@ -155,9 +158,7 @@ public class TimetableServiceImpl implements TimetableService {
         //해당 강의가 존재하는지 확인
         if(timetableMapper.isExists(lectureId)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-        //해당 강의가 이미 있는지 확인
-        if(timetableMapper.isAlreadyExists(timeTableId, lectureId)!=null)
-            throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
+
         //해당 시간표가 존재하는지 확인
         if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
@@ -165,16 +166,16 @@ public class TimetableServiceImpl implements TimetableService {
         if(!timetableMapper.getSemesterDateByLectureId(lectureId).equals(timetableMapper.getSemesterDateByTimeTableId(timeTableId)))
             throw new RequestInputException(ErrorMessage.NOT_MATCH_SEMESTER_DATE);
 
-        //기존 시간표 시간 정보, 새로 넣을 강의의 시간 정보 가져오기
-        ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
-        ArrayList<Integer> timeListByLecture = getClassTimeArrayList(timetableMapper.getClassTimeByLectureId(lectureId));
-        for (Integer integer : timeListByLecture) {
-            //시간이 중복되는지 확인
-            if (timeListByTimeTable.contains(integer))
-                throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
-        }
+        ArrayList<LectureTimeTable> originClass = timetableMapper.getClassMapByTimeTable(timeTableId);
+        ArrayList<LectureTimeTable> newClass = timetableMapper.getClassMapByLectureId(lectureId);
+
+        checkCrashClassTime(originClass, newClass);
         timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
     }
+
+
+
+
 
     @Override
     public void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception {
@@ -199,7 +200,9 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.deleteLectureOnTimeTable(timeTableId, lectureId);
     }
 
+    /*
     @Override
+    @Transactional
     public void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
@@ -224,6 +227,33 @@ public class TimetableServiceImpl implements TimetableService {
         lectureTimeTable.setIs_custom(true);
         timetableMapper.createLectureOnTimeTable(lectureTimeTable.getUser_timetable_id(), timetableMapper.createLecture(lectureTimeTable));;
     }
+     */
+
+    @Override
+    @Transactional
+    public void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception {
+        Long timeTableId = lectureTimeTable.getUser_timetable_id();
+        String code = "";
+        for(int i=0; i<10; i++){
+            code = createRandomCode();
+            if(timetableMapper.getLectureIdByCode(code)==null)
+                break;
+        }
+        lectureTimeTable.setCode(code);
+        lectureTimeTable.setIs_custom(true);
+
+        ArrayList<LectureTimeTable> originClass = timetableMapper.getClassMapByTimeTable(timeTableId);
+        ArrayList<LectureTimeTable> newClass = new ArrayList<LectureTimeTable>();
+        newClass.add(lectureTimeTable);
+
+        //충돌 확인
+        checkCrashClassTime(originClass, newClass);
+
+        //강의 DB에 추가
+        Long lectureId = timetableMapper.createLecture(lectureTimeTable);
+        //시간표에 강의 등록
+        timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
+    }
 
     @Override
     public void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception {
@@ -238,16 +268,16 @@ public class TimetableServiceImpl implements TimetableService {
         Long customLectureId = timetableMapper.getLectureIdByCode(customTimeTable.getCode());
         if (customLectureId==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-        ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
-        ArrayList<Integer> timeListByLecture = getClassTimeArrayList(timetableMapper.getClassTimeByLectureId(customLectureId));
-        for (Integer integer : timeListByLecture) {
-            //시간이 중복되는지 확인
-            if (timeListByTimeTable.contains(integer))
-                throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
-        }
+
+        ArrayList<LectureTimeTable> originClass = timetableMapper.getClassMapByTimeTable(timeTableId);
+        ArrayList<LectureTimeTable> newClass = timetableMapper.getClassMapByLectureId(customLectureId);
+        checkCrashClassTime(originClass, newClass);
+
         timetableMapper.createLectureOnTimeTable(timeTableId, customLectureId);
 
     }
+
+
 
     @Override
     public TimeTableMap getLectureListByTimeTableId(Long timeTableId) throws Exception {
@@ -314,6 +344,7 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.deleteScrapLecture(userId, lectureTimeTable.getLecture_id());
     }
 
+
     //String으로 처리된 '강의시간' 정보들을 배열로 바꾸어준다
     public ArrayList<Integer> getClassTimeArrayList(ArrayList<String> classTimeList){
         ArrayList<Integer> classTimeArrayList = new ArrayList<Integer>();
@@ -327,6 +358,21 @@ public class TimetableServiceImpl implements TimetableService {
         return classTimeArrayList;
     }
 
+
+
+
+    //String으로 처리된 '강의시간' 정보들을 배열로 바꾸어준다
+    public ArrayList<Integer> getClassTimeList(String classTime){
+        ArrayList<Integer> classTimeArrayList = new ArrayList<Integer>();
+        String classTimeSub = classTime.substring(1, classTime.length() - 1);
+        String[] classTimeArr = classTimeSub.split(", ");
+        for (String value : classTimeArr) {
+            classTimeArrayList.add(Integer.parseInt(value));
+        }
+        return classTimeArrayList;
+    }
+
+
     public String createRandomCode(){
         Random random = new Random();
         StringBuilder stringBuilder = new StringBuilder(8);
@@ -338,6 +384,59 @@ public class TimetableServiceImpl implements TimetableService {
         int number = (int) (Math.random() * 9999) +1000;
         stringBuilder.append(number);
 
+
         return stringBuilder.toString();
     }
+
+    @Override
+    public void checkCrashClassTime(ArrayList<LectureTimeTable> originClass, ArrayList<LectureTimeTable> newClass) throws Exception {
+        ArrayList<Integer> newClassTime = getClassTimeList(newClass.get(0).getClass_time());
+        for(int i=0; i<originClass.size(); i++){
+            ArrayList<Integer> classTime = getClassTimeList(originClass.get(i).getClass_time());
+            for(int j=0; j<classTime.size(); j++){
+                if(newClassTime.contains(classTime.get(j))) {
+
+                    throw new TimeTableException(
+                            originClass.get(i).getName() +
+                            "(" + originClass.get(i).getProfessor() + ")" +
+                            " 강의와 강의 시간이 겹칩니다.");
+                }
+            }
+        }
+    }
+
+    /*
+    @Override
+    public void createLectureOnTimeTable(TimeTable timeTable) throws Exception {
+        Long lectureId = timeTable.getLecture_id();
+        Long timeTableId = timeTable.getUser_timetable_id();
+        //값이 하나라도 비어있다면 에러
+        if(lectureId==null || timeTableId==null)
+            throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
+
+        //해당 강의가 존재하는지 확인
+        if(timetableMapper.isExists(lectureId)==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        //해당 강의가 이미 있는지 확인
+        if(timetableMapper.isAlreadyExists(timeTableId, lectureId)!=null)
+            throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
+        //해당 시간표가 존재하는지 확인
+        if(timetableMapper.getNameByTimeTableId(timeTableId)==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        //시간표의 학기 정보와 강의의 학기 정보가 일치하는지 확인
+        if(!timetableMapper.getSemesterDateByLectureId(lectureId).equals(timetableMapper.getSemesterDateByTimeTableId(timeTableId)))
+            throw new RequestInputException(ErrorMessage.NOT_MATCH_SEMESTER_DATE);
+
+        //기존 시간표 시간 정보, 새로 넣을 강의의 시간 정보 가져오기
+        ArrayList<Integer> timeListByTimeTable = getClassTimeArrayList(timetableMapper.getClassTimeByTimeTable(timeTableId));
+        ArrayList<Integer> timeListByLecture = getClassTimeArrayList(timetableMapper.getClassTimeByLectureId(lectureId));
+        HashMap<String, ArrayList<String>> timeHashMapByTimeTable = new HashMap<String, ArrayList<String>>();
+        for (Integer integer : timeListByLecture) {
+            //시간이 중복되는지 확인
+            if (timeListByTimeTable.contains(integer))
+                throw new RequestInputException(ErrorMessage.TIME_LIST_CONFLICT);
+        }
+        timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
+    }
+     */
 }

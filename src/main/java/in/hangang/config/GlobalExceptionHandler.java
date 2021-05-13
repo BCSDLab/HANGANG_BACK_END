@@ -8,6 +8,7 @@ import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.BaseException;
 import in.hangang.exception.CriticalException;
 import in.hangang.exception.NonCriticalException;
+import in.hangang.exception.TimeTableException;
 import in.hangang.util.Parser;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
@@ -68,9 +69,15 @@ public class GlobalExceptionHandler {
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 		}
 
+		if ( e instanceof TimeTableException){
+			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.TIME_TABLE_CRUSHED);
+			baseException.setErrorMessage(((TimeTableException) e).getMyMessage());
+			baseException.setErrorTrace(e.getStackTrace()[0].toString());
+		}
+
 		if(baseException == null){
 			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.UNDEFINED_EXCEPTION);
-			baseException.setErrorMessage(e.getMessage()); // 죄송합니다 빛통일님ㅠㅠㅠ - 정수현
+			baseException.setErrorMessage(e.getMessage());
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 			slack = true;
 		}
