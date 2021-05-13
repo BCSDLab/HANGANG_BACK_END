@@ -29,4 +29,7 @@ public final class ValidationGroups {
     // Admin groups
     public interface CreateAdmin extends Default {};
     public interface UpdateAdmin extends Default {};
+
+    //LectureBank
+    public interface PostLectureBank extends Default  {};
 }

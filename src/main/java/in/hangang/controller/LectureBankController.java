@@ -1,6 +1,7 @@
 package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
+import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.*;
 import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.enums.Board;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
@@ -31,9 +33,8 @@ public class LectureBankController {
     @Autowired
     private ReportService reportService;
 
-
     // 강의자료 MAIN------------------------------------------------------------------------------------
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 목록 가져오기" , notes = "강의자료 목록을 전체, 필터별로 가져올 수 있습니다."
             , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
@@ -42,7 +43,7 @@ public class LectureBankController {
     }
 
 
-    @RequestMapping(value = "/main/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 상세 페이지" , notes = "강의자료의  상세한 정보\n파라미터는 강의 자료 id 입니다."
             , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
@@ -50,40 +51,21 @@ public class LectureBankController {
         return new ResponseEntity<LectureBank>(lectureBankService.getLectureBank(id), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/main/file/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}/file", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 파일 목록" , notes = "강의자료에 해당하는 파일의 목록만을 가져옵니다(파일이름, 확장자)\n파라미터는 강의 자료 id 입니다.")
     public @ResponseBody
     ResponseEntity<List<UploadFile>> getFileList(@PathVariable Long id) throws Exception {
         return new ResponseEntity<List<UploadFile>>(lectureBankService.getFileList(id),HttpStatus.OK);
     }
 
-
-    //강의자료 CUD------------------------------------------------------------------------------------
-    /*
-    사용 로직
-    write(GET) 작성시작시 lecturebank_id 반환 -> 파일 업로드 시 해당 파일과 함께 lecturebank_id 입력 -> /write POST로 강의자료 내용 전송
-     */
-
-    //OMG NO semester on LectureBank ()
-    //**add semester to LectureBank*******************************************************
     @Auth
-    @RequestMapping(value = "/write", method = RequestMethod.GET)
-    @ApiOperation(value ="강의자료 작성하기" , notes = "작성하기를 누르면 lecturebank id가 생성되어 반환됩니다"
-            , authorizations = @Authorization(value = "Bearer +accessToken"))
-    public @ResponseBody
-    ResponseEntity<Long> createLectureBank() throws Exception {
-        return new ResponseEntity<Long>(lectureBankService.createLectureBank(), HttpStatus.CREATED);
-    }
-
-    @Auth
-    @RequestMapping(value = "/write", method = RequestMethod.POST)
-    @ApiOperation(value ="강의자료 작성완료" , notes = "id를 포함하여 작성한 강의 자료를 전송합니다(/write에서 받은 id 입력)"
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    @ApiOperation(value ="강의자료 작성" , notes = "강의자료 작성)"
             +"\nsemester_date_id : 수강 학기 ID ( 1: 20191, 2: 20192, 3: 20201, 4: 20202, 5: 20211 )"
             +"" ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity submitLectureBank(@RequestBody LectureBank lectureBank) throws Exception {
-        lectureBankService.submitLectureBank(lectureBank);
-        return new ResponseEntity(HttpStatus.OK);
+    ResponseEntity postLectureBank(@RequestBody @Validated(ValidationGroups.PostLectureBank.class) LectureBank lectureBank) throws Exception {
+        return new ResponseEntity( lectureBankService.postLectureBank(lectureBank), HttpStatus.OK);
     }
 
 
@@ -92,8 +74,8 @@ public class LectureBankController {
     @ApiOperation(value ="강의자료 수정" , notes = "강의 자료를 수정합니다\n파리미터는 강의자료 id 입니다"
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity modifyLectureBank(@RequestBody LectureBank lectureBank) throws Exception {
-        lectureBankService.setLectureBank(lectureBank);
+    ResponseEntity modifyLectureBank(@RequestBody  LectureBank lectureBank) throws Exception {
+        //lectureBankService.setLectureBank(lectureBank);
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -122,44 +104,15 @@ public class LectureBankController {
     //File------------------------------------------------------------------------------------
 
 
-    @Auth
-    @RequestMapping(value = "/file/upload/{id}", method = RequestMethod.POST)
-    @ApiOperation(value ="단일 파일 업로드" , notes = "파일을 1개 업로드 합니다.\n파라미터는 강의 자료 id 입니다.\n업로드된 파일의 id가 반환됩니다."
-            ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public @ResponseBody
-    ResponseEntity<Long> uploadFile(@ApiParam(required = true) @RequestParam MultipartFile file,
-                                    @PathVariable Long id) throws Exception {
-        return new ResponseEntity<Long>(lectureBankService.fileUpload(file, id),HttpStatus.CREATED);
-    }
 
     @Auth
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = "files", required = true, dataType = "__file", paramType = "form")
-    )
-    @RequestMapping(value = "/files/upload/{id}", method = RequestMethod.POST)
-    @ApiOperation(value ="다중 파일 업로드" , notes = "여러개의 파일을 업로드 합니다.\n파라미터는 강의 자료 id 입니다.\n업로드된 파일의 id 목록이 반환됩니다."
-            ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity<List<Long>> uploadFiles(@ApiParam(name = "files") @RequestParam(value = "files",
-            required = true) MultipartFile[] files, @PathVariable Long id) throws Exception {
-        List<MultipartFile> list = new ArrayList<>();
-        for(MultipartFile file : files){
-            list.add(file);
-        }
-        return new ResponseEntity<List<Long>>(lectureBankService.LectureBankFilesUpload(list, id), HttpStatus.CREATED);
+    @PostMapping("/file")
+    @ApiOperation(value ="단일 파일 업로드" , notes = "파일을 1개 업로드 합니다.\n파라미터는 강의 자료 id 입니다.\n업로드된 파일의 id가 반환됩니다.",authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity uploadFile(@RequestBody MultipartFile multipartFile) throws Exception {
+        return new ResponseEntity(lectureBankService.fileUpload(multipartFile), HttpStatus.OK);
     }
 
 
-
-    //upload_file table - available FLAG 0:업로드 대기 /  1: 업로드 완료 /  2: 삭제
-    @Auth
-    @RequestMapping(value = "/file/cancel_upload/{id}", method = RequestMethod.GET)
-    @ApiOperation(value ="업로드 취소" , notes = "파일 업로드가 취소 됩니다\n해당파일을 제외하고 업로드 할 시 사용합니다\n파라미터는 파일의 id 입니다."
-            ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public @ResponseBody
-    ResponseEntity cancelUpload(@PathVariable Long id) throws Exception {
-        lectureBankService.cancelUpload(id);
-        return new ResponseEntity(HttpStatus.OK);
-    }
 
 
     @Auth
@@ -232,8 +185,7 @@ public class LectureBankController {
     @RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value ="강의자료 댓글 삭제" , notes = "강의자료 댓글을 삭제합니다\n파라미터는 댓글 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public @ResponseBody
-    ResponseEntity deleteComment(@PathVariable Long id) throws Exception{
+    public ResponseEntity deleteComment(@PathVariable Long id) throws Exception{
         lectureBankService.deleteComment(id);
         return new ResponseEntity(HttpStatus.OK);
     }

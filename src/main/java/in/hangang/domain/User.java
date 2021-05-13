@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-//@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Component
 public class User {
     @ApiModelProperty(hidden = true)

@@ -17,8 +17,6 @@ public class UploadFile {
     private String ext;
 
     @ApiModelProperty(hidden = true)
-    private Integer available;
-    @ApiModelProperty(hidden = true)
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
@@ -61,14 +59,6 @@ public class UploadFile {
 
     public void setExt(String ext) {
         this.ext = ext;
-    }
-
-    public Integer getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(Integer available) {
-        this.available = available;
     }
 
     public Timestamp getCreated_at() {

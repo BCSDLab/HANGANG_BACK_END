@@ -3,6 +3,7 @@ package in.hangang.service;
 
 import in.hangang.domain.*;
 import in.hangang.domain.scrap.ScrapLectureBank;
+import in.hangang.response.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -16,9 +17,8 @@ public interface LectureBankService {
     List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception;
     LectureBank getLectureBank(Long id) throws Exception;
     Lecture getLecture(Long id);
-    Long createLectureBank() throws Exception;
-    void setLectureBank(LectureBank lectureBank) throws Exception;
-    void submitLectureBank(LectureBank lectureBank) throws Exception;
+    //======
+    BaseResponse postLectureBank(LectureBank lectureBank) throws Exception;
     void deleteLectureBank(Long id) throws Exception;
     void cancelLectureBank(Long id) throws Exception;
     Boolean checkWriter(Long lecture_bank_id) throws Exception;
@@ -45,9 +45,7 @@ public interface LectureBankService {
     //file====================================================================================
 
     //UPLOAD
-    List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long id) throws Exception;
-    Long fileUpload(MultipartFile file, Long id) throws Exception;
-    void cancelUpload(Long id) throws Exception;
+    String fileUpload(MultipartFile file) throws Exception;
     void hardDeleteFile() throws Exception;
     void deleteFile(Long id) throws Exception;
     //DOWNLOAD

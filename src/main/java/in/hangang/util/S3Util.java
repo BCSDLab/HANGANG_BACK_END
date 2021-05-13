@@ -52,7 +52,7 @@ public class S3Util {
                 savedName, multipartFile.getInputStream(), omd)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
 
-        return customDomain +"/" + date + "/" + savedName;
+        return "https://" + customDomain +"/" + date + "/" + savedName;
     }
 
     public void deleteObject(String path,String savedName,boolean isHard) throws AmazonServiceException {
@@ -112,7 +112,7 @@ public class S3Util {
                 savedName, multipartFile.getInputStream(), omd)
                 .withCannedAcl(CannedAccessControlList.Private));
 
-        return date + "/" + savedName;
+        return "https://" + customDomain +"/" + date + "/" + savedName;
     }
 
     public void deleteObjectbyKey(String objectKey){

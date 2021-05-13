@@ -52,7 +52,9 @@ public enum ErrorMessage {
 	REPORT_NOT_EXIST(47, "해당 신고내역이 존재하지 않습니다." , HttpStatus.BAD_REQUEST),
 	REPORT_TYPE_EXCEPTION(48, "신고 대상의 영역이 잘못되었습니다.", HttpStatus.BAD_REQUEST),
 	REPORT_CONTENT_EXCEPTION(49, "신고 대상이 이미 삭제되었거나 존재하지 않습니다", HttpStatus.BAD_REQUEST),
-	TIME_TABLE_CRUSHED(50,"시간표 내용이 겹칩니다.", HttpStatus.BAD_REQUEST);
+	TIME_TABLE_CRUSHED(50,"시간표 내용이 겹칩니다.", HttpStatus.BAD_REQUEST),
+	CATEGORY_INVALID(51,"카테고리값이 잘못 입력되었습니다.", HttpStatus.BAD_REQUEST),
+	URL_NOT_UNIQUE(52,"url값이 유니크하지 못합니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;
