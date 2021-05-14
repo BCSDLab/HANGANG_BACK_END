@@ -58,8 +58,8 @@
         and LB.is_deleted = 0
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.category)">
             and
-            <foreach collection="category" item="category" open="(" close=")"  separator="or">
-                LBC.category = #{lectureBankCriteria.category}
+            <foreach collection="lectureBankCriteria.category" item="category" open="(" close=")"  separator="or">
+                LBC.category = #{category}
             </foreach>
         </if>
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.keyword)">
@@ -401,8 +401,11 @@
     <!--Comment-->
 
     <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
-        SELECT * FROM lecture_bank_comment
-        WHERE lecture_bank_id = #{lecture_bank_id} and is_deleted = 0;
+        SELECT C.id, C.lecture_bank_id, C.user_id, U.nickname ,C.comments, C.created_at, C.updated_at
+        FROM lecture_bank_comment AS C
+        JOIN user AS U
+        ON C.user_id = U.id
+        WHERE C.lecture_bank_id = #{lecture_bank_id} and C.is_deleted = 0;
     </select>
 
     <insert id="addComment">

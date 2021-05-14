@@ -8,9 +8,19 @@ import java.sql.Timestamp;
 @Component
 public class LectureBankComment {
     private Long id;
-    private Long user_id;
     private Long lecture_bank_id;
+    private Long user_id;
+    private String nickname;
     private String comments;
+
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
     @ApiModelProperty(hidden = true)
     private Timestamp created_at;

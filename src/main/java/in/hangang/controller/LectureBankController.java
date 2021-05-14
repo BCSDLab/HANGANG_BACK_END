@@ -129,7 +129,7 @@ public class LectureBankController {
     //comment------------------------------------------------------------------------------------
 
 
-    @RequestMapping(value = "/comments/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}/comments", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 댓글 불러오기" , notes = "강의자료 댓글 전체 조회\n파라미터는 강의 자료 id 입니다.")
     public @ResponseBody
     ResponseEntity getComments(@PathVariable Long id) throws Exception{
@@ -137,34 +137,31 @@ public class LectureBankController {
     }
 
     @Auth
-    @RequestMapping(value = "/comment/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}/comment", method = RequestMethod.POST)
     @ApiOperation(value ="강의자료 댓글 작성" , notes = "강의자료 댓글을 입력합니다\n파라미터는 강의 자료 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity addComment(@PathVariable Long id, @RequestParam(value = "comments") String comments) throws Exception{
-        lectureBankService.addComment(id, comments);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(lectureBankService.addComment(id, comments),HttpStatus.CREATED);
     }
 
 
     @Auth
-    @RequestMapping(value = "/comment/modify/{id}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{id}/comment/{commentId}", method = RequestMethod.PUT)
     @ApiOperation(value ="강의자료 댓글 수정" , notes = "강의자료 댓글을 수정합니다\n파라미터는 댓글 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity setComment(@PathVariable Long id, @RequestParam(value = "comments") String comments) throws Exception{
-        lectureBankService.setComment(id, comments);
-        return new ResponseEntity(HttpStatus.OK);
+    ResponseEntity setComment(@PathVariable Long id, @RequestParam(value = "comments") String comments, @PathVariable Long commentId) throws Exception{
+        return new ResponseEntity(lectureBankService.setComment(id,commentId, comments),HttpStatus.OK);
     }
 
 
     @Auth
-    @RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "{id}/comment/{commentId}", method = RequestMethod.DELETE)
     @ApiOperation(value ="강의자료 댓글 삭제" , notes = "강의자료 댓글을 삭제합니다\n파라미터는 댓글 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity deleteComment(@PathVariable Long id) throws Exception{
-        lectureBankService.deleteComment(id);
-        return new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity deleteComment(@PathVariable Long id, @PathVariable Long commentId) throws Exception{
+        return new ResponseEntity(lectureBankService.deleteComment(id, commentId),HttpStatus.OK);
     }
 
 

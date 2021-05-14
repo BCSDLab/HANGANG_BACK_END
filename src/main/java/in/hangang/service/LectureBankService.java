@@ -23,10 +23,9 @@ public interface LectureBankService {
 
     //comment====================================================================================
     List<LectureBankComment> getComments(Long lecture_bank_id);
-    void addComment(Long lecture_bank_id, String comments) throws Exception;
-    void setComment(Long lecture_bank_comment_id, String comments) throws Exception;
-    void deleteComment(Long lecture_bank_comment_id) throws Exception;
-    Boolean checkCommentWriter(Long lecture_bank_comment_id)throws Exception;
+    BaseResponse addComment(Long lecture_bank_id, String comments) throws Exception;
+    BaseResponse setComment(Long lecture_bank_comment_id, Long commentId,String comments) throws Exception;
+    BaseResponse deleteComment(Long lecture_bank_comment_id,Long commentId) throws Exception;
 
     //purchase====================================================================================
     Boolean checkPurchase(Long lecture_bank_id) throws Exception;

@@ -1,5 +1,6 @@
 package in.hangang.serviceImpl;
 
+import com.amazonaws.services.xray.model.Http;
 import in.hangang.domain.*;
 import in.hangang.domain.scrap.Scrap;
 import in.hangang.domain.scrap.ScrapLectureBank;
@@ -44,7 +45,15 @@ public class LectureBankServiceImpl implements LectureBankService {
     /** 강의 페이지네이션 조회 메소드  - 정수현 */
     @Override
     public List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception{
-        return lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria, userService.getLoginUser());
+        // 카테고리 검증
+        if ( lectureBankCriteria.getCategory() != null ) {
+            this.is_acceptableCategory(lectureBankCriteria.getCategory());
+        }
+        if ( lectureBankCriteria.getOrder().equals("id") || lectureBankCriteria.getOrder().equals("hits")) {
+            return lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria, userService.getLoginUser());
+        }
+        else
+            throw new RequestInputException(ErrorMessage.KEYWORD_INVALID);
     }
 
     /**강의 단일조회 메소드 - 정수현 */
@@ -230,37 +239,45 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
     @Override
-    public void addComment(Long lecture_bank_id, String comments) throws Exception{
-
+    public BaseResponse addComment(Long id, String comments) throws Exception{
+        this.getLectureBank(id); // 해당 강의자료가 존재하는가?
+        lectureBankMapper.addComment(userService.getLoginUser().getId(),id,comments);
+        return new BaseResponse("댓글이 작성되었습니다", HttpStatus.CREATED);
     }
 
     @Override
-    public void setComment(Long lecture_bank_comment_id, String comments) throws Exception{
-
-    }
-
-    @Override
-    public void deleteComment(Long lecture_bank_comment_id) throws Exception{
-        LectureBankComment comment = lectureBankMapper.getComment(lecture_bank_comment_id);
-        if(comment!= null){
-            if(checkCommentWriter(lecture_bank_comment_id))
-                lectureBankMapper.deleteComment(lecture_bank_comment_id);
-            else
-                throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-        }else{
-            throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
+    public BaseResponse setComment(Long id,Long commentId, String comments) throws Exception{
+        // 해당강의자료가 존재하는가?
+        this.getLectureBank(id);
+        // 저자인가?
+        if  ( lectureBankMapper.getCommentWriterId(commentId) != userService.getLoginUser().getId() ){
+            throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
         }
-
+        lectureBankMapper.setComment(commentId,comments);
+        return new BaseResponse("댓글이 수정되었습니다", HttpStatus.OK);
     }
-
 
     @Override
-    public Boolean checkCommentWriter(Long lecture_bank_comment_id)throws Exception{
-        Long userID = userService.getLoginUser().getId();
-        Long writerID = lectureBankMapper.getCommentWriterId(lecture_bank_comment_id);
+    public BaseResponse deleteComment(Long id, Long commentId) throws Exception{
+        // 해당강의자료가 존재하는가?
+        this.getLectureBank(id);
 
-        return userID.equals(writerID);
+        Long userId = lectureBankMapper.getCommentWriterId(commentId);
+        // 해당 댓글이 존재하는가?
+        if (userId == null){
+            throw new RequestInputException(ErrorMessage.COMMENT_NOT_EXIST);
+        }
+        // 저자인가?
+        if ( userId != userService.getLoginUser().getId() ){
+            throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
+        }
+        lectureBankMapper.deleteComment(commentId);
+        return new BaseResponse("댓글이 삭제되었습니다.", HttpStatus.OK);
     }
+
+
+
+
 
     //purchase------------------------------------------------------------------------------------
     @Override

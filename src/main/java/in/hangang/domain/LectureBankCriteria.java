@@ -1,6 +1,4 @@
 package in.hangang.domain;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 import in.hangang.annotation.ValidationGroups;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
@@ -10,7 +8,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 @Component
 public class LectureBankCriteria {
@@ -24,16 +21,16 @@ public class LectureBankCriteria {
     @Pattern(regexp = "^[a-z]{2,4}$"  ,groups = ValidationGroups.Search.class, message = "영문 소문자 값만 가능합니다, 2~4글자")
     @ApiParam(required = false, defaultValue = "id")
     private String order = "id";
-    @ApiParam(required = false, defaultValue = "")
+    @ApiParam(required = false)
     private ArrayList<
             @Pattern(regexp = "^[가-힣]{4}$"  ,groups = ValidationGroups.Search.class, message = "한글로 4글자만 가능합니다.")
             @NotNull(groups = ValidationGroups.Search.class, message = "카테고리는 빈 값일 수 없습니다.") String> category = new ArrayList<>();
 
-
-    @ApiParam(required = false, defaultValue = "")
-    private @Pattern( regexp = "^[a-zA-Z가-힣0-9]$",groups = ValidationGroups.Search.class , message = "특수문자와 초성은 사용불가능합니다") String keyword;
-    @ApiParam(required = false, defaultValue = "")
-    private @Pattern(regexp = "^[가-힣]$"  ,groups = ValidationGroups.Search.class, message = "한글로만 가능합니다.") String department;
+    //TODO 밑에 두개는 정규식이 재대로 적용이 안됨 ㅡㅡ 이유를 모르겠음
+    @ApiParam(required = false)
+    private String keyword;
+    @ApiParam(required = false)
+    private  String department;
 
 
     @ApiModelProperty(hidden = true)
