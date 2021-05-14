@@ -57,8 +57,10 @@ public class LectureBank {
     @Max(value = 5, groups = {ValidationGroups.PostLectureBank.class}, message = "최대값은 5입니다")
     private Long semester_id;
 
+
     @ApiModelProperty(hidden = true)
-    private Integer available;
+    private List<UploadFile> uploadFiles;
+
     @ApiModelProperty(hidden = true)
     private Long hits;
     @ApiModelProperty(hidden = true)
@@ -80,6 +82,13 @@ public class LectureBank {
     @ApiModelProperty(hidden = true)
     private Lecture lecture;
 
+    public List<UploadFile> getUploadFiles() {
+        return uploadFiles;
+    }
+
+    public void setUploadFiles(List<UploadFile> uploadFiles) {
+        this.uploadFiles = uploadFiles;
+    }
 
     public String getThumbnail() {
         return thumbnail;
@@ -184,13 +193,6 @@ public class LectureBank {
         return lecture_id;
     }
 
-    public Integer getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(Integer available) {
-        this.available = available;
-    }
 
     public void setLecture_id(Long lecture_id) {
         this.lecture_id = lecture_id;

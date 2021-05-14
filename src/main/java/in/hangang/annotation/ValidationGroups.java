@@ -32,4 +32,5 @@ public final class ValidationGroups {
 
     //LectureBank
     public interface PostLectureBank extends Default  {};
+
 }

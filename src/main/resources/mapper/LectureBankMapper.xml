@@ -8,7 +8,7 @@
     </insert>
 
     <select id="getExt" resultType="String">
-        SELECT ext FROM hangang.s3_url WHERE image_url = #{url} LIMIT 1;
+        SELECT file_ext FROM hangang.s3_url WHERE image_url = #{url} LIMIT 1;
     </select>
 
     <select id="postLectureBank"  resultType="Long">
@@ -81,7 +81,7 @@
         SELECT lecture_bank_id FROM hangang.lecture_bank_hit WHERE user_id = #{id};
     </select>
     <resultMap id="searchLectureBank" type="in.hangang.domain.LectureBank">
-        <result column="id" property="id"/>
+        <id column="id" property="id"/>
         <result column="user_id" property="user_id"/>
         <result column="thumbnail" property="thumbnail"/>
         <result column="lecture_id" property="lecture_id"/>
@@ -95,7 +95,7 @@
         <result column="is_deleted" property="is_deleted"/>
         <result column="semester_date" property="semester_date"/>
         <association property="user" resultMap="user"/>
-        <association property="lecture" resultMap="lecture"/>
+        <association property="lecture" resultMap="lecture" />
         <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
     </resultMap>
 
@@ -136,8 +136,31 @@
         <result column="classification" property="classification"/>
     </resultMap>
 
+    <resultMap id="searchLectureBankAndFiles" type="in.hangang.domain.LectureBank">
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="lecture_id" property="lecture_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="hits" property="hits"/>
+        <result column="is_hit" property="is_hit"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="semester_date" property="semester_date"/>
+        <association property="user" resultMap="user"/>
+        <association property="lecture" resultMap="lecture" />
+        <collection property="uploadFiles" column="id" javaType="java.util.List" ofType="in.hangang.domain.UploadFile" select="getFiles"/>
+        <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
+    </resultMap>
 
-    <select id="getLectureBankAll" resultMap="searchLectureBank">
+    <select id="getFiles" resultType="in.hangang.domain.UploadFile">
+        SELECT id, lecture_bank_id, url, filename, ext FROM hangang.upload_file WHERE lecture_bank_id = #{id};
+    </select>
+
+    <select id="getLectureBankAll" resultMap="searchLectureBankAndFiles">
         SELECT
         <include refid="lectureBankColumnList">
             <property name="prefix" value=""/>
@@ -152,14 +175,50 @@
             <property name="alias" value="L."/>
         </include>,
         S.semester as semester_date
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id} ) as is_hit
+        </if>
         FROM lecture_bank AS LB
         JOIN user AS U ON LB.user_id = U.id
         JOIN lecture AS L ON LB.lecture_id = L.id
         JOIN semester_date AS S ON S.id = LB.semester_date
-        WHERE LB.id = #{id}
+        WHERE LB.id = #{id} and LB.is_deleted = 0;
     </select>
 
 
+    <update id = "initLectureBank">
+
+        <foreach collection="files" item="i" separator="">
+            UPDATE hangang.s3_url
+            SET is_posted = 0
+            WHERE image_url = #{i.url};
+        </foreach>
+
+        DELETE FROM hangang.upload_file WHERE lecture_bank_id = #{lectureBankId};
+        DELETE FROM hangang.lecture_bank_category WHERE lecture_bank_id = #{lectureBankId};
+    </update>
+
+
+    <update id="updateLectureBank">
+        UPDATE hangang.lecture_bank
+        SET title=#{title} , content = #{content}, semester_date = #{semester_id} , thumbnail = #{thumbnail} , lecture_id = #{lecture_id}
+        WHERE id = #{id};
+        <foreach collection="files" item="i" separator="">
+            UPDATE hangang.s3_url
+            SET is_posted = 1
+            WHERE image_url = #{i};
+            INSERT INTO hangang.upload_file( url , filename, ext) SELECT image_url AS url, file_name AS filename, ext FROM hangang.s3_url WHERE image_url = #{i};
+            UPDATE hangang.upload_file SET lecture_bank_id = #{id} WHERE url = #{i};
+        </foreach>
+        <foreach collection="category" item="c" separator="">
+            INSERT INTO hangang.lecture_bank_category(lecture_bank_id, category) VALUES ( #{id}, #{c} );
+        </foreach>
+    </update>
+
+    <!-- ============================================================================= -->
+    <select id="is_writer" resultType="Long">
+        SELECT id FROM hangang.lecture_bank WHERE id = #{lectureBankId} and user_id = #{userId}
+    </select>
 
     <select id="getLectureBank" resultType="in.hangang.domain.LectureBank">
         SELECT * FROM lecture_bank WHERE id = #{id} and is_deleted = 0
@@ -385,11 +444,6 @@
         VALUES (#{lecture_bank_id}, #{url}, #{filename}, #{ext});
     </insert>
 
-    <select id="getFileList" resultType="in.hangang.domain.UploadFile">
-        SELECT * FROM upload_file
-        where lecture_bank_id = #{lecture_bank_id}
-          AND available != 2;
-    </select>
     <select id="getUploadFileId" resultType="java.lang.Long">
         SELECT id FROM upload_file
         WHERE lecture_bank_id = #{lecture_bank_id}

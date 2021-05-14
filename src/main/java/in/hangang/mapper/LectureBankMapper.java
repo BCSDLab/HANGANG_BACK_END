@@ -18,10 +18,11 @@ public interface LectureBankMapper {
     void insertCategoryAndFiles(LectureBank lectureBank);
     List<LectureBank> findLectureBankByKeyword(@Param("lectureBankCriteria")LectureBankCriteria lectureBankCriteria, @Param("user")User user);
     List<Long> getHits(Long id);
-    LectureBank getLectureBankAll(Long id);
-
-
-
+    LectureBank getLectureBankAll(Long id,  @Param("user")User user);
+    Long is_writer(Long lectureBankId, Long userId);
+    List<UploadFile> getFiles(Long id);
+    void initLectureBank(@Param("files")List<UploadFile> files, @Param("lectureBankId") Long id);
+    void updateLectureBank(LectureBank lectureBank);
     List<LectureBankCategory> getCategoryList(Long id);
     LectureBank getLectureBank(@Param("id")Long id);
     Lecture getLectureInfo(@Param("id")Long id);
@@ -82,11 +83,8 @@ public interface LectureBankMapper {
     List<Long> getHitId(@Param("lecture_bank_id")Long lecture_bank_id);
     Integer checkHitIsdeleted(@Param("id")Long id);
 
-
-
     //file
     void insertUpload_file(@Param("lecture_bank_id")Long lecture_bank_id, @Param("url")String url, @Param("filename")String filename, @Param("ext")String ext);
-    List<UploadFile> getFileList(@Param("lecture_bank_id")Long lecture_bank_id);
     Long getUploadFileId(@Param("lecture_bank_id")Long lecture_bank_id);
     List<Long> getFileIdList(@Param("lecture_bank_id")Long lecture_bank_id);
     void setFileAvailable(@Param("id")Long id, @Param("available")Integer available); //0->

@@ -16,13 +16,9 @@ public interface LectureBankService {
     //Main====================================================================================
     List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception;
     LectureBank getLectureBank(Long id) throws Exception;
-    Lecture getLecture(Long id);
-    //======
     BaseResponse postLectureBank(LectureBank lectureBank) throws Exception;
+    BaseResponse updateLectureBank(LectureBank lectureBank, Long id) throws Exception;
     void deleteLectureBank(Long id) throws Exception;
-    void cancelLectureBank(Long id) throws Exception;
-    Boolean checkWriter(Long lecture_bank_id) throws Exception;
-    Boolean checkLectureBankAvailable(Long lecture_bank_id) throws Exception;
 
 
     //comment====================================================================================
@@ -48,9 +44,6 @@ public interface LectureBankService {
     String fileUpload(MultipartFile file) throws Exception;
     void hardDeleteFile() throws Exception;
     void deleteFile(Long id) throws Exception;
-    //DOWNLOAD
-    List<UploadFile> getFileList(Long lecture_bank_id) throws Exception;
-    //org.springframework.core.io.Resource getprivateObject(Long id) throws Exception;
     String getObjectUrl(Long id) throws Exception;
 
     //Thumbnail====================================================================================

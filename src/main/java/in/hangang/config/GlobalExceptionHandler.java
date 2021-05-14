@@ -69,6 +69,7 @@ public class GlobalExceptionHandler {
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 		}
 
+		//동적으로 메시지를 주는 경우
 		if ( e instanceof TimeTableException){
 			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.TIME_TABLE_CRUSHED);
 			baseException.setErrorMessage(((TimeTableException) e).getMyMessage());
