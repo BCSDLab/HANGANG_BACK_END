@@ -14,6 +14,7 @@ public final class ValidationGroups {
     private ValidationGroups() { }
 
     // Standard groups
+    public interface  Search extends Default {};
     public interface Create extends Default {};
     public interface Update extends Default {};
     public interface signUp extends  Default{};

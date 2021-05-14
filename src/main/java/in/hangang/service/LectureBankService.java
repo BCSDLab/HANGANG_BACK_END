@@ -47,7 +47,6 @@ public interface LectureBankService {
     String getObjectUrl(Long id) throws Exception;
 
     //Thumbnail====================================================================================
-    String getThumbnailURL() throws Exception;
 
     //Scrap====================================================================================
     void createScrap(Long lecture_bank_id) throws Exception;

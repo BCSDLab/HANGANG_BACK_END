@@ -33,9 +33,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     protected LectureBankMapper lectureBankMapper;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     @Qualifier("UserServiceImpl")
     private UserService userService;
 
@@ -389,13 +386,7 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     }
 
-    //Thumbnail------------------------------------------------------------------------------------
-    @Override
-    public String getThumbnailURL() throws Exception{
-        //TODO 확장자별 URL - enum 만들기
-        String default_url = "https://static.hangang.in/lecture_bank_default_image.png";
-        return default_url;
-    }
+
 
     //TODO SCRAP TEST
     @Override

@@ -32,6 +32,7 @@
         </foreach>
     </update>
 
+    <!-- TODO order에 hits순으로 하는 경우 같은 hits로 정렬되므로 무작위 출력이될 수 있다-->
     <select id="findLectureBankByKeyword" resultMap="searchLectureBank">
         SELECT
         <include refid="lectureBankColumnList">
@@ -66,13 +67,19 @@
             (LB.title like concat('%',#{lectureBankCriteria.keyword},'%')
             or L.name like concat('%',#{lectureBankCriteria.keyword},'%')
             or L.professor like concat('%',#{lectureBankCriteria.keyword},'%'))
-
         </if>
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.department)">
             and
             (L.department = #{lectureBankCriteria.department})
         </if>
-        order by ${lectureBankCriteria.order} desc limit #{lectureBankCriteria.cursor}, #{lectureBankCriteria.limit}
+        <choose>
+            <when test="lectureBankCriteria.order.equals('hits')">
+                order by ${lectureBankCriteria.order} desc, id desc limit #{lectureBankCriteria.cursor}, #{lectureBankCriteria.limit}
+            </when>
+            <otherwise>
+                order by ${lectureBankCriteria.order} desc limit #{lectureBankCriteria.cursor}, #{lectureBankCriteria.limit}
+            </otherwise>
+        </choose>
     </select>
     <select id="getCategory" resultType="String">
         SELECT category FROM hangang.lecture_bank_category WHERE lecture_bank_id = #{id}
