@@ -15,7 +15,7 @@ public interface LectureBankMapper {
     void insertS3Url(String url, String fileName, String fileExt, String ext);
     String getExt(String url);
     Long postLectureBank(LectureBank lectureBank);
-    void insertCategoryAndFiles(LectureBank lectureBank);
+    void insertCategoryAndFiles(@Param("lectureBank")LectureBank lectureBank, Integer variance, Integer point_type_id);
     List<LectureBank> findLectureBankByKeyword(@Param("lectureBankCriteria")LectureBankCriteria lectureBankCriteria, @Param("user")User user);
     List<Long> getHits(Long id);
     LectureBank getLectureBankAll(Long id,  @Param("user")User user);

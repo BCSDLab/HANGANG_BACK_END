@@ -138,11 +138,12 @@ public class LectureBankServiceImpl implements LectureBankService {
         Long id = lectureBankMapper.postLectureBank(lectureBank);
         //n개의 category 삽입
         //n개의 upload_file url 삽입
+        // 강의자료 업로드시 유저의 포인트 ++ , point_history insert
         try {
             lectureBank.setId(id);
-            lectureBankMapper.insertCategoryAndFiles(lectureBank);
+            lectureBankMapper.insertCategoryAndFiles(lectureBank, Point.LECTURE_UPLOAD.getPoint(), Point.LECTURE_UPLOAD.getTypeId());
         }catch (Throwable e){
-            //e.printStackTrace();
+            e.printStackTrace();
             throw new RequestInputException(ErrorMessage.URL_NOT_UNIQUE);
         }
 
@@ -171,7 +172,9 @@ public class LectureBankServiceImpl implements LectureBankService {
         lectureBank.setId(id);
         this.getLectureBank(lectureBank.getId());// 해당 강의자료가 실제로 존재하는지?
         this.getLecture(lectureBank.getLecture_id()); // 해당 타겟 강의자료가 실존하는지?
-        this.is_writer(lectureBank.getId()); // 저자가 맞는지?
+        if( this.is_writer(lectureBank.getId() )== false){
+            throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
+        } // 저자가 맞는지?
         lectureBank.setThumbnail(this.getThumbnailUrl(lectureBank.getFiles().get(0))); // 첫 URL의 확장자에 대한 섬네일 구성
         this.is_acceptableCategory(lectureBank.getCategory()); // category 값 검증
         // 현재 사용중인 file의 url들을 사용안함 처리로 바꾼다. -> s3_url 테이블
@@ -227,7 +230,7 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     private Boolean is_writer(Long LectureBankId) throws Exception{
         if ( lectureBankMapper.is_writer(LectureBankId, userService.getLoginUser().getId() ) == null){
-            throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
+            return false;
         }
         return true;
     }
@@ -283,36 +286,31 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     public Boolean checkPurchase(Long lecture_bank_id) throws Exception {
         User user = userService.getLoginUser();
+        // 구매이력에 해당 유저가 존재하는가?
         Long purchase = lectureBankMapper.checkPurchased(user.getId(), lecture_bank_id);
-        return purchase != null;
+        if ( purchase == null){
+            return false;
+        }
+        else{
+            return true;
+        }
     }
 
     @Override
     public void purchase(Long lecture_bank_id) throws Exception{
+        // 이미 구입하였다면
         if(checkPurchase(lecture_bank_id)) throw new RequestInputException(ErrorMessage.ALREADY_PURCHASED);
 
         Long userID = userService.getLoginUser().getId();
         LectureBank lectureBank = getLectureBank(lecture_bank_id);
-        Integer point_price = lectureBank.getPoint_price();
         Integer user_point = lectureBankMapper.getUserPoint(userID);
-
+        // 저자가 구입한다면
         if(is_writer(lecture_bank_id)) throw new RequestInputException(ErrorMessage.PURCHASE_EXCEPTION);
-        if(user_point < point_price) throw new RequestInputException(ErrorMessage.NOT_ENOUGH_POINT);
-
-
-        //TODO 자바에서 5번 다녀오는 것 보다 한번에 할 수 있도록 멀티쿼리를 사용하면 좋을 것 같습니다
-        /*
-        lectureBankMapper.purchaseInsert(userID, lecture_bank_id);
-        // 구매한 유저 포인트-- 자료주인은 포인트++
-        //user_id, lecture_bank_id, point_price_purchase, writer_id, point_price_sell
-        lectureBankMapper.setPoint(userID, -point_price);
-        lectureBankMapper.addPointHistory(userID,-point_price, Point.LECTURE_PURCHASE.getTypeId());
-        lectureBankMapper.setPoint(lectureBank.getUser_id(), point_price);
-        lectureBankMapper.addPointHistory(lectureBank.getUser_id(),point_price,Point.LECTURE_SELL.getTypeId());
-         */
-        lectureBankMapper.purchase(userID,lecture_bank_id,point_price
+        // 유저의 포인트가 100보다 큰가?
+        if(user_point < Point.LECTURE_BANK.getPoint()) throw new RequestInputException(ErrorMessage.NOT_ENOUGH_POINT);
+        // 구매
+        lectureBankMapper.purchase(userID,lecture_bank_id, Point.LECTURE_BANK.getPoint()
                 ,lectureBank.getUser_id(),Point.LECTURE_BANK.getTypeId(),Point.LECTURE_BANK.getTypeId());
-
     }
 
 
@@ -341,51 +339,8 @@ public class LectureBankServiceImpl implements LectureBankService {
         }
     }
 
-    @Override
-    public LectureBank pushHitLectureBank(Long lecture_bank_id) throws Exception{
-        pushHit(lecture_bank_id);
-        Long userID = userService.getLoginUser().getId();
-        LectureBank lectureBank = lectureBankMapper.getLectureBank(lecture_bank_id);
-
-        //is_hit 추가 - mapper에서도 추가 가능할듯 (추후에 추가해보기)
-        Long hits = lectureBankMapper.checkHits(userID, lectureBank.getId());
-        if(hits !=null)
-            lectureBank.setIs_hit(true);
-
-        return lectureBank;
-    }
-
 
     //file------------------------------------------------------------------------------------
-
-    //UPLOAD====================================================================================
-
-
-    @Override
-    // TODO 사용하지 않는 파일들을 전부 지우기 위한거 같군요
-    public void hardDeleteFile() throws Exception{
-
-        List<String> objectKeys = lectureBankMapper.getDelObjectList();
-        if(objectKeys != null && objectKeys.size() > 0){
-            //delete on S3
-            for(String key : objectKeys){
-                s3Util.deleteObjectbyKey(key);
-            }
-            List<Long> id_list = lectureBankMapper.getDelIDList();
-            if(id_list != null && id_list.size() > 0)
-                lectureBankMapper.hardDeleteMultiFile((ArrayList<Long>) id_list);
-        }
-    }
-
-    @Override
-    public void deleteFile(Long id) throws Exception{
-        Long lectureBankID = lectureBankMapper.getLectureBankIDFile(id);
-        if(is_writer(lectureBankID))
-            lectureBankMapper.setFileAvailable(id,2);
-        else
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-    }
-
     //DOWNLOAD====================================================================================
     @Override
     public String getObjectUrl(Long id) throws Exception{
