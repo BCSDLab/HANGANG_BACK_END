@@ -105,8 +105,6 @@ public class LectureBankController {
 
 
     //구매------------------------------------------------------------------------------------
-
-
     @Auth
     @RequestMapping(value = "/purchase/check/{id}", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 구매 여부" , notes = "유저가 자료를 구매하였는지 확인힙니다\n파라미터는 강의 자료 id 입니다."

@@ -43,6 +43,8 @@ public class LectureBank {
 
 
     @ApiModelProperty(hidden = true)
+    private List<LectureBankComment> comments;
+    @ApiModelProperty(hidden = true)
     private Integer point_price;
 
     @ApiModelProperty(hidden = true)
@@ -81,6 +83,15 @@ public class LectureBank {
     private User user;
     @ApiModelProperty(hidden = true)
     private Lecture lecture;
+
+
+    public List<LectureBankComment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<LectureBankComment> comments) {
+        this.comments = comments;
+    }
 
     public List<UploadFile> getUploadFiles() {
         return uploadFiles;

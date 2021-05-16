@@ -159,9 +159,12 @@
         <result column="semester_date" property="semester_date"/>
         <association property="user" resultMap="user"/>
         <association property="lecture" resultMap="lecture" />
+        <collection property="comments" column = "id" javaType="java.util.List" ofType="in.hangang.domain.LectureBankComment" select = "getComments" />
         <collection property="uploadFiles" column="id" javaType="java.util.List" ofType="in.hangang.domain.UploadFile" select="getFiles"/>
         <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
     </resultMap>
+
+
 
     <select id="getFiles" resultType="in.hangang.domain.UploadFile">
         SELECT id, lecture_bank_id, url, filename, ext FROM hangang.upload_file WHERE lecture_bank_id = #{id};
