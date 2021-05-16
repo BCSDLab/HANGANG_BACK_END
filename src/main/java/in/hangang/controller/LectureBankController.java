@@ -85,8 +85,6 @@ public class LectureBankController {
 
     //File------------------------------------------------------------------------------------
 
-
-
     @Auth
     @PostMapping("/file")
     @ApiOperation(value ="단일 파일 업로드" , notes = "파일을 1개 업로드 합니다.\n파라미터는 강의 자료 id 입니다.\n업로드된 파일의 id가 반환됩니다.",authorizations = @Authorization(value = "Bearer +accessToken"))
@@ -164,20 +162,6 @@ public class LectureBankController {
 
 
     //hit------------------------------------------------------------------------------------
-
-    /*
-    @Auth
-    @RequestMapping(value = "/hit/check/{id}", method = RequestMethod.GET)
-    @ApiOperation(value ="강의자료 hit 눌렀는지 체크" , notes = "유저가 hit를 눌렀는지 확인합니다\n파라미터는 강의 자료 id 입니다."
-            ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public @ResponseBody
-    ResponseEntity<Boolean> checkHit(@PathVariable Long id) throws Exception{
-        return new ResponseEntity<Boolean>(lectureBankService.checkHits(id), HttpStatus.OK);
-    }
-
-     */
-
-
     @Auth
     @RequestMapping(value = "/hit/push/{id}", method = RequestMethod.GET)
     @ApiOperation(value ="hit 누르기" , notes = "hit를 누릅니다\n파라미터는 강의 자료 id 입니다."
@@ -186,16 +170,6 @@ public class LectureBankController {
     ResponseEntity pushHit(@PathVariable Long id) throws Exception{
         lectureBankService.pushHit(id);
         return new ResponseEntity(new BaseResponse("정상적으로 Hit 가 눌렸습니다", HttpStatus.OK),HttpStatus.OK);
-    }
-
-    @Auth
-    @RequestMapping(value = "/hit/{id}", method = RequestMethod.GET)
-    @ApiOperation(value ="hit 누르기 w/ LectureBank RETURN" , notes = "hit를 누릅니다\n파라미터는 강의 자료 id 입니다."
-            ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public @ResponseBody
-    ResponseEntity<LectureBank> pushHitLectureBank(@PathVariable Long id) throws Exception{
-        LectureBank lb = lectureBankService.pushHitLectureBank(id);
-        return new ResponseEntity<LectureBank>(lb,HttpStatus.OK);
     }
 
 

@@ -81,8 +81,12 @@ public class S3Util {
         expTimeMillis += 1000 * 60 * 60;    //1 hour
         expiration.setTime(expTimeMillis);
 
+
+        // input example https://static.hangang.in/2021/05/15/fdd7fe34-f9a4-4d78-9624-36538c1d3fe6-1621061078655.PNG
+        String key = objectKey.substring(26);
+        // output example 2021/05/15/fdd7fe34-f9a4-4d78-9624-36538c1d3fe6-1621061078655.PNG
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                new GeneratePresignedUrlRequest(bucket, objectKey)
+                new GeneratePresignedUrlRequest(bucket, key)
                         .withMethod(HttpMethod.GET)
                         .withExpiration(expiration);
 

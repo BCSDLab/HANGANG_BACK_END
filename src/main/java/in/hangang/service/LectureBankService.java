@@ -33,16 +33,12 @@ public interface LectureBankService {
 
 
     //hits====================================================================================
-    //Boolean checkHits(Long lecture_bank_id) throws  Exception;
     void pushHit(Long lecture_bank_id) throws Exception;
-    LectureBank pushHitLectureBank(Long lecture_bank_id) throws Exception;
 
     //file====================================================================================
 
     //UPLOAD
     String fileUpload(MultipartFile file) throws Exception;
-    void hardDeleteFile() throws Exception;
-    void deleteFile(Long id) throws Exception;
     String getObjectUrl(Long id) throws Exception;
 
     //Thumbnail====================================================================================

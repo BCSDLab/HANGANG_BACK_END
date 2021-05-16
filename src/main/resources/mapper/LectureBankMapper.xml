@@ -23,13 +23,15 @@
     </select>
 
     <update id="insertCategoryAndFiles">
-        <foreach collection="files" item="f" separator="">
+        <foreach collection="lectureBank.files" item="f" separator="">
             INSERT INTO hangang.upload_file( url , filename, ext) SELECT image_url AS url, file_name AS filename, ext FROM hangang.s3_url WHERE image_url = #{f};
-            UPDATE hangang.upload_file SET lecture_bank_id = #{id} WHERE url = #{f};
+            UPDATE hangang.upload_file SET lecture_bank_id = #{lectureBank.id} WHERE url = #{f};
         </foreach>
-        <foreach collection="category" item="c" separator="">
-            INSERT INTO hangang.lecture_bank_category(lecture_bank_id, category) VALUES ( #{id}, #{c} );
+        <foreach collection="lectureBank.category" item="c" separator="">
+            INSERT INTO hangang.lecture_bank_category(lecture_bank_id, category) VALUES ( #{lectureBank.id}, #{c} );
         </foreach>
+        INSERT INTO hangang.user_point_history(user_id, variance, point_type_id) VALUES ( #{lectureBank.user_id}, #{variance}, #{point_type_id});
+        UPDATE hangang.user SET point = point + #{variance} WHERE id =#{lectureBank.user_id};
     </update>
 
     <!-- TODO order에 hits순으로 하는 경우 같은 hits로 정렬되므로 무작위 출력이될 수 있다-->
