@@ -1,5 +1,6 @@
 package in.hangang.mapper;
 
+import in.hangang.domain.Rating;
 import in.hangang.domain.Review;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -11,5 +12,5 @@ import java.util.List;
 @Repository
 public interface TotalEvaluationMapper {
     Review getTotalEvaluationByLectureId(Long id);
-    ArrayList<HashMap<String, String>> getRatingCountByLectureId(Long id);
+    ArrayList<Rating> getRatingCountByLectureId(Long id);
 }

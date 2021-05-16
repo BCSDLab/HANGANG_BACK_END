@@ -3,42 +3,46 @@
 <mapper namespace="in.hangang.mapper.TimetableMapper">
 
     <select id="getLectureList" resultMap="lectureList">
-        SELECT * FROM hangang.lecture_timetable WHERE semester_date = #{semesterDateId} AND is_deleted = 0
+        SELECT *
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM scrap_timetable ST WHERE ST.lecture_timetable_id = LT.id AND ST.user_id = #{user.id} AND is_deleted = 0) as is_scraped
+        </if>
+        FROM hangang.lecture_timetable LT WHERE LT.semester_date = #{timeTableCriteria.semesterDateId} AND LT.is_deleted = 0
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(classification)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.classification)">
                 AND
-                <foreach collection="classification" item="classification" open="(" close=")" separator="or">
-                    classification = #{classification}
+                <foreach collection="timeTableCriteria.classification" item="classification" open="(" close=")" separator="or">
+                    LT.classification = #{classification}
                 </foreach>
             </when>
         </choose>
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.keyword)">
                 <choose>
-                    <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(criteria)">
-                        <if test='(criteria eq "교수명".toString())'>
-                            AND (professor like concat('%',#{keyword},'%'))
+                    <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.criteria)">
+                        <if test='(timeTableCriteria.criteria eq "교수명".toString())'>
+                            AND (LT.professor like concat('%',#{timeTableCriteria.keyword},'%'))
                         </if>
-                        <if test='(criteria eq "교과명".toString())'>
-                            AND (name like concat('%',#{keyword},'%'))
+                        <if test='(timeTableCriteria.criteria eq "교과명".toString())'>
+                            AND (LT.name like concat('%',#{timeTableCriteria.keyword},'%'))
                         </if>
                     </when>
                     <otherwise>
-                        AND ((name like concat('%',#{keyword},'%')) OR (professor like concat('%',#{keyword},'%')))
+                        AND ((LT.name like concat('%',#{timeTableCriteria.keyword},'%')) OR (LT.professor like concat('%',#{timeTableCriteria.keyword},'%')))
                     </otherwise>
                 </choose>
             </when>
         </choose>
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.department)">
                 AND
-                <foreach collection="department" item="department" open="(" close=")" separator="or">
+                <foreach collection="timeTableCriteria.department" item="department" open="(" close=")" separator="or">
                     department = #{department}
                 </foreach>
             </when>
         </choose>
-
-        LIMIT #{cursor}, #{limit}
+        ORDER BY LT.id ASC
+        LIMIT #{timeTableCriteria.cursor}, #{timeTableCriteria.limit}
     </select>
 
     <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimeTable">
@@ -116,7 +120,7 @@
         SELECT * FROM hangang.lecture_timetable
         WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
         -->
-        SELECT TT.id,
+        SELECT
         <include refid="lectureTimeTableList">
             <property name="prefix" value=""/>
             <property name="alias" value="LTT."/>
@@ -220,7 +224,6 @@
 
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
-        <result column="lecture_id" property="lecture_id"/>
         <result column="is_custom" property="is_custom"/>
         <result column="semester_date" property="semester_date"/>
         <result column="code" property="code"/>
@@ -240,11 +243,15 @@
         <result column="updated_at" property="updated_at"/>
         <collection
                 property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
+        </collection>
+        <collection
+                property="lecture_id" column="{id=id}" select="getLectureIdByLectureTimeTableId">
         </collection>
     </resultMap>
 
     <resultMap id="lectureList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
+        <result column="is_scraped" property="is_scraped"/>
         <result column="is_custom" property="is_custom"/>
         <result column="semester_date" property="semester_date"/>
         <result column="code" property="code"/>
@@ -265,14 +272,20 @@
         <collection
                 property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
         </collection>
+        <collection
+                property="lecture_id" column="{id=id}" select="getLectureIdByLectureTimeTableId">
+        </collection>
     </resultMap>
 
+    <select id="getLectureIdByLectureTimeTableId" resultType="Long">
+        SELECT id FROM lecture WHERE (name, professor) IN (SELECT name, professor FROM lecture_timetable WHERE id = #{id})
+    </select>
     <select id="getRatingByNameAndProfessor" resultType="Float">
         SELECT total_rating FROM lecture WHERE name = #{name} AND professor = #{professor};
     </select>
 
     <sql id="lectureTimeTableList">
-        ${alias}id AS ${prefix}lecture_id
+        ${alias}id AS ${prefix}id
         ,${alias}is_custom AS ${prefix}is_custom
         ,${alias}semester_date AS ${prefix}semester_date
         ,${alias}code AS ${prefix}code

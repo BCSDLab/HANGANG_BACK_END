@@ -8,7 +8,7 @@ public class TimeTable {
     @ApiModelProperty(hidden = true)
     private Long id;
     private Long user_timetable_id;
-    private Long lecture_id;
+    private Long lecture_timetable_id;
     @ApiModelProperty(hidden = true)
     private boolean is_deleted;
     @ApiModelProperty(hidden = true)
@@ -32,12 +32,12 @@ public class TimeTable {
         this.user_timetable_id = user_timetable_id;
     }
 
-    public Long getLecture_id() {
-        return lecture_id;
+    public Long getLecture_timetable_id() {
+        return lecture_timetable_id;
     }
 
-    public void setLecture_id(Long lecture_id) {
-        this.lecture_id = lecture_id;
+    public void setLecture_timetable_id(Long lecture_timetable_id) {
+        this.lecture_timetable_id = lecture_timetable_id;
     }
 
     public boolean isIs_deleted() {

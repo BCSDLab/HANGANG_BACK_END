@@ -2,12 +2,13 @@ package in.hangang.mapper;
 
 import in.hangang.domain.*;
 import in.hangang.domain.criteria.TimeTableCriteria;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface TimetableMapper {
-    ArrayList<LectureTimeTable> getLectureList(TimeTableCriteria timeTableCriteria);
+    ArrayList<LectureTimeTable> getLectureList(@Param("timeTableCriteria") TimeTableCriteria timeTableCriteria, @Param("user") User user);
     ArrayList<UserTimeTable> getTableListByUserId(Long userId, Long semesterDateId);
     TimeTableMap getTableById(Long id);
     Long createTimetable(Long user_id, Long semester_date_id, String name);
@@ -24,6 +25,7 @@ public interface TimetableMapper {
     Long isExists(Long lectureId);
     Long getUserIdByTimeTableId(Long timeTableId);
     ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId);
+    Long getLectureIdByLectureTimeTableId(Long id);
     String getNameByTimeTableId(Long timeTableId);
     ArrayList<String> getClassTimeByTimeTable(Long timeTableId);
     Long getSemesterDateId(Long semesterDateId);
