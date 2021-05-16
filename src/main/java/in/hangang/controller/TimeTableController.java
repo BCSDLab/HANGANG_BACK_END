@@ -23,7 +23,6 @@ public class TimeTableController {
     @Resource
     TimetableService timetableService;
 
-    @Auth
     @ApiOperation( value = "강의 목록 확인", notes = "강의 리스트를 보여줍니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture/list", method = RequestMethod.GET)
     public ResponseEntity<ArrayList<LectureTimeTable>> getLectureList(@ModelAttribute TimeTableCriteria timeTableCriteria) throws Exception{
@@ -120,8 +119,8 @@ public class TimeTableController {
     @Auth
     @ApiOperation( value = "강의 찜", notes = "강의를 스크랩(찜)합니다", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/scrap", method = RequestMethod.POST)
-    public ResponseEntity createScrapLecture(@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
-        timetableService.createScrapLecture(lectureTimeTable);
+    public ResponseEntity createScrapLecture(@RequestBody TimeTable timeTable) throws Exception{
+        timetableService.createScrapLecture(timeTable);
         return new ResponseEntity( new BaseResponse("해당 강의를 정상적으로 찜 했습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
@@ -135,8 +134,8 @@ public class TimeTableController {
     @Auth
     @ApiOperation( value = "자신이 찜 한 강의 삭제", notes = "자신이 스크랩(찜)한 강의를 삭제할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/scrap", method = RequestMethod.DELETE)
-    public ResponseEntity deleteScrapLecture(@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
-        timetableService.deleteScrapLecture(lectureTimeTable);
+    public ResponseEntity deleteScrapLecture(@RequestBody TimeTable timeTable) throws Exception{
+        timetableService.deleteScrapLecture(timeTable);
         return new ResponseEntity( new BaseResponse("해당 강의를 정상적으로 삭제했습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 

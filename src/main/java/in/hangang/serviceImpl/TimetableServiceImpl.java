@@ -32,7 +32,7 @@ public class TimetableServiceImpl implements TimetableService {
         if(timeTableCriteria.getSemesterDateId()==null)
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
 
-        return timetableMapper.getLectureList(timeTableCriteria);
+        return timetableMapper.getLectureList(timeTableCriteria, userService.getLoginUser());
     }
 
     @Override
@@ -149,7 +149,7 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     @Transactional
     public void createLectureOnTimeTable(TimeTable timeTable) throws Exception {
-        Long lectureId = timeTable.getLecture_id();
+        Long lectureId = timeTable.getLecture_timetable_id();
         Long timeTableId = timeTable.getUser_timetable_id();
         //값이 하나라도 비어있다면 에러
         if(lectureId==null || timeTableId==null)
@@ -180,7 +180,7 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception {
         Long timeTableId = timeTable.getUser_timetable_id();
-        Long lectureId = timeTable.getLecture_id();
+        Long lectureId = timeTable.getLecture_timetable_id();
         //값이 하나라도 비어있다면 에러
         if(lectureId==null || timeTableId==null)
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
@@ -303,20 +303,20 @@ public class TimetableServiceImpl implements TimetableService {
     }
 
     @Override
-    public void createScrapLecture(LectureTimeTable lectureTimeTable) throws Exception {
+    public void createScrapLecture(TimeTable timeTable) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        if(lectureTimeTable.getLecture_id() == null)
+        if(timeTable.getLecture_timetable_id() == null)
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
 
-        if(timetableMapper.getScrapLectureByLectureId(userId, lectureTimeTable.getLecture_id()) != null)
+        if(timetableMapper.getScrapLectureByLectureId(userId, timeTable.getLecture_timetable_id()) != null)
             throw new RequestInputException(ErrorMessage.ALREADY_SCRAP_LECTURE);
 
-        timetableMapper.createScrapLecture(userId, lectureTimeTable.getLecture_id());
+        timetableMapper.createScrapLecture(userId, timeTable.getLecture_timetable_id());
     }
 
     @Override
@@ -331,17 +331,20 @@ public class TimetableServiceImpl implements TimetableService {
     }
 
     @Override
-    public void deleteScrapLecture(LectureTimeTable lectureTimeTable) throws Exception {
+    public void deleteScrapLecture(TimeTable timeTable) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        if(lectureTimeTable.getLecture_id() == null)
+        if(timeTable.getLecture_timetable_id() == null)
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
 
-        timetableMapper.deleteScrapLecture(userId, lectureTimeTable.getLecture_id());
+        if(timetableMapper.getScrapLectureByLectureId(userId, timeTable.getLecture_timetable_id()) == null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+
+        timetableMapper.deleteScrapLecture(userId, timeTable.getLecture_timetable_id());
     }
 
 

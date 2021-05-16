@@ -1,5 +1,6 @@
 package in.hangang.serviceImpl;
 
+import in.hangang.domain.Rating;
 import in.hangang.domain.Review;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -31,10 +33,16 @@ public class TotalEvaluationServiceImpl implements TotalEvaluationService {
     }
 
     @Override
-    public ArrayList<HashMap<String, String>> getRatingCountByLectureId(Long id) throws Exception {
+    public Integer[] getRatingCountByLectureId(Long id) throws Exception {
         //해당 강의가 존재하는지 확인.
         if(lectureMapper.checkLectureExists(id)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-        return totalEvaluationMapper.getRatingCountByLectureId(id);
+        Integer[] ratings = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        ArrayList<Rating> ratingMap = totalEvaluationMapper.getRatingCountByLectureId(id);
+        for(int i = 0; i< ratingMap.size(); i++){
+            int index = (int)(ratingMap.get(i).getRating()/0.5)-1;
+            ratings[index] = ratingMap.get(i).getCount();
+        }
+        return ratings;
     }
 }

@@ -42,9 +42,12 @@
             <property name="prefix" value=""/>
             <property name="alias" value="LEC."/>
         </include>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM scrap_lecture SL WHERE SL.lecture_id = LEC.id AND SL.user_id = #{user.id} AND is_deleted = 0) as is_scraped
+        </if>
         FROM hangang.lecture LEC
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(hashtag)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.hashtag)">
                 ,(SELECT
                 <include refid="HashTagTop3-list">
                     <property name="prefix" value=""/>
@@ -53,7 +56,7 @@
                 FROM hangang.hash_tag_top3 TOP
 
                 WHERE TOP.hash_tag_id IN(
-                    <foreach collection="hashtag" item="hashtag" separator=",">
+                    <foreach collection="lectureCriteria.hashtag" item="hashtag" separator=",">
                         #{hashtag}
                     </foreach>
                 )
@@ -66,22 +69,22 @@
             </otherwise>
         </choose>
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(classification)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.classification)">
                 AND
-                <foreach collection="classification" item="classification" open="(" close=")" separator="or">
+                <foreach collection="lectureCriteria.classification" item="classification" open="(" close=")" separator="or">
                     LEC.classification = #{classification}
                 </foreach>
             </when>
         </choose>
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
-                AND ((LEC.name like concat('%',#{keyword},'%')) OR (LEC.professor like concat('%',#{keyword},'%')))
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.keyword)">
+                AND ((LEC.name like concat('%',#{lectureCriteria.keyword},'%')) OR (LEC.professor like concat('%',#{lectureCriteria.keyword},'%')))
             </when>
         </choose>
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.department)">
                 AND
-                <foreach collection="department" item="department" open="(" close=")" separator="or">
+                <foreach collection="lectureCriteria.department" item="department" open="(" close=")" separator="or">
                     LEC.department = #{department}
                 </foreach>
             </when>
@@ -89,17 +92,17 @@
 
         <choose>
             <!--해시태그가 있을 때-->
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(hashtag)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.hashtag)">
                 ORDER BY B.ranking DESC
                 <!--정렬 옵션이 있을 때-->
-                <if test="sort!=null">
-                    <if test='(sort eq "평점순".toString())'>
+                <if test="lectureCriteria.sort!=null">
+                    <if test='(lectureCriteria.sort eq "평점순".toString())'>
                         ,LEC.total_rating DESC
                     </if>
-                    <if test='(sort eq "최신순".toString())'>
+                    <if test='(lectureCriteria.sort eq "최신순".toString())'>
                         ,LEC.last_reviewed_at DESC
                     </if>
-                    <if test='(sort eq "평가순".toString())'>
+                    <if test='(lectureCriteria.sort eq "평가순".toString())'>
                         ,LEC.review_count DESC
                     </if>
                 </if>
@@ -110,15 +113,15 @@
             <!--해시태그가 없을 때-->
             <otherwise>
                 <!--정렬 옵션이 있을 때-->
-                <if test="sort!=null">
+                <if test="lectureCriteria.sort!=null">
                     ORDER BY
-                    <if test='(sort eq "평점순".toString())'>
+                    <if test='(lectureCriteria.sort eq "평점순".toString())'>
                         LEC.total_rating DESC, LEC.id ASC
                     </if>
-                    <if test='(sort eq "최신순".toString())'>
+                    <if test='(lectureCriteria.sort eq "최신순".toString())'>
                         LEC.last_reviewed_at DESC, LEC.id ASC
                     </if>
-                    <if test='(sort eq "평가순".toString())'>
+                    <if test='(lectureCriteria.sort eq "평가순".toString())'>
                         LEC.review_count DESC, LEC.id ASC
                     </if>
                 </if>
@@ -126,7 +129,7 @@
 
             </otherwise>
         </choose>
-        LIMIT #{cursor}, #{limit}
+        LIMIT #{lectureCriteria.cursor}, #{lectureCriteria.limit}
     </select>
 
     <update id="updateTotalRatingById">
@@ -139,6 +142,7 @@
 
     <resultMap id="lectureList" type="in.hangang.domain.Lecture">
         <result column="id" property="id"/>
+        <result column="is_scraped" property="is_scraped"/>
         <result column="name" property="name"/>
         <result column="code" property="code"/>
         <result column="department" property="department"/>

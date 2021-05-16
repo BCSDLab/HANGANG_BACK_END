@@ -3,11 +3,14 @@ package in.hangang.mapper;
 import in.hangang.domain.ClassTimeMap;
 import in.hangang.domain.HashTag;
 import in.hangang.domain.Lecture;
+import in.hangang.domain.User;
 import in.hangang.domain.criteria.LectureCriteria;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Repository
 public interface LectureMapper {
@@ -15,7 +18,7 @@ public interface LectureMapper {
     void deleteScrapLecture(Long userId, ArrayList<Long> lectureId);
     ArrayList<Lecture> getScrapLectureList(Long userId);
     Boolean checkAlreadyScraped(Long userId, Long lectureId);
-    ArrayList<Lecture> getLectureList(LectureCriteria lectureCriteria);
+    List<Lecture> getLectureList(@Param("lectureCriteria") LectureCriteria lectureCriteria, @Param("user") User user);
     ArrayList<Long> getScrapLectureId(Long userId);
     ArrayList<String> getSemesterDateByNameAndProfessor(String name, String professor);
     Long checkLectureExists(Long id);

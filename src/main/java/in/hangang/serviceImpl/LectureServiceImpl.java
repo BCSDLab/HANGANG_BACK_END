@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -37,7 +38,7 @@ public class LectureServiceImpl implements LectureService {
     private TimetableMapper timetableMapper;
 
     @Override
-    public ArrayList<Lecture>
+    public List<Lecture>
     getLectureList(LectureCriteria lectureCriteria) throws Exception {
         String[] sortList = {"최신순", "평점순", "평가순"};
         if(lectureCriteria.getSort()!=null && !Arrays.asList(sortList).contains(lectureCriteria.getSort()))
@@ -46,6 +47,7 @@ public class LectureServiceImpl implements LectureService {
         if(lectureCriteria.getDepartment()!=null && lectureCriteria.getDepartment().size()>2)
             throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
 
+        /*
         User user = userService.getLoginUser();
         ArrayList<Lecture> lectures = lectureMapper.getLectureList(lectureCriteria);
         if(user != null) {
@@ -56,8 +58,9 @@ public class LectureServiceImpl implements LectureService {
                     lectures.get(i).setIs_scraped(true);
             }
         }
+         */
 
-        return lectures;
+        return lectureMapper.getLectureList(lectureCriteria, userService.getLoginUser());
     }
 
     @Override

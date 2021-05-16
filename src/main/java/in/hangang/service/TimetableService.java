@@ -19,8 +19,8 @@ public interface TimetableService {
     TimeTableMap getLectureListByTimeTableId(Long timeTableId) throws Exception;
     TimeTableMap getMainTimeTable() throws Exception;
     void updateMainTimeTable(UserTimeTable userTimeTable) throws Exception;
-    void createScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
+    void createScrapLecture(TimeTable timeTable) throws Exception;
     ArrayList<LectureTimeTable> getScrapLectureList() throws Exception;
-    void deleteScrapLecture(LectureTimeTable lectureTimeTable) throws Exception;
+    void deleteScrapLecture(TimeTable timeTable) throws Exception;
     void checkCrashClassTime(ArrayList<LectureTimeTable> originClass, ArrayList<LectureTimeTable> newClass) throws Exception;
 }

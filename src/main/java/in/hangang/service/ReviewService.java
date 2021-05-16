@@ -4,12 +4,14 @@ import in.hangang.domain.Lecture;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public interface ReviewService {
-    ArrayList<Review> getReviewList(Criteria criteria) throws Exception;
+    List<Review> getReviewList(Criteria criteria) throws Exception;
     Lecture getReviewByTimeTableLecture(Long lectureId) throws Exception;
     ArrayList<Review> getReviewListByUserId() throws Exception;
     Review getReview(Long id) throws Exception;
