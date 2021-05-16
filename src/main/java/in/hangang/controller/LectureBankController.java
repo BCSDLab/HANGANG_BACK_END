@@ -60,7 +60,7 @@ public class LectureBankController {
             +"\nsemester_date_id : 수강 학기 ID ( 1: 20191, 2: 20192, 3: 20201, 4: 20202, 5: 20211 )"
             +"" ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity postLectureBank(@RequestBody @Validated(ValidationGroups.PostLectureBank.class) LectureBank lectureBank) throws Exception {
-        return new ResponseEntity( lectureBankService.postLectureBank(lectureBank), HttpStatus.OK);
+        return new ResponseEntity( lectureBankService.postLectureBank(lectureBank), HttpStatus.CREATED);
     }
 
 
@@ -71,6 +71,7 @@ public class LectureBankController {
         return new ResponseEntity( lectureBankService.updateLectureBank(lectureBank,id), HttpStatus.OK);
     }
 
+    /*
     @Auth
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value ="강의자료 작성 삭제" , notes = "강의 자료를 삭제합니다\n파리미터는 강의자료 id 입니다"
@@ -80,6 +81,8 @@ public class LectureBankController {
         lectureBankService.deleteLectureBank(id);
         return new ResponseEntity(HttpStatus.OK);
     }
+
+     */
 
 
 
