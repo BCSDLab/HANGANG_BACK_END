@@ -45,7 +45,12 @@
         SELECT total_rating FROM hangang.lecture WHERE id = #{id};
     </select>
 
-    <select id="getRatingCountByLectureId" resultType="java.util.HashMap">
-        select rating, count(rating) as count from review where lecture_id = #{id} group by rating order by rating DESC
+    <select id="getRatingCountByLectureId" resultMap="ratingCountMap">
+        select rating, count(rating) as count from review where lecture_id = #{id} AND is_deleted = 0 group by rating order by rating DESC
     </select>
+
+    <resultMap id="ratingCountMap" type="in.hangang.domain.Rating">
+        <result column="rating" property="rating"/>
+        <result column="count" property="count"/>
+    </resultMap>
 </mapper>

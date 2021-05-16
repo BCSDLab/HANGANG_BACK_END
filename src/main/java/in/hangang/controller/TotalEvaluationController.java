@@ -1,6 +1,5 @@
 package in.hangang.controller;
 
-import in.hangang.annotation.Auth;
 import in.hangang.service.TotalEvaluationService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;

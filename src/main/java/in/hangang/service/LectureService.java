@@ -8,10 +8,11 @@ import in.hangang.domain.criteria.LectureCriteria;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public interface LectureService {
-    ArrayList<Lecture> getLectureList(LectureCriteria lectureCriteria) throws Exception;
+    List<Lecture> getLectureList(LectureCriteria lectureCriteria) throws Exception;
     Lecture getLecture(Long lectureId) throws Exception;
     void updateReviewCount();
     ArrayList<ClassTimeMap> getClassByLectureId(Long id) throws Exception;

@@ -1,18 +1,18 @@
 package in.hangang.mapper;
 
-import in.hangang.domain.Assignment;
-import in.hangang.domain.Lecture;
-import in.hangang.domain.LectureTimeTable;
-import in.hangang.domain.Review;
+import in.hangang.domain.*;
+import in.hangang.domain.criteria.Criteria;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
 public interface ReviewMapper {
-    ArrayList<Review> getReviewList(int cursor, int limit);
+    List<Review> getReviewList(@Param("criteria") Criteria criteria, @Param("user") User user);
     ArrayList<Review> getReviewListByUserId(Long userId);
     Long createReview(Review review);
     void updateReviewedAt(Long lecture_id);

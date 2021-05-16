@@ -3,7 +3,11 @@
 <mapper namespace="in.hangang.mapper.ReviewMapper">
 
     <select id="getReviewList" resultMap="review">
-        SELECT * FROM hangang.review WHERE is_deleted = 0 LIMIT #{cursor}, #{limit}
+        SELECT *
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id}) as is_liked
+        </if>
+        FROM hangang.review R WHERE R.is_deleted = 0 LIMIT #{criteria.cursor}, #{criteria.limit}
     </select>
 
     <select id="getReviewById" resultMap="review">
@@ -48,6 +52,7 @@
         <result column="id" property="id"/>
         <result column="lecture_id" property="lecture_id"/>
         <result column="user_id" property="user_id"/>
+        <result column="is_liked" property="is_liked"/>
         <result column="rating" property="rating"/>
         <result column="assignment_amount" property="assignment_amount"/>
         <result column="difficulty" property="difficulty"/>

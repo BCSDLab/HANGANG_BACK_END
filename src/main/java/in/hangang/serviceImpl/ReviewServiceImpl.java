@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 @Service("ReviewServiceImpl")
@@ -47,17 +48,8 @@ public class ReviewServiceImpl implements ReviewService {
     private LectureService lectureService;
 
     @Override
-    public ArrayList<Review> getReviewList(Criteria criteria) throws Exception {
-        User user = userService.getLoginUser();
-        Long userId = user.getId();
-        ArrayList<Long> likedReview = likesMapper.getLikedReviewList(userId);
-        ArrayList<Review> reviews = reviewMapper.getReviewList(criteria.getCursor(), criteria.getLimit());
-        for(int i = 0; i<reviews.size(); i++){
-            if(likedReview.contains(reviews.get(i).getId()))
-                reviews.get(i).setIs_liked(true);
-        }
-
-        return reviews;
+    public List<Review> getReviewList(Criteria criteria) throws Exception {
+        return reviewMapper.getReviewList(criteria, userService.getLoginUser());
     }
 
     @Override
