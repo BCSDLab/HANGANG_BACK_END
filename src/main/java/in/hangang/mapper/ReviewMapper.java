@@ -2,6 +2,7 @@ package in.hangang.mapper;
 
 import in.hangang.domain.*;
 import in.hangang.domain.criteria.Criteria;
+import in.hangang.domain.criteria.LectureCriteria;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +19,7 @@ public interface ReviewMapper {
     void updateReviewedAt(Long lecture_id);
     void updateTotalRating(Long lecture_id);
     Review getReviewById(Long id);
-    ArrayList<Review> getReviewByLectureId(Long id, int cursor, int limit);
+    ArrayList<Review> getReviewByLectureId(@Param("id") Long id, @Param("lectureCriteria") LectureCriteria lectureCriteria, @Param("user") User user);
     Long getReviewByUserIdAndLectureId(Long lecture_id, Long user_id);
     ArrayList<Assignment> getAssignmentByReviewId(Long review_id);
     void deleteReviewById(Long id);

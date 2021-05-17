@@ -5,6 +5,7 @@ import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 import in.hangang.domain.User;
+import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
@@ -79,21 +80,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ArrayList<Review> getReviewByLectureId(Long id, Criteria criteria) throws Exception {
+    public ArrayList<Review> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception {
         User user = userService.getLoginUser();
-        //유저 정보가 있는지 확인.
-        if(user == null)
-            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
-        Long userId = user.getId();
-        if(lectureMapper.checkLectureExists(id)==null)
-            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-        ArrayList<Review> reviews = reviewMapper.getReviewByLectureId(id, criteria.getCursor(), criteria.getLimit());
-        ArrayList<Long> likedReview = likesMapper.getLikedReviewList(userId);
-        for(int i = 0; i<reviews.size(); i++){
-            if(likedReview.contains(reviews.get(i).getId()))
-                reviews.get(i).setIs_liked(true);
-        }
-        return reviews;
+        return reviewMapper.getReviewByLectureId(id, lectureCriteria, user);
     }
 
     @Override
@@ -109,12 +98,10 @@ public class ReviewServiceImpl implements ReviewService {
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
 
-        //해당 유저가 동일한 강의에 리뷰를 작성한 적 있는지 확인.
         if(reviewMapper.getReviewByUserIdAndLectureId(review.getLecture_id(), user.getId())!=null)
             throw new RequestInputException(ErrorMessage.PROHIBITED_ATTEMPT);
 
         review.setUser_id(user.getId());
-
         ArrayList<String> semester = lectureService.getSemesterDateByLectureId(review.getLecture_id());
 
         //입력된 학기 정보가 강의가 개설된 학기에 포함되어있늕지 확인.
@@ -145,7 +132,7 @@ public class ReviewServiceImpl implements ReviewService {
                 hashtagMapper.insertHashTagCount(0, lectureId, hashTagId);
             }
         }
-        //TODO : 속도 향상을 위해 서비스 호출 줄여보기.
+        //TODO : 속도 향상을 위해 서비스 호출 줄여보기. -> 쿼로 처리 가능할듯
         //TODO : 트랜젝션 처리
         reviewMapper.updateReviewedAt(lectureId);
         lectureMapper.updateReviewCountById(lectureId);

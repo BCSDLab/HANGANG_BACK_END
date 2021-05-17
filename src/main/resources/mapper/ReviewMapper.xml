@@ -5,9 +5,10 @@
     <select id="getReviewList" resultMap="review">
         SELECT *
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id}) as is_liked
+            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
         </if>
         FROM hangang.review R WHERE R.is_deleted = 0 LIMIT #{criteria.cursor}, #{criteria.limit}
+        ORDER BY R.id
     </select>
 
     <select id="getReviewById" resultMap="review">
@@ -15,7 +16,20 @@
     </select>
 
     <select id="getReviewByLectureId" resultMap="review">
-        SELECT * FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0 LIMIT #{cursor}, #{limit}
+        SELECT *
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
+        </if>
+        ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.is_deleted = 0) as like_count
+        FROM hangang.review R WHERE R.lecture_id = #{id} AND R.is_deleted = 0 LIMIT #{lectureCriteria.cursor}, #{lectureCriteria.limit}
+        <if test="lectureCriteria.sort!=null">
+            <if test='(lectureCriteria.sort eq "좋아요 순".toString())'>
+                ORDER BY like_count DESC, R.id ASC
+            </if>
+            <if test='(lectureCriteria.sort eq "최신 순 ".toString())'>
+                ORDER BY R.created_at DESC, R.id ASC
+            </if>
+        </if>
     </select>
 
     <select id="getReviewListByUserId" resultMap="review">
