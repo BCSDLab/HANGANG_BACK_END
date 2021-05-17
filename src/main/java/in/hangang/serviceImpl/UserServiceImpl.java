@@ -11,6 +11,7 @@ import in.hangang.exception.AccessTokenInvalidException;
 import in.hangang.exception.RefreshTokenExpireException;
 import in.hangang.exception.RefreshTokenInvalidException;
 import in.hangang.exception.RequestInputException;
+import in.hangang.mapper.TimetableMapper;
 import in.hangang.mapper.UserMapper;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.UserService;
@@ -52,6 +53,8 @@ public class UserServiceImpl implements UserService {
     private SpringTemplateEngine springTemplateEngine;
     @Resource
     private S3Util s3Util;
+    @Resource
+    private TimetableMapper timetableMapper;
 
     @Value("${token.access}")
     private String access_token;
@@ -149,7 +152,7 @@ public class UserServiceImpl implements UserService {
 
         //회원가입 포인트 이력 추가
         userMapper.addPointHistory(userId, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
-
+        timetableMapper.createTimetable(userId, timetableMapper.getLatestSemesterDateId(), "기본 시간표");
         return new BaseResponse("회원가입에 성공했습니다", HttpStatus.OK);
     }
 
