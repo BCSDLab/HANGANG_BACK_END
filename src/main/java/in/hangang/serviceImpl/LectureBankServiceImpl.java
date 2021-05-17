@@ -337,6 +337,9 @@ public class LectureBankServiceImpl implements LectureBankService {
     public void pushHit(Long lecture_bank_id) throws Exception{
         Long userID = userService.getLoginUser().getId();
 
+        // 해당 강의자료가 존재하는가?
+        this.getLectureBank(lecture_bank_id);
+
         Long hitID = lectureBankMapper.checkHitExist(userID, lecture_bank_id);
         Integer deleted = lectureBankMapper.checkHitIsdeleted(hitID);
 
