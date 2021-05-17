@@ -51,7 +51,7 @@
         </include>,
         S.semester as semester_date
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id} ) as is_hit
+            ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id} and h.is_deleted = 0  ) as is_hit
         </if>
         FROM lecture_bank LB, user U, lecture L, semester_date S,
         (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
@@ -188,7 +188,7 @@
         </include>,
         S.semester as semester_date
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id} ) as is_hit
+            ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id}  and h.is_deleted = 0  ) as is_hit
         </if>
         FROM lecture_bank AS LB
         JOIN user AS U ON LB.user_id = U.id
