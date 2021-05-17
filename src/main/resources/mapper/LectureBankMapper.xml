@@ -430,7 +430,7 @@
 
     <select id="getCommentWriterId" resultType="java.lang.Long">
         SELECT user_id FROM lecture_bank_comment
-        where id = #{id};
+        where id = #{id} and is_deleted = 0 ;
     </select>
 
     <select id="getCommentIdList" resultType="java.lang.Long">

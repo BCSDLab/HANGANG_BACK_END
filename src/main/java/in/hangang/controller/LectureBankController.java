@@ -140,8 +140,8 @@ public class LectureBankController {
     @ApiOperation(value ="강의자료 댓글 작성" , notes = "강의자료 댓글을 입력합니다\n파라미터는 강의 자료 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity addComment(@PathVariable Long id, @RequestParam(value = "comments") String comments) throws Exception{
-        return new ResponseEntity(lectureBankService.addComment(id, comments),HttpStatus.CREATED);
+    ResponseEntity addComment(@PathVariable Long id, @RequestBody @Validated(ValidationGroups.PostLectureBankComment.class)  LectureBankComment lectureBankComment) throws Exception{
+        return new ResponseEntity(lectureBankService.addComment(id, lectureBankComment.getComments()),HttpStatus.CREATED);
     }
 
 
@@ -150,8 +150,8 @@ public class LectureBankController {
     @ApiOperation(value ="강의자료 댓글 수정" , notes = "강의자료 댓글을 수정합니다\n파라미터는 댓글 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity setComment(@PathVariable Long id, @RequestParam(value = "comments") String comments, @PathVariable Long commentId) throws Exception{
-        return new ResponseEntity(lectureBankService.setComment(id,commentId, comments),HttpStatus.OK);
+    ResponseEntity setComment(@PathVariable Long id,  @RequestBody @Validated(ValidationGroups.PostLectureBankComment.class) LectureBankComment lectureBankComment, @PathVariable Long commentId) throws Exception{
+        return new ResponseEntity(lectureBankService.setComment(id,commentId, lectureBankComment.getComments()),HttpStatus.OK);
     }
 
 

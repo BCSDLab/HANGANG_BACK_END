@@ -264,8 +264,14 @@ public class LectureBankServiceImpl implements LectureBankService {
     public BaseResponse setComment(Long id,Long commentId, String comments) throws Exception{
         // 해당강의자료가 존재하는가?
         this.getLectureBank(id);
+
+        // 해당 댓글이 존재하는가 ?
+        Long commentWriterId = lectureBankMapper.getCommentWriterId(commentId);
+        if ( commentWriterId == null){
+            throw new RequestInputException(ErrorMessage.COMMENT_NOT_EXIST);
+        }
         // 저자인가?
-        if  ( lectureBankMapper.getCommentWriterId(commentId) != userService.getLoginUser().getId() ){
+        if  ( commentWriterId != userService.getLoginUser().getId() ){
             throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
         }
         lectureBankMapper.setComment(commentId,comments);
