@@ -6,6 +6,7 @@ import in.hangang.domain.Lecture;
 import in.hangang.domain.Report;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
+import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.enums.Board;
 import in.hangang.enums.ContentType;
 import in.hangang.response.BaseResponse;
@@ -53,8 +54,8 @@ public class ReviewController {
     @Auth
     @ApiOperation( value = "특정 강의에 등록된 강의 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.\n강의 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/lectures/{id}", method = RequestMethod.GET)
-    public ResponseEntity getReviewByLectureId(@PathVariable Long id, @ModelAttribute Criteria criteria) throws Exception {
-        return new ResponseEntity (reviewService.getReviewByLectureId(id, criteria), HttpStatus.OK);
+    public ResponseEntity getReviewByLectureId(@PathVariable Long id, @ModelAttribute LectureCriteria lectureCriteria) throws Exception {
+        return new ResponseEntity (reviewService.getReviewByLectureId(id, lectureCriteria), HttpStatus.OK);
     }
 
     /*
