@@ -166,7 +166,7 @@ public class LectureBankController {
 
     //hit------------------------------------------------------------------------------------
     @Auth
-    @RequestMapping(value = "/hit/push/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/hit/{id}", method = RequestMethod.POST)
     @ApiOperation(value ="hit 누르기" , notes = "hit를 누릅니다\n파라미터는 강의 자료 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
