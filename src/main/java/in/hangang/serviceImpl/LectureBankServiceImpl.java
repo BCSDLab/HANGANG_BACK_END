@@ -366,9 +366,10 @@ public class LectureBankServiceImpl implements LectureBankService {
         Long lecturebank_id = lectureBankMapper.getLectureBankId_file(id);
         Long writer = lectureBankMapper.getWriterId(lecturebank_id);
 
+        //저자 혹은 구매자인가?
         if(checkPurchase(lecturebank_id) || (writer.equals(user_id))){
-            String objectKey = lectureBankMapper.getUrl(id);
-            URL url = s3Util.getPrivateObjectURL(objectKey);
+            UploadFile uploadFile = lectureBankMapper.getUrl(id);
+            URL url = s3Util.getPrivateObjectURL(uploadFile.getUrl(), uploadFile.getFileName());
             return url.toString();
         }else{
             throw new RequestInputException(ErrorMessage.DIDNT_PURCHASED);

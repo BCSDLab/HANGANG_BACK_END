@@ -116,13 +116,13 @@ public class LectureBankController {
     }
 
     @Auth
-    @RequestMapping(value = "/purchase/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/purchase/{id}", method = RequestMethod.POST)
     @ApiOperation(value ="강의자료 구매하기" , notes = "강의 자료를 구매합니다\n파라미터는 강의 자료 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity purchase(@PathVariable Long id) throws Exception{
         lectureBankService.purchase(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(new BaseResponse("강의자료가 구매되었습니다.",HttpStatus.OK),HttpStatus.OK);
     }
 
     //comment------------------------------------------------------------------------------------

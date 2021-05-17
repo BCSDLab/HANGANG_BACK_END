@@ -89,7 +89,7 @@ public interface LectureBankMapper {
     List<Long> getFileIdList(@Param("lecture_bank_id")Long lecture_bank_id);
     void setFileAvailable(@Param("id")Long id, @Param("available")Integer available); //0->
     void setMultiFileAvailable_0(@Param("id_list")ArrayList<Long> id_list, @Param("available")Integer available);
-    String getUrl(@Param("id")Long id);
+    UploadFile getUrl(@Param("id")Long id);
     List<Long> getFileId(@Param("lecture_bank_id")Long lecture_bank_id);
     Long getLectureBankId_file(@Param("id")Long id);
     void deleteFile(@Param("id")Long id, @Param("available")Integer available); //1->

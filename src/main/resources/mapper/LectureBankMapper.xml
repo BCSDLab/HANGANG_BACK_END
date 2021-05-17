@@ -479,8 +479,8 @@
             #{id}
         </foreach>;
     </update>
-    <select id="getUrl" resultType="java.lang.String">
-        SELECT url FROM upload_file
+    <select id="getUrl" resultType="in.hangang.domain.UploadFile">
+        SELECT url,fileName FROM upload_file
         WHERE id = #{id};
     </select>
     <select id="getFileId" resultType="java.lang.Long">
