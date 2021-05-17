@@ -53,6 +53,12 @@
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
             ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id} and h.is_deleted = 0  ) as is_hit
         </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from lecture_bank_purchase as p where p.lecture_bank_id = LB.id and p.user_id = #{user.id} and p.is_deleted = 0  ) as is_purchase
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as is_scrap
+        </if>
         FROM lecture_bank LB, user U, lecture L, semester_date S,
         (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
         WHERE
@@ -99,6 +105,8 @@
         <result column="point_price" property="point_price"/>
         <result column="hits" property="hits"/>
         <result column="is_hit" property="is_hit"/>
+        <result column="is_purchase" property="is_purchase"/>
+        <result column="is_scrap" property="is_scrap"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
         <result column="is_deleted" property="is_deleted"/>
@@ -155,6 +163,8 @@
         <result column="point_price" property="point_price"/>
         <result column="hits" property="hits"/>
         <result column="is_hit" property="is_hit"/>
+        <result column="is_purchase" property="is_purchase"/>
+        <result column="is_scrap" property="is_scrap"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
         <result column="is_deleted" property="is_deleted"/>
@@ -189,6 +199,12 @@
         S.semester as semester_date
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
             ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id}  and h.is_deleted = 0  ) as is_hit
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from lecture_bank_purchase as p where p.lecture_bank_id = LB.id and p.user_id = #{user.id} and p.is_deleted = 0  ) as is_purchase
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as is_scrap
         </if>
         FROM lecture_bank AS LB
         JOIN user AS U ON LB.user_id = U.id

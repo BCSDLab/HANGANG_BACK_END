@@ -76,6 +76,10 @@ public class LectureBank {
     @ApiModelProperty(hidden = true)
     private Boolean is_hit = false;
     @ApiModelProperty(hidden = true)
+    private Boolean is_scrap = false;
+    @ApiModelProperty(hidden = true)
+    private Boolean is_purchase = false;
+    @ApiModelProperty(hidden = true)
     private String thumbnail_ext;
     @ApiModelProperty(hidden = true)
     private String thumbnail;
@@ -84,6 +88,21 @@ public class LectureBank {
     @ApiModelProperty(hidden = true)
     private Lecture lecture;
 
+    public Boolean getIs_scrap() {
+        return is_scrap;
+    }
+
+    public void setIs_scrap(Boolean is_scrap) {
+        this.is_scrap = is_scrap;
+    }
+
+    public Boolean getIs_purchase() {
+        return is_purchase;
+    }
+
+    public void setIs_purchase(Boolean is_purchase) {
+        this.is_purchase = is_purchase;
+    }
 
     public List<LectureBankComment> getComments() {
         return comments;
