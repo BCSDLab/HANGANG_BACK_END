@@ -60,7 +60,7 @@ public class LectureBankController {
             +"\nsemester_date_id : 수강 학기 ID ( 1: 20191, 2: 20192, 3: 20201, 4: 20202, 5: 20211 )"
             +"" ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity postLectureBank(@RequestBody @Validated(ValidationGroups.PostLectureBank.class) LectureBank lectureBank) throws Exception {
-        return new ResponseEntity( lectureBankService.postLectureBank(lectureBank), HttpStatus.OK);
+        return new ResponseEntity( lectureBankService.postLectureBank(lectureBank), HttpStatus.CREATED);
     }
 
 
@@ -71,6 +71,7 @@ public class LectureBankController {
         return new ResponseEntity( lectureBankService.updateLectureBank(lectureBank,id), HttpStatus.OK);
     }
 
+    /*
     @Auth
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value ="강의자료 작성 삭제" , notes = "강의 자료를 삭제합니다\n파리미터는 강의자료 id 입니다"
@@ -80,6 +81,8 @@ public class LectureBankController {
         lectureBankService.deleteLectureBank(id);
         return new ResponseEntity(HttpStatus.OK);
     }
+
+     */
 
 
 
@@ -113,13 +116,13 @@ public class LectureBankController {
     }
 
     @Auth
-    @RequestMapping(value = "/purchase/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/purchase/{id}", method = RequestMethod.POST)
     @ApiOperation(value ="강의자료 구매하기" , notes = "강의 자료를 구매합니다\n파라미터는 강의 자료 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity purchase(@PathVariable Long id) throws Exception{
         lectureBankService.purchase(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(new BaseResponse("강의자료가 구매되었습니다.",HttpStatus.OK),HttpStatus.OK);
     }
 
     //comment------------------------------------------------------------------------------------
@@ -137,8 +140,8 @@ public class LectureBankController {
     @ApiOperation(value ="강의자료 댓글 작성" , notes = "강의자료 댓글을 입력합니다\n파라미터는 강의 자료 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity addComment(@PathVariable Long id, @RequestParam(value = "comments") String comments) throws Exception{
-        return new ResponseEntity(lectureBankService.addComment(id, comments),HttpStatus.CREATED);
+    ResponseEntity addComment(@PathVariable Long id, @RequestBody @Validated(ValidationGroups.PostLectureBankComment.class)  LectureBankComment lectureBankComment) throws Exception{
+        return new ResponseEntity(lectureBankService.addComment(id, lectureBankComment.getComments()),HttpStatus.CREATED);
     }
 
 
@@ -147,8 +150,8 @@ public class LectureBankController {
     @ApiOperation(value ="강의자료 댓글 수정" , notes = "강의자료 댓글을 수정합니다\n파라미터는 댓글 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity setComment(@PathVariable Long id, @RequestParam(value = "comments") String comments, @PathVariable Long commentId) throws Exception{
-        return new ResponseEntity(lectureBankService.setComment(id,commentId, comments),HttpStatus.OK);
+    ResponseEntity setComment(@PathVariable Long id,  @RequestBody @Validated(ValidationGroups.PostLectureBankComment.class) LectureBankComment lectureBankComment, @PathVariable Long commentId) throws Exception{
+        return new ResponseEntity(lectureBankService.setComment(id,commentId, lectureBankComment.getComments()),HttpStatus.OK);
     }
 
 
@@ -163,7 +166,7 @@ public class LectureBankController {
 
     //hit------------------------------------------------------------------------------------
     @Auth
-    @RequestMapping(value = "/hit/push/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/hit/{id}", method = RequestMethod.POST)
     @ApiOperation(value ="hit 누르기" , notes = "hit를 누릅니다\n파라미터는 강의 자료 id 입니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody

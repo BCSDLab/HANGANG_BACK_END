@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -75,7 +76,7 @@ public class S3Util {
         return resource;
     }
 
-    public URL getPrivateObjectURL(String objectKey) throws IOException{
+    public URL getPrivateObjectURL(String objectKey, String filename) throws IOException{
         Date expiration = new Date();
         long expTimeMillis = expiration.getTime();
         expTimeMillis += 1000 * 60 * 60;    //1 hour
@@ -90,6 +91,10 @@ public class S3Util {
                         .withMethod(HttpMethod.GET)
                         .withExpiration(expiration);
 
+        // file이름을 설정한다. 아래처럼 하지 않는 경우 file 이름이 매우 랜덤해진다\
+        ResponseHeaderOverrides responseHeaders = new ResponseHeaderOverrides();
+        responseHeaders.setContentDisposition("attachment; filename =\"" +URLEncoder.encode(filename, "UTF-8") + "\"");
+        generatePresignedUrlRequest.setResponseHeaders(responseHeaders);
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 
         return url;

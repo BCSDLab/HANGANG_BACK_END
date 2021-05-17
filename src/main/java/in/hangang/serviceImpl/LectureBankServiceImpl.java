@@ -127,6 +127,13 @@ public class LectureBankServiceImpl implements LectureBankService {
         lectureBank.setUser_id(userService.getLoginUser().getId());
         // 강의자료 포인트값은 100원으로 고정
         lectureBank.setPoint_price(Point.LECTURE_BANK.getPoint());
+        // url validation 확인
+        for ( int i=0;i < lectureBank.getFiles().size(); i++){
+            if ( !lectureBank.getFiles().get(i).startsWith("https://static.hangang.in/") ){
+                throw new RequestInputException(ErrorMessage.URL_INVALID);
+            }
+        }
+
         // 첫 URL의 확장자에 대한 섬네일 구성
         lectureBank.setThumbnail(this.getThumbnailUrl(lectureBank.getFiles().get(0)));
         // 해당 Lecture 가 실제로 존재하는지 확인
@@ -172,6 +179,11 @@ public class LectureBankServiceImpl implements LectureBankService {
         lectureBank.setId(id);
         this.getLectureBank(lectureBank.getId());// 해당 강의자료가 실제로 존재하는지?
         this.getLecture(lectureBank.getLecture_id()); // 해당 타겟 강의자료가 실존하는지?
+        for ( int i=0;i < lectureBank.getFiles().size(); i++){
+            if ( !lectureBank.getFiles().get(i).startsWith("https://static.hangang.in/") ){
+                throw new RequestInputException(ErrorMessage.URL_INVALID);
+            }
+        }
         if( this.is_writer(lectureBank.getId() )== false){
             throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
         } // 저자가 맞는지?
@@ -252,8 +264,14 @@ public class LectureBankServiceImpl implements LectureBankService {
     public BaseResponse setComment(Long id,Long commentId, String comments) throws Exception{
         // 해당강의자료가 존재하는가?
         this.getLectureBank(id);
+
+        // 해당 댓글이 존재하는가 ?
+        Long commentWriterId = lectureBankMapper.getCommentWriterId(commentId);
+        if ( commentWriterId == null){
+            throw new RequestInputException(ErrorMessage.COMMENT_NOT_EXIST);
+        }
         // 저자인가?
-        if  ( lectureBankMapper.getCommentWriterId(commentId) != userService.getLoginUser().getId() ){
+        if  ( commentWriterId != userService.getLoginUser().getId() ){
             throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
         }
         lectureBankMapper.setComment(commentId,comments);
@@ -319,6 +337,9 @@ public class LectureBankServiceImpl implements LectureBankService {
     public void pushHit(Long lecture_bank_id) throws Exception{
         Long userID = userService.getLoginUser().getId();
 
+        // 해당 강의자료가 존재하는가?
+        this.getLectureBank(lecture_bank_id);
+
         Long hitID = lectureBankMapper.checkHitExist(userID, lecture_bank_id);
         Integer deleted = lectureBankMapper.checkHitIsdeleted(hitID);
 
@@ -348,9 +369,10 @@ public class LectureBankServiceImpl implements LectureBankService {
         Long lecturebank_id = lectureBankMapper.getLectureBankId_file(id);
         Long writer = lectureBankMapper.getWriterId(lecturebank_id);
 
+        //저자 혹은 구매자인가?
         if(checkPurchase(lecturebank_id) || (writer.equals(user_id))){
-            String objectKey = lectureBankMapper.getUrl(id);
-            URL url = s3Util.getPrivateObjectURL(objectKey);
+            UploadFile uploadFile = lectureBankMapper.getUrl(id);
+            URL url = s3Util.getPrivateObjectURL(uploadFile.getUrl(), uploadFile.getFileName());
             return url.toString();
         }else{
             throw new RequestInputException(ErrorMessage.DIDNT_PURCHASED);
