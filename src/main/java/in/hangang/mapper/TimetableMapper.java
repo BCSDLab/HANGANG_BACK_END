@@ -44,4 +44,5 @@ public interface TimetableMapper {
     void deleteLecture(Long lectureId);
     ArrayList<Long> getTimeTableIdByLecture(Long userId, Long lectureId);
     Long getLatestSemesterDateId();
+    void createDefaultTimeTable(Long userId, Long semesterDateId);
 }

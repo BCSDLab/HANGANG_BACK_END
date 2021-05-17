@@ -224,6 +224,10 @@
         DELETE FROM hangang.lecture_timetable WHERE id = #{lectureId}
     </delete>
 
+    <insert id="createDefaultTimeTable">
+        INSERT INTO hangang.user_timetables(user_id, semester_date_id, name, is_main) VALUES(#{userId}, #{semesterDateId}, '기본 시간표', 1);
+    </insert>
+
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
         <result column="is_custom" property="is_custom"/>

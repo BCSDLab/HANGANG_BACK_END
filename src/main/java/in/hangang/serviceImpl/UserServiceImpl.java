@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
 
         //회원가입 포인트 이력 추가
         userMapper.addPointHistory(userId, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
-        timetableMapper.createTimetable(userId, timetableMapper.getLatestSemesterDateId(), "기본 시간표");
+        timetableMapper.createDefaultTimeTable(userId, timetableMapper.getLatestSemesterDateId());
         return new BaseResponse("회원가입에 성공했습니다", HttpStatus.OK);
     }
 
