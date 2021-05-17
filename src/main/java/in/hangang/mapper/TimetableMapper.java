@@ -43,4 +43,5 @@ public interface TimetableMapper {
     ArrayList<LectureTimeTable>getClassMapByLectureId(Long lectureId);
     void deleteLecture(Long lectureId);
     ArrayList<Long> getTimeTableIdByLecture(Long userId, Long lectureId);
+    Long getLatestSemesterDateId();
 }

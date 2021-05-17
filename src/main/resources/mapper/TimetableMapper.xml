@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TimetableMapper">
-
+    <select id="getLatestSemesterDateId" resultType="Long">
+        SELECT id FROM semester_date ORDER BY id DESC LIMIT 1
+    </select>
     <select id="getLectureList" resultMap="lectureList">
         SELECT *
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
