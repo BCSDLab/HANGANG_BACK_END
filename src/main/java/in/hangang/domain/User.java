@@ -29,6 +29,7 @@ public class User {
     @Pattern(regexp = "^[a-zA-Z가-힣0-9]{1,20}$", groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class} , message = "닉네임의 특수문자와 초성은 사용불가능합니다")
     private String nickname;
 
+    @Size(max = 2, groups = {ValidationGroups.updateUser.class, ValidationGroups.signUp.class}, message = "전공은 두개이상일 수 없습니다.")
     @NotNull(groups = {ValidationGroups.signUp.class, ValidationGroups.updateUser.class} , message = "전공은 비워둘 수 없습니다.")
     private ArrayList<
             @Length(min=4, max=15, groups = {ValidationGroups.signUp.class,ValidationGroups.updateUser.class}, message = "전공은 4글자 이상 15글자 이하입니다.")

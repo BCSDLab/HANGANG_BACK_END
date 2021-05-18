@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 
-@Component
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UploadFile {
     private Long id;
@@ -15,11 +15,51 @@ public class UploadFile {
     private String url;
     private String fileName;
     private String ext;
-
+    private Long size;
+    private Long user_id;
+    private String file_ext;
     @ApiModelProperty(hidden = true)
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
+
+    public UploadFile(){
+
+    }
+
+
+    public UploadFile(String url, String fileName, String file_ext, String ext, Long user_id, Long size){
+        this.url = url;
+        this.fileName = fileName;
+        this.file_ext = file_ext;
+        this.ext = ext;
+        this.user_id = user_id;
+        this.size = size;
+    }
+
+    public String getFile_ext() {
+        return file_ext;
+    }
+
+    public void setFile_ext(String file_ext) {
+        this.file_ext = file_ext;
+    }
+
+    public Long getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(Long user_id) {
+        this.user_id = user_id;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
+    }
 
     public Long getId() {
         return id;

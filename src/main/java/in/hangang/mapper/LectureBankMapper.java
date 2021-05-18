@@ -12,7 +12,8 @@ import java.util.List;
 @Repository
 public interface LectureBankMapper {
 
-    void insertS3Url(String url, String fileName, String fileExt, String ext);
+    List<LectureBank> getCount( @Param("lectureBankCriteria")LectureBankCriteria lectureBankCriteria);
+    void insertS3Url(List<UploadFile> uploadFiles);
     String getExt(String url);
     Long postLectureBank(LectureBank lectureBank);
     void insertCategoryAndFiles(@Param("lectureBank")LectureBank lectureBank, Integer variance, Integer point_type_id);

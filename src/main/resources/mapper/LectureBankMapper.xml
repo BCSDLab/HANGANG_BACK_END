@@ -2,9 +2,46 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.LectureBankMapper">
 
+    <select id="getCount" resultMap="countMap">
+        SELECT
+        <include refid="lectureBankColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LB."/>
+        </include>,
+        <include refid="UserColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="U."/>
+        </include>,
+        <include refid="lectureColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="L."/>
+        </include>
+        FROM lecture_bank LB, user U, lecture L,
+        (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
+        WHERE
+        (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id and LB.is_deleted = 0)
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.category)">
+            and
+            <foreach collection="lectureBankCriteria.category" item="category" open="(" close=")"  separator="or">
+                LBC.category = #{category}
+            </foreach>
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.keyword)">
+            and
+            (LB.title like concat('%',#{lectureBankCriteria.keyword},'%')
+            or L.name like concat('%',#{lectureBankCriteria.keyword},'%')
+            or L.professor like concat('%',#{lectureBankCriteria.keyword},'%'))
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.department)">
+            and
+            (L.department = #{lectureBankCriteria.department})
+        </if>
+    </select>
 
     <insert id="insertS3Url">
-        INSERT INTO hangang.s3_url(image_url, ext, file_name, file_ext) VALUES(#{url}, #{ext}, #{fileName}, #{fileExt});
+        <foreach collection="uploadFiles" separator="" item="f">
+            INSERT INTO hangang.s3_url(image_url, ext, file_name, file_ext, size, user_id) VALUES(#{f.url}, #{f.ext}, #{f.fileName}, #{f.file_ext}, #{f.size}, #{f.user_id});
+        </foreach>
     </insert>
 
     <select id="getExt" resultType="String">
@@ -24,7 +61,7 @@
 
     <update id="insertCategoryAndFiles">
         <foreach collection="lectureBank.files" item="f" separator="">
-            INSERT INTO hangang.upload_file( url , filename, ext) SELECT image_url AS url, file_name AS filename, ext FROM hangang.s3_url WHERE image_url = #{f};
+            INSERT INTO hangang.upload_file( url , filename, ext,size) SELECT image_url AS url, file_name AS filename, ext, size FROM hangang.s3_url WHERE image_url = #{f};
             UPDATE hangang.upload_file SET lecture_bank_id = #{lectureBank.id} WHERE url = #{f};
         </foreach>
         <foreach collection="lectureBank.category" item="c" separator="">
@@ -115,7 +152,22 @@
         <association property="lecture" resultMap="lecture" />
         <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
     </resultMap>
-
+    <resultMap id="countMap" type="in.hangang.domain.LectureBank">
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="lecture_id" property="lecture_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="hits" property="hits"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="semester_date" property="semester_date"/>
+        <association property="user" resultMap="user"/>
+        <association property="lecture" resultMap="lecture" />
+    </resultMap>
     <sql id="lectureBankColumnList">
         ${alias}id AS ${prefix}id,
         ${alias}thumbnail AS ${prefix}thumbnail,
@@ -179,7 +231,7 @@
 
 
     <select id="getFiles" resultType="in.hangang.domain.UploadFile">
-        SELECT id, lecture_bank_id, url, filename, ext FROM hangang.upload_file WHERE lecture_bank_id = #{id};
+        SELECT id, lecture_bank_id, url, filename, ext, size FROM hangang.upload_file WHERE lecture_bank_id = #{id};
     </select>
 
     <select id="getLectureBankAll" resultMap="searchLectureBankAndFiles">
@@ -235,7 +287,7 @@
             UPDATE hangang.s3_url
             SET is_posted = 1
             WHERE image_url = #{i};
-            INSERT INTO hangang.upload_file( url , filename, ext) SELECT image_url AS url, file_name AS filename, ext FROM hangang.s3_url WHERE image_url = #{i};
+            INSERT INTO hangang.upload_file( url , filename, ext, size ) SELECT image_url AS url, file_name AS filename, ext, size FROM hangang.s3_url WHERE image_url = #{i};
             UPDATE hangang.upload_file SET lecture_bank_id = #{id} WHERE url = #{i};
         </foreach>
         <foreach collection="category" item="c" separator="">

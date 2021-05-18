@@ -11,10 +11,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface LectureBankService {
     //Main====================================================================================
-    List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception;
+    Map<String, Object> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception;
     LectureBank getLectureBank(Long id) throws Exception;
     BaseResponse postLectureBank(LectureBank lectureBank) throws Exception;
     BaseResponse updateLectureBank(LectureBank lectureBank, Long id) throws Exception;
@@ -38,7 +39,7 @@ public interface LectureBankService {
     //file====================================================================================
 
     //UPLOAD
-    String fileUpload(MultipartFile file) throws Exception;
+    List<String> fileUpload(MultipartFile[] files) throws Exception;
     String getObjectUrl(Long id) throws Exception;
 
     //Thumbnail====================================================================================

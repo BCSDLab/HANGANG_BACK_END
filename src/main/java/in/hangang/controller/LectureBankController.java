@@ -35,13 +35,16 @@ public class LectureBankController {
     @Autowired
     private ReportService reportService;
 
+
+
+
     // 강의자료 MAIN------------------------------------------------------------------------------------
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 목록 가져오기" , notes = "강의자료 목록을 전체, 필터별로 가져올 수 있습니다."
             , authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity getSearchLectureBanks(@ModelAttribute("criteria")  @Validated(ValidationGroups.Search.class) LectureBankCriteria lectureBankCriteria) throws Exception {
-        return new ResponseEntity<List<LectureBank>>(lectureBankService.searchLectureBanks(lectureBankCriteria), HttpStatus.OK);
+        return new ResponseEntity(lectureBankService.searchLectureBanks(lectureBankCriteria), HttpStatus.OK);
     }
 
 
@@ -88,11 +91,13 @@ public class LectureBankController {
 
     //File------------------------------------------------------------------------------------
 
+
     @Auth
-    @PostMapping("/file")
-    @ApiOperation(value ="단일 파일 업로드" , notes = "파일을 1개 업로드 합니다.\n파라미터는 강의 자료 id 입니다.\n업로드된 파일의 id가 반환됩니다.",authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity uploadFile(@RequestBody MultipartFile multipartFile) throws Exception {
-        return new ResponseEntity(lectureBankService.fileUpload(multipartFile), HttpStatus.OK);
+    @ApiImplicitParams( @ApiImplicitParam(name = "files", required = true, dataType = "__file", paramType = "form"))
+    @PostMapping("/files")
+    @ApiOperation(value ="다중 파일 업로드" , notes = "파일을 n개 업로드 합니다",authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity uploadFile(@RequestBody MultipartFile[] files) throws Exception {
+        return new ResponseEntity(lectureBankService.fileUpload(files), HttpStatus.OK);
     }
 
     @Auth

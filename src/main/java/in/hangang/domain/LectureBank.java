@@ -41,7 +41,6 @@ public class LectureBank {
     @Length(min=1,  groups = {ValidationGroups.PostLectureBank.class}, message = "본문은 최소 한글자 이상입니다")
     private String content;
 
-
     @ApiModelProperty(hidden = true)
     private List<LectureBankComment> comments;
     @ApiModelProperty(hidden = true)
@@ -87,6 +86,7 @@ public class LectureBank {
     private User user;
     @ApiModelProperty(hidden = true)
     private Lecture lecture;
+
 
     public Boolean getIs_scrap() {
         return is_scrap;

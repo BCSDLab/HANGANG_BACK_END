@@ -24,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Transactional
 @Service("LectureBankServiceImpl")
@@ -44,13 +46,16 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     /** 강의 페이지네이션 조회 메소드  - 정수현 */
     @Override
-    public List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception{
+    public  Map<String, Object> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception{
         // 카테고리 검증
         if ( lectureBankCriteria.getCategory() != null ) {
             this.is_acceptableCategory(lectureBankCriteria.getCategory());
         }
         if ( lectureBankCriteria.getOrder().equals("id") || lectureBankCriteria.getOrder().equals("hits")) {
-            return lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria, userService.getLoginUser());
+            Map<String, Object> map = new HashMap<>();
+            map.put("count", lectureBankMapper.getCount(lectureBankCriteria).size());
+            map.put("result",lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria, userService.getLoginUser()));
+            return map;
         }
         else
             throw new RequestInputException(ErrorMessage.KEYWORD_INVALID);
@@ -64,6 +69,7 @@ public class LectureBankServiceImpl implements LectureBankService {
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         else
             return lectureBank;
+
     }
 
     /** 해당 강의가 존재하는지 확인하는 메소드 -정수현 */
@@ -110,12 +116,22 @@ public class LectureBankServiceImpl implements LectureBankService {
      * s3 업로드된 url은 private한 url이다. - 정수현
      * */
     @Override
-    public String fileUpload(MultipartFile file) throws Exception{
-        if(file == null)
+    public List<String> fileUpload(MultipartFile[] files) throws Exception{
+        List<String> urls = new ArrayList<>();
+        List<UploadFile> uploadFiles = new ArrayList<>();
+        Long user_id = userService.getLoginUser().getId();
+        // file이 없는 경우
+        if(files == null || files.length == 0 )
             throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
-        String url = s3Util.privateUpload(file);
-        lectureBankMapper.insertS3Url(url, file.getOriginalFilename(),file.getContentType(), FilenameUtils.getExtension(file.getOriginalFilename()));
-        return url;
+        // 파일의 정보를 순서대로 java collection 에 저장한다.
+        for ( MultipartFile file : files){
+            String url = s3Util.privateUpload(file);
+            UploadFile uploadFile = new UploadFile(url,file.getOriginalFilename(), file.getContentType(), FilenameUtils.getExtension(file.getOriginalFilename()), user_id,file.getSize() );
+            uploadFiles.add(uploadFile);
+            urls.add(url);
+        }
+        lectureBankMapper.insertS3Url(uploadFiles); // 파일 이력 db저장
+        return urls; // url 정보반환 
     }
 
     /**
