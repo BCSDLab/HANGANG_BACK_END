@@ -8,7 +8,7 @@
                  JOIN hangang.report AS r ON l.report_id = r.id
                  JOIN hangang.board_type AS b ON l.board_type_id = b.id
                  JOIN hangang.review AS re ON l.content_id = re.id
-        WHERE l.board_type_id = 1 AND l.is_deleted = 0 AND re.is_deleted = 0;
+        WHERE l.board_type_id = 3 AND l.is_deleted = 0 AND re.is_deleted = 0;
     </select>
 
     <delete id="deleteReviewReported">

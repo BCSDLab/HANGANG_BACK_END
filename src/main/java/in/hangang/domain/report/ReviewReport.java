@@ -1,7 +1,9 @@
 package in.hangang.domain.report;
 
-import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.sql.Timestamp;
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReviewReport {
 
     private Long id;

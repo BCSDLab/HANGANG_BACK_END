@@ -10,7 +10,7 @@
         JOIN hangang.report AS r ON l.report_id = r.id
         JOIN hangang.board_type AS t ON l.board_type_id = t.id
         JOIN hangang.lecture_bank_comment AS cm ON l.content_id = cm.id
-        WHERE l.board_type_id = 3 AND l.is_deleted = 0 AND cm.is_deleted= 0;
+        WHERE l.board_type_id = 2 AND l.is_deleted = 0 AND cm.is_deleted= 0;
     </select>
 
     <select id="getReportedLectureBank" resultMap="getReportedLectureBankMap">
@@ -19,11 +19,11 @@
         JOIN hangang.report AS r ON l.report_id = r.id
         JOIN hangang.board_type AS t ON l.board_type_id = t.id
         JOIN hangang.lecture_bank AS lb ON l.content_id = lb.id
-        WHERE l.board_type_id = 2  AND l.is_deleted = 0 AND lb.is_deleted = 0;
+        WHERE l.board_type_id = 1  AND l.is_deleted = 0 AND lb.is_deleted = 0;
     </select>
 
     <select id="getReportedLectureBankFiles" resultType="in.hangang.domain.UploadFile">
-        SELECT id, filename, url, ext FROM hangang.upload_file WHERE lecture_bank_id = #{id} AND available = 1;
+        SELECT id, filename, url, ext FROM hangang.upload_file WHERE lecture_bank_id = #{id};
     </select>
 
     <resultMap id="getReportedLectureBankMap" type="in.hangang.domain.report.LectureBankReport">
