@@ -7,9 +7,9 @@ import in.hangang.domain.Review;
 import org.apache.ibatis.annotations.Param;
 
 public interface ReportMapper {
-    void createReport(Report report);
+    Long createReport(Report report);
     Long checkAlreadyReported(Report report);
-    Report getlatestReport();
+    Report getlatestReport(Long id);
 
     LectureBank getReportedLectureBank(@Param("id")Long id);
     LectureBankComment getReportedLectureBankComment(@Param("id")Long id);

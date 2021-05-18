@@ -53,8 +53,8 @@ public class LectureBankServiceImpl implements LectureBankService {
         }
         if ( lectureBankCriteria.getOrder().equals("id") || lectureBankCriteria.getOrder().equals("hits")) {
             Map<String, Object> map = new HashMap<>();
-            map.put("count", lectureBankMapper.getCount(lectureBankCriteria).size());
-            map.put("result",lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria, userService.getLoginUser()));
+            map.put("count", lectureBankMapper.getCount(lectureBankCriteria).size()); // 검색결과 총 갯수 
+            map.put("result",lectureBankMapper.findLectureBankByKeyword(lectureBankCriteria, userService.getLoginUser())); // 페이지네이션 결과
             return map;
         }
         else

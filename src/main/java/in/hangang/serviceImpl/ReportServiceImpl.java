@@ -49,9 +49,8 @@ public class ReportServiceImpl implements ReportService {
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
 
         User user = userService.getLoginUser();
-        //유저 정보가 있는지 확인.
-        if(user == null)
-            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
+        //유저 정보가 있는지 확인. ===> AUTH를 붙이는 API니까 필요 없는 검증입니다 - 수현
+
         report.setUser_id(user.getId());
 
         //이미 신고한 적이 있는지 확인
@@ -75,8 +74,8 @@ public class ReportServiceImpl implements ReportService {
         if(contents== null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
-        reportMapper.createReport(report);
-        Report recentReport = reportMapper.getlatestReport();
+        Long id =reportMapper.createReport(report);
+        Report recentReport = reportMapper.getlatestReport(id);
         sendReportNoti(recentReport, contents);
 
     }

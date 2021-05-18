@@ -2,6 +2,8 @@ package in.hangang.domain;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 public class Report {
@@ -11,6 +13,8 @@ public class Report {
     Integer board_type_id;
     @NotNull(message = "신고할 컨텐츠의 id는 비워둘 수 없습니다.")
     Long content_id;
+    @Min(value = 1 , message = "1 이상의 값입니다.")
+    @Max(value = 5, message = "5 이하의 값입니다.")
     @NotNull(message = "신고 내용은 비워둘 수 없습니다.")
     Long report_id;
     @ApiModelProperty(hidden = true)

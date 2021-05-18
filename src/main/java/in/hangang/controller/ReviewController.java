@@ -98,7 +98,7 @@ public class ReviewController {
             +"1: \"욕설/비하\" ,2 : \"유출/사칭/저작권 위배\", 3: \"허위/부적절한 정보\"\n" +
             "    4: \"광고/도배\", 5: \"음란물\""
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity reportReview(@RequestBody Report report) throws Exception {
+    public ResponseEntity reportReview(@RequestBody @Validated Report report) throws Exception {
         reportService.createReport(Board.REVIEW.getId(), report);
         return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }

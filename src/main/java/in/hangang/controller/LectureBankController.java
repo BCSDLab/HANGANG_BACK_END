@@ -189,7 +189,7 @@ public class LectureBankController {
             "    4: \"광고/도배\", 5: \"음란물\""
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity reportLectureBank(@RequestBody Report report) throws Exception {
+    ResponseEntity reportLectureBank(@RequestBody @Validated Report report) throws Exception {
         reportService.createReport(Board.LECTURE_BANK.getId(), report);
         return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
@@ -201,9 +201,8 @@ public class LectureBankController {
             "    4: \"광고/도배\", 5: \"음란물\""
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity reportLectureBankCommment(@RequestBody Report report) throws Exception {
+    ResponseEntity reportLectureBankComment(@RequestBody @Validated Report report) throws Exception {
         reportService.createReport(Board.LECTURE_BANK_COMMENT.getId(), report);
-
         return new ResponseEntity(new BaseResponse("정상적으로 신고되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
