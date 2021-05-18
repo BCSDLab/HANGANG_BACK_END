@@ -474,12 +474,12 @@ public class UserServiceImpl implements UserService {
         }
     }
     @Override
-    public void updateUser(User user){
+    public void updateUser(User user) throws  Exception{
 
         if  (user.getMajor().size() == 0 ){
             throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
-        Long id = this.getLoginUserId();
+        User dbUser = this.getLoginUser();
 
         // 전공값의 내용이 올바르지 않다면
         for(int i =0; i<user.getMajor().size(); i++){
@@ -487,10 +487,17 @@ public class UserServiceImpl implements UserService {
             if ( !result )
                 throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
+
+        // 현재 유저의 닉네임과 들어온 닉네임이 같은 경우는 체크하지 않는다
+        // 다른 경우 체크한다.
+        if ( !dbUser.getNickname().equals(user.getNickname())){
+            this.checkNickname(user.getNickname());
+        }
         //updateUser
-        userMapper.updateUser(id,user.getNickname(),user.getMajor(), user.getName());
+        userMapper.updateUser(dbUser.getId() ,user.getNickname(),user.getMajor(), user.getName());
 
     }
+
     @Override
     public BaseResponse deleteUser(){
         // soft delete and nickname update to "(탈퇴한 회원)"

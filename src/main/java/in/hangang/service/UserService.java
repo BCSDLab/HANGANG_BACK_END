@@ -23,7 +23,7 @@ public interface UserService {
     User getLoginUser() throws Exception;
     Map<String, Long> getLectureBankCount();
     List<PointHistory> getUserPointHistory();
-    void updateUser(User user);
+    void updateUser(User user) throws  Exception;
     BaseResponse deleteUser();
     List<UserLectureBank> getUserPurchasedLectureBank();
     BaseResponse updateUserSort();

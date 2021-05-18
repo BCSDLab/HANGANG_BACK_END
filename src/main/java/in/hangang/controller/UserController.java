@@ -136,7 +136,7 @@ public class UserController {
     @Auth
     @PutMapping("/me")
     @ApiOperation( value = "개인정보 바꾸기",notes = "개인정보 바꾸기 ", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity updateUser(@Validated(ValidationGroups.updateUser.class) @RequestBody User user){
+    public ResponseEntity updateUser(@Validated(ValidationGroups.updateUser.class) @RequestBody User user)throws  Exception{
         userService.updateUser(user);
         return new ResponseEntity(new BaseResponse("수정이 완료 되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
