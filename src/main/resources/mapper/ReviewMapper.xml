@@ -8,6 +8,7 @@
             ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
         </if>
         FROM hangang.review R WHERE R.is_deleted = 0 LIMIT #{criteria.cursor}, #{criteria.limit}
+        ORDER BY R.id
     </select>
 
     <select id="getReviewById" resultMap="review">

@@ -154,9 +154,6 @@ public class ReviewServiceImpl implements ReviewService {
         if(user == null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
 
-        if(reviewMapper.isExistsReview(reviewId)==null)
-            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
-        
         Long userId = user.getId();
         Long isLiked = likesMapper.checkIsLikedByUserId(userId, reviewId);
 
