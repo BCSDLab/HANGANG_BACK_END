@@ -46,7 +46,7 @@ public interface LectureBankService {
 
     //Scrap====================================================================================
     void createScrap(Long lecture_bank_id) throws Exception;
-    void deleteScrap(ArrayList<Long> lectureBank_IDList) throws Exception;
+    void deleteScrap(List<Long>lectureBank_IDList) throws Exception;
     List<ScrapLectureBank> getScrapList() throws Exception;
 
 }

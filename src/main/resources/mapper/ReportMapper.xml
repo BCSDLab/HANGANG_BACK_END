@@ -11,7 +11,8 @@
     </select>
     <select id="getlatestReport" resultType="in.hangang.domain.Report">
         SELECT * FROM report_log WHERE id = #{id}
-    </select>
+
+</select>
     <select id="getReportedLectureBank" resultType="in.hangang.domain.LectureBank">
         SELECT * FROM lecture_bank
         WHERE id = #{id} AND is_deleted = 0;
