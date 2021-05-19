@@ -148,6 +148,8 @@ public class ReviewServiceImpl implements ReviewService {
         //id가 비어있는지 확
         if(reviewId == null)
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+        if(reviewMapper.isExistsReview(reviewId)==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         User user = userService.getLoginUser();
         //유저 정보가 있는지 확인.
