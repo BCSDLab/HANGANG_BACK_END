@@ -88,7 +88,7 @@
     </select>
 
     <select id="getLectureReviewCount" resultType="Long">
-        SELECT COUNT(*) FROM hangang.review WHERE user_id=#{id and is_deleted = 0;
+        SELECT COUNT(*) FROM hangang.review WHERE user_id=#{id} and is_deleted = 0;
     </select>
 
     <select id="getLectureBankCommentCount" resultType="Long">
@@ -231,7 +231,7 @@
         JOIN hangang.lecture_bank_purchase AS p ON u.id = p.user_id
         JOIN hangang.lecture_bank AS b ON p.lecture_bank_id = b.id
         JOIN hangang.lecture AS l ON b.lecture_id = l.id
-        WHERE u.id=#{id};
+        WHERE u.id=#{id} and  u.is_deleted = 0 and p.is_deleted = 0 and b.is_deleted = 0;
     </select>
 
     <select id="getUserUploadFiles" resultType="in.hangang.domain.UploadFile">

@@ -32,7 +32,7 @@
     </select>
 
     <select id="getReviewListByUserId" resultMap="review">
-        SELECT * FROM hangang.review WHERE user_id = #{userId}
+        SELECT * FROM hangang.review WHERE user_id = #{userId} and is_deleted = 0;
     </select>
 
     <insert id="createReview" parameterType="in.hangang.domain.Review">
