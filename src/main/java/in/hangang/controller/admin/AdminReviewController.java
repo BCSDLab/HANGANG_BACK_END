@@ -17,14 +17,14 @@ public class AdminReviewController {
     @Autowired
     private AdminReviewService adminReviewService;
 
-    @GetMapping("/review")
+    @GetMapping("/")
     @ApiOperation(value = "강의후기 신고 내용 조회하기", notes = "1", authorizations = @Authorization(value = "Bearer +accessToken"))
     @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.Lecture)
     public ResponseEntity getReportedReviewForAdmin() {
         return new ResponseEntity(adminReviewService.getReportedReview(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/review/{id}")
+    @DeleteMapping("/{id}")
     @ApiOperation(value = "신고 강의평 댓글 삭제하기", notes = "", authorizations = @Authorization(value = "Bearer +accessToken"))
     @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.Lecture)
     public ResponseEntity deleteReportedReviewForAdmin(@PathVariable Long id ){
