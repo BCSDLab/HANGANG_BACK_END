@@ -118,5 +118,5 @@ public interface LectureBankMapper {
     Long checkScrapExist(@Param("id")Long id);
     ArrayList<ScrapLectureBank> getScrapLectureBankList(@Param("user_id")Long user_id);
     ArrayList<Scrap> checkScrapList(@Param("id_list")ArrayList<Long> id_list);
-    Scrap checkScrap(@Param("id")Long id);
+    List<Scrap> checkScrap(@Param("idList")List<Long > idList, @Param("user_id")Long user_id);
 }

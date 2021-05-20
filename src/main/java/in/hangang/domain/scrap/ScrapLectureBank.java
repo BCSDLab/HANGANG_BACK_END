@@ -11,8 +11,8 @@ public class ScrapLectureBank {
 
     private Long scrap_id;
     private Timestamp scraped_at;
-
     private Long id;
+    private String thumbnail;
     private Long user_id;
     private Long lecture_id;
     private ArrayList<String> category;
@@ -20,12 +20,18 @@ public class ScrapLectureBank {
     private String content;
     private Integer point_price;
     private String semester_date;
-    private Integer available;
     private Long hits;
     private Timestamp created_at;
     private Timestamp updated_at;
     private Boolean is_deleted = false;
 
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
 
     public Long getScrap_id() {
         return scrap_id;
@@ -106,14 +112,6 @@ public class ScrapLectureBank {
 
     public void setSemester_date(String semester_date) {
         this.semester_date = semester_date;
-    }
-
-    public Integer getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(Integer available) {
-        this.available = available;
     }
 
     public Long getHits() {

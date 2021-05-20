@@ -404,39 +404,27 @@ public class LectureBankServiceImpl implements LectureBankService {
         Long user_id = userService.getLoginUser().getId();
 
         if(lecture_bank_id != null){
-            Boolean check = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id);
+            this.getLectureBank(lecture_bank_id); // 해당 강의자료가 존재하는가?
+            Boolean check = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id); // null -> 스크랩한적없음 , true 스크랩했음, false 스크랩을 취소한적이있음
             System.out.println(check);
-            if(check == null){
-                lectureBankMapper.createScrap(user_id, lecture_bank_id);
-            }else if(check){
-                lectureBankMapper.unDeleteScrap(user_id,lecture_bank_id);
+            if(check == null){ // 스크랩한적이 없다면
+                lectureBankMapper.createScrap(user_id, lecture_bank_id); //삽입
+            }else if(check){ // 스크랩 했다면
+                lectureBankMapper.unDeleteScrap(user_id,lecture_bank_id); // 스크랩 취소
             }else{
-                throw new RequestInputException(ErrorMessage.SCRAP_ALREADY_EXISTS);
+                throw new RequestInputException(ErrorMessage.SCRAP_ALREADY_EXISTS); // 스크랩이 이미 있다면
             }
         }
-        else
+        else // input값에러
             throw new RequestInputException(ErrorMessage.NULL_POINTER_EXCEPTION);
     }
 
     @Override
     public void deleteScrap(List<Long> idList) throws Exception{
         if(idList!= null && idList.size() > 0){
-            //mybatis foreach 사용시 null 이 아닌 empty가 된다??? - 찾아보기
-            List<Scrap> scList = new ArrayList<>();
-            for(Long id : idList){
-                scList.add(lectureBankMapper.checkScrap(id));
-            }
-
-            Long userID = userService.getLoginUser().getId();
-            for(Scrap ch : scList){
-                if(ch==null){
-                    throw new RequestInputException(ErrorMessage.SCRAP_DOES_NOT_EXIST);
-                }else if(ch.getIs_deleted()){
-                    throw new RequestInputException(ErrorMessage.ALREADY_DELETED_SCRAP);
-                }else{
-                    if(!ch.getUser_id().equals(userID))
-                        throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-                }
+            // 만약 두 list의 길이가 다르다면 idList중 잘못된 값이 있음
+            if ( lectureBankMapper.checkScrap(idList, userService.getLoginUser().getId()).size() != idList.size()){
+                throw new RequestInputException(ErrorMessage.SCRAP_DOES_NOT_EXIST);
             }
             lectureBankMapper.deleteScrapList(idList);
         }else{
