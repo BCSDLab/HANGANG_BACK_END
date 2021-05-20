@@ -84,15 +84,15 @@
         LIMIT 1;
     </select>
     <select id="getLectureBankCount" resultType="Long">
-        SELECT COUNT(*) FROM hangang.lecture_bank WHERE user_id=#{id};
+        SELECT COUNT(*) FROM hangang.lecture_bank WHERE user_id=#{id} and is_deleted = 0;
     </select>
 
     <select id="getLectureReviewCount" resultType="Long">
-        SELECT COUNT(*) FROM hangang.review WHERE user_id=#{id};
+        SELECT COUNT(*) FROM hangang.review WHERE user_id=#{id and is_deleted = 0;
     </select>
 
     <select id="getLectureBankCommentCount" resultType="Long">
-        SELECT COUNT(*) FROM hangang.lecture_bank_comment WHERE user_id=#{id};
+        SELECT COUNT(*) FROM hangang.lecture_bank_comment WHERE user_id=#{id} and is_deleted = 0;
     </select>
 
     <insert id="addPointHistory">
