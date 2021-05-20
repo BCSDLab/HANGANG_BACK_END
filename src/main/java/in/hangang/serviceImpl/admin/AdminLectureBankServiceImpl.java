@@ -36,50 +36,40 @@ public class AdminLectureBankServiceImpl extends LectureBankServiceImpl implemen
     }
 
     @Override
-    public BaseResponse deleteReportedCommentForAdmin(Long id){
-        Long commentId = adminLectureBankMapper.getComment(id);
-        //강의자료 댓글이 존재하지 않는 경우
-        if ( commentId == null ){
+    public BaseResponse deleteReportedCommentForAdmin(Long id) throws Exception{
+
+        Long userId = lectureBankMapper.getCommentWriterId(id);
+        // 해당 댓글이 존재하는가?
+        if (userId == null){
             throw new RequestInputException(ErrorMessage.COMMENT_NOT_EXIST);
         }
-        //존재하는 경우 아묻따 삭제
+        // 댓글과 신고내역에서 삭제
         lectureBankMapper.deleteComment(id);
-        
-        //신고내역에서 삭제
-        adminLectureBankMapper.softDeleteReported(id, Long.valueOf(3));
-        return new BaseResponse(id.toString() + "강의자료 댓글이 삭제되었습니다" , HttpStatus.OK);
+        return new BaseResponse("댓글이 삭제되었습니다.", HttpStatus.OK);
     }
 
     @Override
-    public void deleteLectureBank(Long id){
+    public void deleteLectureBank(Long id) throws Exception{
         //delete LectureBank - soft
         //user_id 무시
-        adminLectureBankMapper.deleteLectureBank(id);
-        //delete Comment : soft
-        List<Long> commentIdList= lectureBankMapper.getCommentIdList(id);
-        if(commentIdList.size() != 0)
-            lectureBankMapper.deleteMultiComment((ArrayList<Long>)commentIdList);
 
-        //delete File : soft -> hard => scheduler available 2
-        List<Long> fileIdList = lectureBankMapper.getFileId(id);
-        if(fileIdList.size() != 0)
-            lectureBankMapper.deleteMultiFile((ArrayList<Long>) fileIdList,2);
+        // 해당 강의자료가 존재하는가 ?
+        LectureBank lectureBank = this.getLectureBank(id);
 
-        //delete Category : hard
-        List<Long> categoryList = lectureBankMapper.getCategoryIdList(id);
-        if(categoryList.size() != 0)
-            lectureBankMapper.deleteMultiCategory((ArrayList<Long>)categoryList);
+        // 강의자료, 스크랩, 카테고리, 댓글, 좋아요, 구매 , 신고내역, 파일업로드 내역, 신고내역 댓글 -> is_deleted = 1
+        // s3_url 사용안함처리
+        lectureBankMapper.deleteLectureBank(id, lectureBank.getUploadFiles(), lectureBank.getComments());
+    }
 
-        //delete Hit : soft
-        List<Long> hitIdList = lectureBankMapper.getHitId(id);
-        if(hitIdList.size() != 0)
-            lectureBankMapper.deleteMultiHit((ArrayList<Long>)hitIdList);
-        //delete Purchase : soft
-        List<Long> purchaseId = lectureBankMapper.getPurchaseId(id);
-        if(purchaseId.size() != 0)
-            lectureBankMapper.deleteMultiPurchase((ArrayList<Long>)purchaseId);
+    /** 신고내용을 기각하는 api 신고기록을 soft delete 한다.*/
+    @Override
+    public BaseResponse deleteReport(Long typeId , Long contentId){
+        //신고내역이 존재하는지?
+        if (adminLectureBankMapper.getContent(typeId, contentId) == null)
+            throw new RequestInputException(ErrorMessage.REPORT_NOT_EXIST);
 
-        // 신고내역에서 삭제
-        adminLectureBankMapper.softDeleteReported(id, Long.valueOf(2));
+        //신고내용 기각
+        adminLectureBankMapper.softDeleteReported(typeId,contentId);
+        return new BaseResponse("신고내역을 기각했습니다.", HttpStatus.OK);
     }
 }

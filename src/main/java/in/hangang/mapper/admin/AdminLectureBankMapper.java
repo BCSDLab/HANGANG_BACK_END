@@ -12,8 +12,7 @@ public interface AdminLectureBankMapper {
 
     List<LectureBankReport> getReportedLectureBank();
     List<LectureBankCommentReport> getReportedLectureBankComment();
-    Long getComment(Long id);
-    void deleteLectureBank(Long id);
-    void softDeleteReported(Long contentId, Long typeId);
+    void softDeleteReported(Long typeId, Long contentId);
+    Long getContent(Long typeId, Long contentId);
 
 }

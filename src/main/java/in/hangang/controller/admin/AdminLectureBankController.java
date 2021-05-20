@@ -31,7 +31,7 @@ public class AdminLectureBankController {
     @GetMapping("/comment")
     @ApiOperation(value = "강의자료 댓글 신고 내용 조회하기", notes = "3", authorizations = @Authorization(value = "Bearer +accessToken"))
     @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.LectureBank)
-    public ResponseEntity getReportedLectureBankCommentForAdmin() {
+    public ResponseEntity getReportedLectureBankCommentForAdmin()throws Exception {
         return new ResponseEntity(adminLectureBankService.getReportedLectureBankComment(), HttpStatus.OK);
     }
 
@@ -46,25 +46,22 @@ public class AdminLectureBankController {
     @DeleteMapping("/comment/{id}")
     @ApiOperation(value = "신고 강의자료 댓글 삭제하기", notes = "", authorizations = @Authorization(value = "Bearer +accessToken"))
     @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.LectureBank)
-    public ResponseEntity deleteReportedCommentForAdmin(@PathVariable Long id ){
+    public ResponseEntity deleteReportedCommentForAdmin(@PathVariable Long id  ) throws Exception{
         return new ResponseEntity(adminLectureBankService.deleteReportedCommentForAdmin(id), HttpStatus.OK);
     }
 
     @DeleteMapping("/report/{id}")
     @ApiOperation(value = "신고 강의자료 기각하기", notes = "신고 내용을 기각한다. 강의자료의 board_type_id =1 ", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.Lecture)
+    @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.LectureBank)
     public ResponseEntity deleteReport(@PathVariable Long id ){
-
-        return new ResponseEntity(null,HttpStatus.OK);
-        //return new ResponseEntity(adminLectureBankService.deleteReport(id), HttpStatus.OK);
+        return new ResponseEntity(adminLectureBankService.deleteReport(Long.valueOf(1),id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/rep2ort/{id}")
+    @DeleteMapping("/report/comment/{id}")
     @ApiOperation(value = "신고 강의자료 댓글 기각하기", notes = "신고 내용을 기각한다. 강의자료 댓글의 board_type_id = 2 ", authorizations = @Authorization(value = "Bearer +accessToken"))
-    @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.Lecture)
+    @Auth(role = Auth.Role.MANAGER, authority = Auth.Authority.LectureBank)
     public ResponseEntity deleteCommentReport(@PathVariable Long id ){
-        return new ResponseEntity(null,HttpStatus.OK);
-        //return new ResponseEntity(adminLectureBankService.deleteCommentReport(id), HttpStatus.OK);
+        return new ResponseEntity(adminLectureBankService.deleteReport(Long.valueOf(2),id), HttpStatus.OK);
     }
 
 }

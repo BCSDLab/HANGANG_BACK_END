@@ -40,22 +40,13 @@
         <collection  column="content_id" property="files" javaType="java.util.List"  ofType="in.hangang.domain.UploadFile" select="getReportedLectureBankFiles"> </collection>
     </resultMap>
 
-    <select id="getComment" resultType="Long">
-        SELECT id FROM hangang.lecture_bank_comment WHERE id = #{id} and is_deleted = 0
-    </select>
-
-    <update id="getCommentIdList" >
-        UPDATE hangang.lecture_bank SET is_deleted =1
-        WHERE id = #{id} AND is_deleted = 0;
-    </update>
-
-    <update id="deleteLectureBank">
-        UPDATE lecture_bank SET is_deleted =1
-        WHERE id = #{id};
-    </update>
 
     <update id="softDeleteReported">
-        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{contentId} AND board_type_id = #{typeId} AND is_deleted = 0
+        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{contentId} AND board_type_id = #{typeId}
     </update>
+
+    <select id="getContent" resultType="Long">
+        SELECT id FROM hangang.report_log WHERE board_type_id = #{typeId} AND content_id = #{contentId} AND is_deleted = 0;
+    </select>
 
 </mapper>

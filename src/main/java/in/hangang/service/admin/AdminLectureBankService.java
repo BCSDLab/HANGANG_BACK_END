@@ -9,9 +9,7 @@ import java.util.List;
 
 public interface AdminLectureBankService extends LectureBankService {
     List<LectureBankReport> getReportedLectureBank();
-    List<LectureBankCommentReport> getReportedLectureBankComment();
-    BaseResponse deleteReportedCommentForAdmin(Long id);
-    //BaseResponse deleteReport(Long id);
-
-   //BaseResponse deleteCommentReport(Long id);
+    List<LectureBankCommentReport> getReportedLectureBankComment() throws Exception;
+    BaseResponse deleteReportedCommentForAdmin(Long id) throws Exception;
+    BaseResponse deleteReport(Long typeId , Long contentId);
 }

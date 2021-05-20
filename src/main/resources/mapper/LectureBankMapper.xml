@@ -512,6 +512,7 @@
     <update id="deleteComment">
         UPDATE lecture_bank_comment SET is_deleted = 1
         where id = #{id};
+        UPDATE report_log SET is_deleted = 1 WHERE board_type_id = 2 AND content_id = #{id};
     </update>
 
     <select id="getCommentWriterId" resultType="java.lang.Long">

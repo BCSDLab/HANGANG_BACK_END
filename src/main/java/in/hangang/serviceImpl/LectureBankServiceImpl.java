@@ -37,14 +37,14 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     @Autowired
     @Qualifier("UserServiceImpl")
-    private UserService userService;
+    protected UserService userService;
 
     @Autowired
     private S3Util s3Util;
 
     //Main------------------------------------------------------------------------------------
 
-    /** 강의 페이지네이션 조회 메소드  - 정수현 */
+    /** 강의 페이지네이션 조회 메소드  -  */
     @Override
     public  Map<String, Object> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception{
         // 카테고리 검증
@@ -61,7 +61,7 @@ public class LectureBankServiceImpl implements LectureBankService {
             throw new RequestInputException(ErrorMessage.KEYWORD_INVALID);
     }
 
-    /**강의 단일조회 메소드 - 정수현 */
+    /**강의 단일조회 메소드 -  */
     @Override
     public LectureBank getLectureBank(Long id) throws Exception{
         LectureBank lectureBank = lectureBankMapper.getLectureBankAll(id ,userService.getLoginUser() );
@@ -72,7 +72,7 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     }
 
-    /** 해당 강의가 존재하는지 확인하는 메소드 -정수현 */
+    /** 해당 강의가 존재하는지 확인하는 메소드 - */
     private Lecture getLecture(Long id){
         Lecture lecture = lectureBankMapper.getLectureInfo(id);
         if(lecture == null) throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
@@ -80,7 +80,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
 
-    /** url의 확장자에 따라 default 썸네일을 반환해주는 메소드  - 정수현 */
+    /** url의 확장자에 따라 default 썸네일을 반환해주는 메소드  -  */
     private String getThumbnailUrl(String url){
         String ext = lectureBankMapper.getExt(url);
         // 해당 url이 우리 file 서버에 없는 경우
@@ -113,7 +113,7 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
     /** 유저가 파일을 업로드 시 사용하는 메소드
      * s3 url과 file name, 확장자등의 이력을 관리한다.
-     * s3 업로드된 url은 private한 url이다. - 정수현
+     * s3 업로드된 url은 private한 url이다. -
      * */
     @Override
     public List<String> fileUpload(MultipartFile[] files) throws Exception{
@@ -173,7 +173,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         return new BaseResponse("강의자료가 업로드되었습니다.", HttpStatus.CREATED);
     }
 
-    /** 카테고리가 올바른 값으로 들어왔는지 검증하는 메소드  - 정수현  */
+    /** 카테고리가 올바른 값으로 들어왔는지 검증하는 메소드  -  */
     private boolean is_acceptableCategory(List<String> category){
         for (int i =0; i< category.size(); i++){
             boolean check = false;
@@ -189,7 +189,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         }
         return true;
     }
-    /** 강의자료를 수정하는 메소드 - 정수현 */
+    /** 강의자료를 수정하는 메소드 - */
     @Override
     public BaseResponse updateLectureBank(LectureBank lectureBank, Long id) throws Exception{
         lectureBank.setId(id);
@@ -289,6 +289,7 @@ public class LectureBankServiceImpl implements LectureBankService {
         if ( userId != userService.getLoginUser().getId() ){
             throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
         }
+        // 댓글과 신고내역에서 삭제
         lectureBankMapper.deleteComment(commentId);
         return new BaseResponse("댓글이 삭제되었습니다.", HttpStatus.OK);
     }

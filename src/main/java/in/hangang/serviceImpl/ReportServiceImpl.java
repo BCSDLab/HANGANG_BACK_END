@@ -50,7 +50,6 @@ public class ReportServiceImpl implements ReportService {
 
         User user = userService.getLoginUser();
         //유저 정보가 있는지 확인. ===> AUTH를 붙이는 API니까 필요 없는 검증입니다 - 수현
-
         report.setUser_id(user.getId());
 
         //이미 신고한 적이 있는지 확인

@@ -16,17 +16,14 @@
         UPDATE hangang.review_assignment SET is_deleted = 1 WHERE review_id = #{id};
         UPDATE hangang.review_hash_tag SET is_deleted = 1 WHERE review_id = #{id};
         UPDATE hangang.review_like SET is_deleted = 1 WHERE review_id = #{id};
-        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{id} AND board_type_id = 1;
+        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{id} AND board_type_id = 3;
     </delete>
 
-    <select id="getReport" resultType="in.hangang.domain.report.ReviewReport">
-        SELECT id, board_type_id, content_id FROM hangang.report_log WHERE is_deleted = 0;
-    </select>
-    <select id="getContent" resultType="Long">
-        SELECT id FROM hangang.review WHERE id = #{id} WHERE is_deleted = 0 ;
+    <select id="getReport" resultType="Long">
+        SELECT id FROM hangang.report_log WHERE board_type_id = 3 AND content_id = #{id} and is_deleted = 0 ;
     </select>
     <update id="deleteReport">
-        UPDATE hangang.report_log SET is_deleted = 1 WHERE id = #{id};
+        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{id} AND board_type_id = 3;
     </update>
 
 
