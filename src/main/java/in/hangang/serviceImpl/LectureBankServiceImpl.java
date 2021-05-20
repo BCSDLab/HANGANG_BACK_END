@@ -222,38 +222,19 @@ public class LectureBankServiceImpl implements LectureBankService {
         }
     }
 
+    /** 강의자료와 관련된 모든 내용 soft delete */
     public void deleteLectureBank(Long id) throws Exception{
-        //delete LectureBank - soft
-        //TODO scrap 수정
-        Long userId = userService.getLoginUser().getId();
-        if(is_writer(id)){
-            lectureBankMapper.deleteLectureBank(id, userId);
-            //TODO MULTI QUERY랑 CHOOSE WHEN 구문을 사용해 볼 수 있지 않을까요?
-            //delete Comment : soft
-            List<Long> commentIdList= lectureBankMapper.getCommentIdList(id);
-            if(commentIdList.size() != 0)
-                lectureBankMapper.deleteMultiComment((ArrayList<Long>)commentIdList);
 
-            //delete File : soft -> hard => scheduler available 2
-            List<Long> fileIdList = lectureBankMapper.getFileId(id);
-            if(fileIdList.size() != 0)
-                lectureBankMapper.deleteMultiFile((ArrayList<Long>) fileIdList,2);
-
-            //delete Category : hard
-            List<Long> categoryList = lectureBankMapper.getCategoryIdList(id);
-            if(categoryList.size() != 0)
-                lectureBankMapper.deleteMultiCategory((ArrayList<Long>)categoryList);
-
-            //delete Hit : soft
-            List<Long> hitIdList = lectureBankMapper.getHitId(id);
-            if(hitIdList.size() != 0)
-                lectureBankMapper.deleteMultiHit((ArrayList<Long>)hitIdList);
-            //delete Purchase : soft
-            List<Long> purchaseId = lectureBankMapper.getPurchaseId(id);
-            if(purchaseId.size() != 0)
-                lectureBankMapper.deleteMultiPurchase((ArrayList<Long>)purchaseId);
+        // 해당 강의자료가 존재하는가 ?
+        LectureBank lectureBank = this.getLectureBank(id);
+        Long dbUser =  lectureBank.getUser_id();
+        // 저자인가?
+        if ( dbUser != userService.getLoginUser().getId()){
+            throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
         }
-        else throw new RequestInputException(ErrorMessage.FORBIDDEN_EXCEPTION);
+        // 강의자료, 스크랩, 카테고리, 댓글, 좋아요, 구매 , 신고내역, 파일업로드 내역, 신고내역 댓글 -> is_deleted = 1
+        // s3_url 사용안함처리
+        lectureBankMapper.deleteLectureBank(id, lectureBank.getUploadFiles(), lectureBank.getComments());
     }
 
     private Boolean is_writer(Long LectureBankId) throws Exception{
@@ -382,11 +363,15 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     public String getObjectUrl(Long id) throws Exception{
         Long user_id = userService.getLoginUser().getId();
-        Long lecturebank_id = lectureBankMapper.getLectureBankId_file(id);
-        Long writer = lectureBankMapper.getWriterId(lecturebank_id);
+        Long lecture_bank_id = lectureBankMapper.getLectureBankId_file(id);
+        // 파일이 존재하지 않는경우  (삭제된 경우 )
+        if ( lecture_bank_id == null){
+            throw new RequestInputException(ErrorMessage.DELETED_FILE);
+        }
+        Long writer = lectureBankMapper.getWriterId(lecture_bank_id);
 
         //저자 혹은 구매자인가?
-        if(checkPurchase(lecturebank_id) || (writer.equals(user_id))){
+        if(checkPurchase(lecture_bank_id) || (writer.equals(user_id))){
             UploadFile uploadFile = lectureBankMapper.getUrl(id);
             URL url = s3Util.getPrivateObjectURL(uploadFile.getUrl(), uploadFile.getFileName());
             return url.toString();
@@ -397,8 +382,6 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
 
-
-    //TODO SCRAP TEST
     @Override
     public void createScrap(Long lecture_bank_id) throws Exception{
         Long user_id = userService.getLoginUser().getId();
@@ -406,7 +389,6 @@ public class LectureBankServiceImpl implements LectureBankService {
         if(lecture_bank_id != null){
             this.getLectureBank(lecture_bank_id); // 해당 강의자료가 존재하는가?
             Boolean check = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id); // null -> 스크랩한적없음 , true 스크랩했음, false 스크랩을 취소한적이있음
-            System.out.println(check);
             if(check == null){ // 스크랩한적이 없다면
                 lectureBankMapper.createScrap(user_id, lecture_bank_id); //삽입
             }else if(check){ // 스크랩 했다면

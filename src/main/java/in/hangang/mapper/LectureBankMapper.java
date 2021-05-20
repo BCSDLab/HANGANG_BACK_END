@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public interface LectureBankMapper {
 
+    void deleteLectureBank(Long id, List<UploadFile> files, List<LectureBankComment> comments);
     List<LectureBank> getCount( @Param("lectureBankCriteria")LectureBankCriteria lectureBankCriteria);
     void insertS3Url(List<UploadFile> uploadFiles);
     String getExt(String url);
@@ -29,7 +30,6 @@ public interface LectureBankMapper {
     Lecture getLectureInfo(@Param("id")Long id);
     void setLectureBank(@Param("lecture_bank_id")Long lecture_bank_id, @Param("lecture_id")Long lecture_id, @Param("title")String title, @Param("content") String content, @Param("point_price")Integer point_price, @Param("semester_date_id")Long semester_date_id);
 
-    void deleteLectureBank(@Param("id")Long id, @Param("user_id")Long user_id);
 
     Long getWriterId(@Param("id")Long id);
     String getLatestSemester();

@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.LectureBankMapper">
 
+
     <select id="getCount" resultMap="countMap">
         SELECT
         <include refid="lectureBankColumnList">
@@ -17,7 +18,7 @@
             <property name="alias" value="L."/>
         </include>
         FROM lecture_bank LB, user U, lecture L,
-        (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
+        (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id and LB.is_deleted = 0 and LBC.is_deleted = 0) LBC
         WHERE
         (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id and LB.is_deleted = 0)
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.category)">
@@ -37,6 +38,27 @@
             (L.department = #{lectureBankCriteria.department})
         </if>
     </select>
+    <update id="deleteLectureBank">
+        UPDATE lecture_bank SET is_deleted = 1 WHERE id = #{id};
+        UPDATE scrap_lecture_bank SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_category SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_comment SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_hit SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_purchase SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE report_log SET is_deleted = 1 WHERE board_type_id = 1 AND content_id= #{id};
+        UPDATE upload_file SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        <foreach collection="files" item="f" separator="" >
+            UPDATE hangang.s3_url
+            SET is_posted = 0
+            WHERE image_url = #{f.url};
+        </foreach>
+        <foreach collection="comments" item="c" separator="" >
+            UPDATE hangang.report_log
+            SET is_deleted = 1
+            WHERE board_type_id = 2  AND  content_id = #{c.id};
+        </foreach>
+
+    </update>
 
     <insert id="insertS3Url">
         <foreach collection="uploadFiles" separator="" item="f">
@@ -127,7 +149,7 @@
         </choose>
     </select>
     <select id="getCategory" resultType="String">
-        SELECT category FROM hangang.lecture_bank_category WHERE lecture_bank_id = #{id}
+        SELECT category FROM hangang.lecture_bank_category WHERE lecture_bank_id = #{id} and is_deleted =0
     </select>
     <select id = "getHits" resultType="Long">
         SELECT lecture_bank_id FROM hangang.lecture_bank_hit WHERE user_id = #{id};
@@ -231,7 +253,7 @@
 
 
     <select id="getFiles" resultType="in.hangang.domain.UploadFile">
-        SELECT id, lecture_bank_id, url, filename, ext, size FROM hangang.upload_file WHERE lecture_bank_id = #{id};
+        SELECT id, lecture_bank_id, url, filename, ext, size FROM hangang.upload_file WHERE lecture_bank_id = #{id} and is_deleted = 0;
     </select>
 
     <select id="getLectureBankAll" resultMap="searchLectureBankAndFiles">
@@ -339,14 +361,10 @@
         </foreach>;
     </delete>
 
-    <delete id="deleteLectureBank">
-        UPDATE lecture_bank SET is_deleted =1
-        WHERE id = #{id} AND user_id = #{user_id};
-    </delete>
 
     <select id="getCategoryIdList" resultType="java.lang.Long">
         SELECT id FROM lecture_bank_category
-        where lecture_bank_id = #{lecture_bank_id};
+        where lecture_bank_id = #{lecture_bank_id} and is_deleted = 0 ;
     </select>
 
     <select id="getWriterId" resultType="java.lang.Long">
@@ -368,7 +386,7 @@
 
     <select id="checkPurchased" resultType="java.lang.Long">
         SELECT id FROM lecture_bank_purchase
-        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
+        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id} and is_deleted = 0;
     </select>
     <insert id="purchaseInsert">
         INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id)
@@ -557,7 +575,7 @@
     </select>
     <select id="getLectureBankId_file" resultType="java.lang.Long">
         SELECT lecture_bank_id FROM upload_file
-        WHERE id = #{id};
+        WHERE id = #{id} and is_deleted = 0 ;
     </select>
 
     <update id="deleteFile">

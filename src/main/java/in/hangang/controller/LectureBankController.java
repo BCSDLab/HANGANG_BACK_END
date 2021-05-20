@@ -5,8 +5,6 @@ import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.*;
 import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.enums.Board;
-import in.hangang.enums.ErrorMessage;
-import in.hangang.exception.TimeTableException;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.LectureBankService;
 import in.hangang.service.ReportService;
@@ -18,10 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -74,7 +68,7 @@ public class LectureBankController {
         return new ResponseEntity( lectureBankService.updateLectureBank(lectureBank,id), HttpStatus.OK);
     }
 
-    /*
+
     @Auth
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value ="강의자료 작성 삭제" , notes = "강의 자료를 삭제합니다\n파리미터는 강의자료 id 입니다"
@@ -82,11 +76,8 @@ public class LectureBankController {
     public @ResponseBody
     ResponseEntity deleteLectureBank(@PathVariable Long id) throws Exception {
         lectureBankService.deleteLectureBank(id);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity( new BaseResponse("강의자료가 삭제되었습니다", HttpStatus.OK), HttpStatus.OK);
     }
-
-     */
-
 
 
     //File------------------------------------------------------------------------------------
@@ -232,10 +223,7 @@ public class LectureBankController {
     @ApiOperation(value ="scrap 목록 가져오기" , notes = "사용자가 스크랩한 자료를 가져옵니다."
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
-    ResponseEntity<List<ScrapLectureBank>> getScrap() throws Exception{
-        return new ResponseEntity<List<ScrapLectureBank>>(lectureBankService.getScrapList(),HttpStatus.OK);
+    ResponseEntity<List<ScrapLectureBank>> getScrap() throws Exception {
+        return new ResponseEntity<List<ScrapLectureBank>>(lectureBankService.getScrapList(), HttpStatus.OK);
     }
-
-
-
 }

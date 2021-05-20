@@ -56,7 +56,8 @@ public enum ErrorMessage {
 	CATEGORY_INVALID(51,"카테고리값이 잘못 입력되었습니다.", HttpStatus.BAD_REQUEST),
 	URL_NOT_UNIQUE(52,"url값이 유니크하지 못합니다.", HttpStatus.BAD_REQUEST),
 	KEYWORD_INVALID(53,"키워드는 최신순과 좋아요순만 가능합니다.", HttpStatus.BAD_REQUEST),
-	URL_INVALID(54,"URL의 값이 INVALID합니다.",HttpStatus.BAD_REQUEST);
+	URL_INVALID(54,"URL의 값이 INVALID합니다.",HttpStatus.BAD_REQUEST),
+	DELETED_FILE(55,"이미 삭제된 파일입니다", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;
