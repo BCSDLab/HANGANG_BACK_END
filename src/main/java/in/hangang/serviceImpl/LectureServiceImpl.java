@@ -123,7 +123,7 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public ArrayList<String> getSemesterDateByLectureId(Long id) throws Exception {
+    public ArrayList<Long> getSemesterDateByLectureId(Long id) throws Exception {
         //해당 강의가 존재하는지 확인.
         if(lectureMapper.checkLectureExists(id)==null)
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
@@ -131,6 +131,6 @@ public class LectureServiceImpl implements LectureService {
         String name = lectureMapper.getNameById(id);
         String professor = lectureMapper.getProfessorById(id);
 
-        return lectureMapper.getSemesterDateByNameAndProfessor(name, professor);
+        return lectureMapper.getSemesterDateIdByNameAndProfessor(name, professor);
     }
 }

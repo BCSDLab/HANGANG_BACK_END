@@ -17,7 +17,7 @@ public interface LectureService {
     Lecture getLecture(Long lectureId) throws Exception;
     void updateReviewCount();
     ArrayList<ClassTimeMap> getClassByLectureId(Long id) throws Exception;
-    ArrayList<String> getSemesterDateByLectureId(Long id) throws Exception;
+    ArrayList<Long> getSemesterDateByLectureId(Long id) throws Exception;
     void scrapLecture(Lecture lecture) throws Exception;
     ArrayList<Lecture> getScrapLectureList() throws Exception;
     void deleteScrapLecture(ArrayList<Long> lectureId) throws Exception;

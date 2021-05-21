@@ -71,7 +71,7 @@ public class ReviewController {
     @ApiOperation( value = "강의 후기 작성", notes = "강의 후기 작성 성기능입니다." +
             "\nassignment : 과제 정보 ID\nassignment_amount : 과제량 (3:상, 2:중, 1:하)\nattendance_frequency : 출첵 빈도 (3:상, 2:중, 1:하)\ncomment : 강의 후기 (10글자 이상)" +
             "\ndifficulty : 난이도 (3:상, 2:중, 1:하)\ngrade_portion : 성적 비율 (3:상, 2:중, 1:하)\nhash_tag : 해시태그 ID\nlecture_id : 강의 ID" +
-            "\nrating : 평점 (0.5이상 5.0이하)\nsemester_date : 학기 정보 ( 20191, 20192, 20201, 20202 )", authorizations = @Authorization(value = "Bearer +accessToken"))
+            "\nrating : 평점 (0.5이상 5.0이하)\nsemester_date : 수강 학기 ID ( 1: 20191, 2: 20192, 3: 20201, 4: 20202, 5: 20211 )", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews", method = RequestMethod.POST)
     public ResponseEntity createReview(@RequestBody @Validated(ValidationGroups.createReview.class) Review review) throws Exception {
         reviewService.createReview(review);

@@ -21,7 +21,9 @@ public interface LectureMapper {
     List<Lecture> getLectureList(@Param("lectureCriteria") LectureCriteria lectureCriteria, @Param("user") User user);
     Long getCountLectureList(@Param("lectureCriteria") LectureCriteria lectureCriteria);
     ArrayList<Long> getScrapLectureId(Long userId);
+    ArrayList<Long> getSemesterDateIdByNameAndProfessor(String name, String professor);
     ArrayList<String> getSemesterDateByNameAndProfessor(String name, String professor);
+    String getSemesterDateById(Long id);
     Long checkLectureExists(Long id);
     String getProfessorById(Long id);
     void updateTotalRatingById(Long id);

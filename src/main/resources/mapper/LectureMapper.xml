@@ -205,7 +205,7 @@
         <result column="updated_at" property="updated_at"/>
         <result column="last_reviewed_at" property="last_reviewed_at"/>
         <result column="review_count" property="review_count"/>
-        <collection property="semester_data" ofType="java.lang.String" column="{name=name,professor=professor}"
+        <collection property="semester_data" ofType="Long" column="{name=name,professor=professor}"
                     select="getSemesterDateByNameAndProfessor">
         </collection>
         <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
@@ -246,9 +246,17 @@
         ORDER BY class
     </select>
 
+    <select id="getSemesterDateIdByNameAndProfessor" resultType="Long">
+        SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date
+    </select>
+
     <select id="getSemesterDateByNameAndProfessor" resultType="String">
-        SELECT semester FROM hangang.semester_date
-        WHERE id IN(SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)
+        SELECT semester FROM hangang.semester_date WHERE id
+        IN (SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)
+    </select>
+
+    <select id="getSemesterDateById" resultType="String">
+        SELECT semester FROM hangang.semester_date WHERE id = #{id}
     </select>
 
     <resultMap id="classMap" type="in.hangang.domain.ClassTimeMap">
