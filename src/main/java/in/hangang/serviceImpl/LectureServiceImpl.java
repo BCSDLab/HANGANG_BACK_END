@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -38,53 +35,42 @@ public class LectureServiceImpl implements LectureService {
     private TimetableMapper timetableMapper;
 
     @Override
-    public List<Lecture>
+    public Map<String, Object>
     getLectureList(LectureCriteria lectureCriteria) throws Exception {
         String[] sortList = {"최신순", "평점순", "평가순"};
+        // 정렬 기준 검사
         if(lectureCriteria.getSort()!=null && !Arrays.asList(sortList).contains(lectureCriteria.getSort()))
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
+        // 학부 검색 검사 ( 최대 2개까지 선택 )
         if(lectureCriteria.getDepartment()!=null && lectureCriteria.getDepartment().size()>2)
             throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
 
-        /*
-        User user = userService.getLoginUser();
-        ArrayList<Lecture> lectures = lectureMapper.getLectureList(lectureCriteria);
-        if(user != null) {
-            Long userId = user.getId();
-            ArrayList<Long> scrapId = lectureMapper.getScrapLectureId(userId);
-            for (int i = 0; i < lectures.size(); i++) {
-                if (scrapId.contains(lectures.get(i).getId()))
-                    lectures.get(i).setIs_scraped(true);
-            }
-        }
-         */
+        Map<String, Object> map = new HashMap<>();
+        map.put("count", lectureMapper.getCountLectureList(lectureCriteria));
+        map.put("result", lectureMapper.getLectureList(lectureCriteria, userService.getLoginUser()));
 
-        return lectureMapper.getLectureList(lectureCriteria, userService.getLoginUser());
+        return map;
     }
 
     @Override
     public Lecture getLecture(Long lectureId) throws Exception {
+        if(lectureMapper.checkLectureExists(lectureId)==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+
         User user = userService.getLoginUser();
-        Long userId = user.getId();
-        ArrayList<Long> scrapId = lectureMapper.getScrapLectureId(userId);
 
-        Lecture resultLecture = lectureMapper.getLecture(lectureId);
-        if(scrapId.contains(lectureId))
-            resultLecture.setIs_scraped(true);
-
-        return resultLecture;
+        return lectureMapper.getLecture(lectureId, user);
     }
 
     @Override
     public void scrapLecture(Lecture lecture) throws Exception {
-        User user = userService.getLoginUser();
-        //유저 정보가 없는 경우 예외 처리
-        if (user==null)
-            throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
-        Long userId = user.getId();
+        Long userId = userService.getLoginUser().getId();
 
-        if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())==true)
+        if(lectureMapper.checkLectureExists(lecture.getId())==null)
+            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+
+        if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())!=0)
             throw new RequestInputException(ErrorMessage.ALREADY_SCRAP_LECTURE);
 
         lectureMapper.scrapLecture(userId, lecture.getId());
@@ -98,7 +84,7 @@ public class LectureServiceImpl implements LectureService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
         for(int i = 0; i< lectureId.size(); i++){
-            if(lectureMapper.checkAlreadyScraped(userId, lectureId.get(i))==false)
+            if(lectureMapper.checkAlreadyScraped(userId, lectureId.get(i))!=0)
                 throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         }
 

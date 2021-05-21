@@ -17,8 +17,9 @@ public interface LectureMapper {
     void scrapLecture(Long userId, Long lectureId);
     void deleteScrapLecture(Long userId, ArrayList<Long> lectureId);
     ArrayList<Lecture> getScrapLectureList(Long userId);
-    Boolean checkAlreadyScraped(Long userId, Long lectureId);
+    Long checkAlreadyScraped(Long userId, Long lectureId);
     List<Lecture> getLectureList(@Param("lectureCriteria") LectureCriteria lectureCriteria, @Param("user") User user);
+    Long getCountLectureList(@Param("lectureCriteria") LectureCriteria lectureCriteria);
     ArrayList<Long> getScrapLectureId(Long userId);
     ArrayList<String> getSemesterDateByNameAndProfessor(String name, String professor);
     Long checkLectureExists(Long id);
@@ -28,5 +29,5 @@ public interface LectureMapper {
     void updateReviewCount();
     String getNameById(Long id);
     ArrayList<ClassTimeMap> getClassByLectureId(Long lecture_id);
-    Lecture getLecture(Long id);
+    Lecture getLecture(Long id, @Param("user") User user);
 }

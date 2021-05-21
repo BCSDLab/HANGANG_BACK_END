@@ -43,7 +43,6 @@ public class ReviewController {
     }
 
     // 강의 후기 개별 READ
-    @Auth
     @ApiOperation( value = "강의 후기 읽기", notes = "하나의 강의 후기를 확인할 수 있습니다. 강의 후기 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/{id}", method = RequestMethod.GET)
     public ResponseEntity getReview(@PathVariable Long id) throws Exception{
@@ -51,7 +50,6 @@ public class ReviewController {
     }
 
     // 강의별 후기 READ
-    @Auth
     @ApiOperation( value = "특정 강의에 등록된 강의 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.\n강의 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/lectures/{id}", method = RequestMethod.GET)
     public ResponseEntity getReviewByLectureId(@PathVariable Long id, @ModelAttribute LectureCriteria lectureCriteria) throws Exception {

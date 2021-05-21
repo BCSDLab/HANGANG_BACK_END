@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service("ReviewServiceImpl")
@@ -80,9 +81,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ArrayList<Review> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception {
+    public Map<String, Object> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception {
         User user = userService.getLoginUser();
-        return reviewMapper.getReviewByLectureId(id, lectureCriteria, user);
+        Map<String, Object> map = new HashMap<>();
+        map.put("count", reviewMapper.getCountReviewByLectureId(id));
+        map.put("result", reviewMapper.getReviewByLectureId(id, lectureCriteria, user));
+
+        return map;
     }
 
     @Override

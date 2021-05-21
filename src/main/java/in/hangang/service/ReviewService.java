@@ -10,13 +10,14 @@ import org.apache.ibatis.annotations.Param;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface ReviewService {
     List<Review> getReviewList(Criteria criteria) throws Exception;
     Lecture getReviewByTimeTableLecture(Long lectureId) throws Exception;
     ArrayList<Review> getReviewListByUserId() throws Exception;
     Review getReview(Long id) throws Exception;
-    ArrayList<Review> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception;
+    Map<String, Object> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception;
     void createReview(Review review) throws Exception;
     void likesReview(Review review) throws Exception;
     void scrapReview(Review review) throws Exception;
