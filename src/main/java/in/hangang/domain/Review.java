@@ -23,6 +23,8 @@ public class Review {
     @ApiModelProperty(hidden = true)
     private Long user_id;
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "수강 학기는 비워둘 수 없습니다.")
+    private Long semester_id;
+    @ApiModelProperty(hidden = true)
     private String semester_date;
     @ApiModelProperty(hidden = true)
     private String nickname;
@@ -228,5 +230,13 @@ public class Review {
 
     public void setIs_liked(boolean is_liked) {
         this.is_liked = is_liked;
+    }
+
+    public Long getSemester_id() {
+        return semester_id;
+    }
+
+    public void setSemester_id(Long semester_id) {
+        this.semester_id = semester_id;
     }
 }

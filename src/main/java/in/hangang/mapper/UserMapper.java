@@ -30,6 +30,7 @@ public interface UserMapper {
     Long getLectureReviewCount(Long id);
     Long getLectureBankCommentCount(Long id);
     void addPointHistory(Long user_id, Integer variance, Integer pointTypeId);
+    void addPoint(Long user_id, Integer variance);
     List<PointHistory> getUserPointHistory(Long id);
     void updateUser(Long id, String nickname, List<String> major, String name);
     void insertMajors(Long id, List<String> major);

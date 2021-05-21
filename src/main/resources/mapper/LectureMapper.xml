@@ -23,9 +23,12 @@
         SELECT
         <include refid="lecture-list">
             <property name="prefix" value=""/>
-            <property name="alias" value=""/>
+            <property name="alias" value="LEC."/>
         </include>
-        FROM hangang.lecture
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM scrap_lecture SL WHERE SL.lecture_id = LEC.id AND SL.user_id = #{user.id} AND is_deleted = 0) as is_scraped
+        </if>
+        FROM hangang.lecture LEC
         WHERE id = #{id}
     </select>
 
@@ -33,7 +36,7 @@
         SELECT lecture_id FROM hangang.scrap_lecture WHERE user_id = #{userId} AND is_deleted = 0;
     </select>
 
-    <select id="checkAlreadyScraped" resultType="boolean">
+    <select id="checkAlreadyScraped" resultType="Long">
         SELECT count(*) FROM hangang.scrap_lecture WHERE user_id = #{userId} AND lecture_id = #{lectureId} AND is_deleted = 0;
     </select>
     <select id="getLectureList" resultMap="lectureList">
@@ -132,6 +135,54 @@
         LIMIT #{lectureCriteria.cursor}, #{lectureCriteria.limit}
     </select>
 
+    <select id="getCountLectureList" resultType="Long">
+        SELECT
+        count(*)
+        FROM hangang.lecture LEC
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.hashtag)">
+                ,(SELECT
+                <include refid="HashTagTop3-list">
+                    <property name="prefix" value=""/>
+                    <property name="alias" value="TOP."/>
+                </include>
+                FROM hangang.hash_tag_top3 TOP
+
+                WHERE TOP.hash_tag_id IN(
+                <foreach collection="lectureCriteria.hashtag" item="hashtag" separator=",">
+                    #{hashtag}
+                </foreach>
+                )
+                GROUP BY TOP.lecture_id HAVING ranking <![CDATA[<=]]> 3
+                ) B
+                WHERE LEC.id=B.lecture_id AND LEC.is_deleted = 0
+            </when>
+            <otherwise>
+                WHERE LEC.is_deleted=0
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.classification)">
+                AND
+                <foreach collection="lectureCriteria.classification" item="classification" open="(" close=")" separator="or">
+                    LEC.classification = #{classification}
+                </foreach>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.keyword)">
+                AND ((LEC.name like concat('%',#{lectureCriteria.keyword},'%')) OR (LEC.professor like concat('%',#{lectureCriteria.keyword},'%')))
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureCriteria.department)">
+                AND
+                <foreach collection="lectureCriteria.department" item="department" open="(" close=")" separator="or">
+                    LEC.department = #{department}
+                </foreach>
+            </when>
+        </choose>
+    </select>
     <update id="updateTotalRatingById">
         UPDATE lecture SET total_rating = (SELECT ROUND(AVG(rating), 2) FROM hangang.review WHERE lecture_id = #{id}) WHERE id = #{id}
     </update>
@@ -154,7 +205,7 @@
         <result column="updated_at" property="updated_at"/>
         <result column="last_reviewed_at" property="last_reviewed_at"/>
         <result column="review_count" property="review_count"/>
-        <collection property="semester_data" ofType="java.lang.String" column="{name=name,professor=professor}"
+        <collection property="semester_data" ofType="Long" column="{name=name,professor=professor}"
                     select="getSemesterDateByNameAndProfessor">
         </collection>
         <collection property="top3_hash_tag" javaType="java.util.ArrayList" column="id"
@@ -195,9 +246,17 @@
         ORDER BY class
     </select>
 
+    <select id="getSemesterDateIdByNameAndProfessor" resultType="Long">
+        SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date
+    </select>
+
     <select id="getSemesterDateByNameAndProfessor" resultType="String">
-        SELECT semester FROM hangang.semester_date
-        WHERE id IN(SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)
+        SELECT semester FROM hangang.semester_date WHERE id
+        IN (SELECT semester_date FROM hangang.lecture_timetable WHERE name=#{name} AND professor=#{professor} GROUP BY semester_date)
+    </select>
+
+    <select id="getSemesterDateById" resultType="String">
+        SELECT semester FROM hangang.semester_date WHERE id = #{id}
     </select>
 
     <resultMap id="classMap" type="in.hangang.domain.ClassTimeMap">

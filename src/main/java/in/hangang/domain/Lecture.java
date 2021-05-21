@@ -41,6 +41,22 @@ public class Lecture {
         this.id = id;
     }
 
+    public Boolean getIs_scraped() {
+        return is_scraped;
+    }
+
+    public void setIs_scraped(Boolean is_scraped) {
+        this.is_scraped = is_scraped;
+    }
+
+    public Long getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Long grade) {
+        this.grade = grade;
+    }
+
     public ArrayList<String> getSemester_data() {
         return semester_data;
     }
@@ -109,16 +125,16 @@ public class Lecture {
         return last_reviewed_at;
     }
 
+    public void setLast_reviewed_at(Timestamp last_reviewed_at) {
+        this.last_reviewed_at = last_reviewed_at;
+    }
+
     public Long getReview_count() {
         return review_count;
     }
 
     public void setReview_count(Long review_count) {
         this.review_count = review_count;
-    }
-
-    public void setLast_reviewed_at(Timestamp last_reviewed_at) {
-        this.last_reviewed_at = last_reviewed_at;
     }
 
     public Boolean getIs_deleted() {
@@ -143,21 +159,5 @@ public class Lecture {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
-    }
-
-    public Boolean getIs_scraped() {
-        return is_scraped;
-    }
-
-    public void setIs_scraped(Boolean is_scraped) {
-        this.is_scraped = is_scraped;
-    }
-
-    public Long getGrade() {
-        return grade;
-    }
-
-    public void setGrade(Long grade) {
-        this.grade = grade;
     }
 }

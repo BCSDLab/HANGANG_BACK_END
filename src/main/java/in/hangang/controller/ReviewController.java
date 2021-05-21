@@ -43,7 +43,6 @@ public class ReviewController {
     }
 
     // 강의 후기 개별 READ
-    @Auth
     @ApiOperation( value = "강의 후기 읽기", notes = "하나의 강의 후기를 확인할 수 있습니다. 강의 후기 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/{id}", method = RequestMethod.GET)
     public ResponseEntity getReview(@PathVariable Long id) throws Exception{
@@ -51,7 +50,6 @@ public class ReviewController {
     }
 
     // 강의별 후기 READ
-    @Auth
     @ApiOperation( value = "특정 강의에 등록된 강의 후기 읽기", notes = "해당 강의에 등록된 모든 후기를 확인할 수 있습니다.\n강의 ID를 파라미터로 주면 됩니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews/lectures/{id}", method = RequestMethod.GET)
     public ResponseEntity getReviewByLectureId(@PathVariable Long id, @ModelAttribute LectureCriteria lectureCriteria) throws Exception {
@@ -73,7 +71,7 @@ public class ReviewController {
     @ApiOperation( value = "강의 후기 작성", notes = "강의 후기 작성 성기능입니다." +
             "\nassignment : 과제 정보 ID\nassignment_amount : 과제량 (3:상, 2:중, 1:하)\nattendance_frequency : 출첵 빈도 (3:상, 2:중, 1:하)\ncomment : 강의 후기 (10글자 이상)" +
             "\ndifficulty : 난이도 (3:상, 2:중, 1:하)\ngrade_portion : 성적 비율 (3:상, 2:중, 1:하)\nhash_tag : 해시태그 ID\nlecture_id : 강의 ID" +
-            "\nrating : 평점 (0.5이상 5.0이하)\nsemester_date : 학기 정보 ( 20191, 20192, 20201, 20202 )", authorizations = @Authorization(value = "Bearer +accessToken"))
+            "\nrating : 평점 (0.5이상 5.0이하)\nsemester_date : 수강 학기 ID ( 1: 20191, 2: 20192, 3: 20201, 4: 20202, 5: 20211 )", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews", method = RequestMethod.POST)
     public ResponseEntity createReview(@RequestBody @Validated(ValidationGroups.createReview.class) Review review) throws Exception {
         reviewService.createReview(review);

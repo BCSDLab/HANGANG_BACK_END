@@ -20,6 +20,7 @@ public interface ReviewMapper {
     void updateTotalRating(Long lecture_id);
     Review getReviewById(Long id);
     ArrayList<Review> getReviewByLectureId(@Param("id") Long id, @Param("lectureCriteria") LectureCriteria lectureCriteria, @Param("user") User user);
+    Long getCountReviewByLectureId(Long id);
     Long getReviewByUserIdAndLectureId(Long lecture_id, Long user_id);
     ArrayList<Assignment> getAssignmentByReviewId(Long review_id);
     void deleteReviewById(Long id);

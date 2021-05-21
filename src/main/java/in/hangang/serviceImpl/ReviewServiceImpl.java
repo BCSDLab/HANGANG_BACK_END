@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service("ReviewServiceImpl")
@@ -80,9 +81,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ArrayList<Review> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception {
+    public Map<String, Object> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception {
         User user = userService.getLoginUser();
-        return reviewMapper.getReviewByLectureId(id, lectureCriteria, user);
+        Map<String, Object> map = new HashMap<>();
+        map.put("count", reviewMapper.getCountReviewByLectureId(id));
+        map.put("result", reviewMapper.getReviewByLectureId(id, lectureCriteria, user));
+
+        return map;
     }
 
     @Override
@@ -102,12 +107,13 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RequestInputException(ErrorMessage.PROHIBITED_ATTEMPT);
 
         review.setUser_id(user.getId());
-        ArrayList<String> semester = lectureService.getSemesterDateByLectureId(review.getLecture_id());
+        ArrayList<Long> semester = lectureService.getSemesterDateByLectureId(review.getLecture_id());
 
         //입력된 학기 정보가 강의가 개설된 학기에 포함되어있늕지 확인.
-        if(!semester.contains(review.getSemester_date()))
+        if(!semester.contains(review.getSemester_id()))
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
+        review.setSemester_date(lectureMapper.getSemesterDateById(review.getSemester_id()));
         //리뷰를 create후 작성된 id 반환.
         reviewMapper.createReview(review);
         Long reviewId = review.getReturn_id();
@@ -138,6 +144,7 @@ public class ReviewServiceImpl implements ReviewService {
         lectureMapper.updateReviewCountById(lectureId);
         lectureMapper.updateTotalRatingById(lectureId);
         userMapper.addPointHistory(user.getId(), Point.LECTURE_REVIEW.getPoint(), Point.LECTURE_REVIEW.getTypeId());
+        userMapper.addPoint(user.getId(), Point.LECTURE_REVIEW.getPoint());
 
     }
 

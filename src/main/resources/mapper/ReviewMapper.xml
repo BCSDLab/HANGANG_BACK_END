@@ -20,15 +20,20 @@
             ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
         </if>
         ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.is_deleted = 0) as like_count
-        FROM hangang.review R WHERE R.lecture_id = #{id} AND R.is_deleted = 0 LIMIT #{lectureCriteria.cursor}, #{lectureCriteria.limit}
+        FROM hangang.review R WHERE R.lecture_id = #{id} AND R.is_deleted = 0
         <if test="lectureCriteria.sort!=null">
             <if test='(lectureCriteria.sort eq "좋아요 순".toString())'>
                 ORDER BY like_count DESC, R.id ASC
             </if>
-            <if test='(lectureCriteria.sort eq "최신 순 ".toString())'>
+            <if test='(lectureCriteria.sort eq "최신 순".toString())'>
                 ORDER BY R.created_at DESC, R.id ASC
             </if>
         </if>
+        LIMIT #{lectureCriteria.cursor}, #{lectureCriteria.limit}
+    </select>
+
+    <select id="getCountReviewByLectureId" resultType="Long">
+        SELECT count(*) FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0
     </select>
 
     <select id="getReviewListByUserId" resultMap="review">
