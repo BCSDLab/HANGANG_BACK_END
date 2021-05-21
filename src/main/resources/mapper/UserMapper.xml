@@ -99,6 +99,10 @@
         INSERT INTO hangang.user_point_history(user_id,variance,point_type_id) VALUES(#{user_id}, #{variance}, #{pointTypeId})
     </insert>
 
+    <update id="addPoint">
+        UPDATE hangang.user SET point = point + #{variance} WHERE id = #{user_id}
+    </update>
+
     <select id="getUserPointHistory" resultType="in.hangang.domain.PointHistory">
         SELECT up.id, up.user_id, type.title,up.variance, created_at
         FROM hangang.user_point_history AS up
