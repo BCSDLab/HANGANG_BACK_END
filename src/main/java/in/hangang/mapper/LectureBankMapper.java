@@ -47,7 +47,7 @@ public interface LectureBankMapper {
 
     //comments
     List<LectureBankComment> getComments(@Param("lecture_bank_id")Long lecture_bank_id, @Param("criteria") Criteria criteria);
-    void addComment(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id, @Param("comments")String comments);
+    Long addComment(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id, @Param("comments")String comments);
     void setComment(@Param("id")Long id, @Param("comments")String comments);
     void deleteComment(@Param("id") Long id);
     Long getCommentWriterId(@Param("id") Long id);
@@ -110,10 +110,10 @@ public interface LectureBankMapper {
             , @Param("point_type_id")Integer point_type_id);
 
     //scrap
-    void createScrap(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    Long createScrap(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void unDeleteScrap(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     void deleteScrapList(@Param("id_list")List<Long> id_list);
-    Boolean checkScrapDeleted(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
+    Long checkScrapDeleted(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     ArrayList<Boolean> checkScrapDeletedList(@Param("id_list")ArrayList<Long> id_list);
     Long getScrapID(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id);
     Long checkScrapExist(@Param("id")Long id);

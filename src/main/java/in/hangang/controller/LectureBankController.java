@@ -205,8 +205,7 @@ public class LectureBankController {
             ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public @ResponseBody
     ResponseEntity createScrap( @PathVariable Long id) throws Exception{
-        lectureBankService.createScrap(id);
-        return new ResponseEntity( new BaseResponse("강의자료가 정상적으로 스크랩되었습니다", HttpStatus.OK), HttpStatus.OK);
+        return new ResponseEntity( lectureBankService.createScrap(id), HttpStatus.OK);
     }
 
     @Auth

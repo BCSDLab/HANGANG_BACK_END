@@ -499,10 +499,11 @@
         LIMIT #{criteria.cursor} , #{criteria.limit};
     </select>
 
-    <insert id="addComment">
+    <select id="addComment" resultType="Long">
         INSERT INTO lecture_bank_comment(user_id, lecture_bank_id, comments)
         VALUES (#{user_id}, #{lecture_bank_id}, #{comments});
-    </insert>
+        SELECT LAST_INSERT_ID();
+    </select>
     <update id="setComment">
         UPDATE lecture_bank_comment SET comments = #{comments}
         where id = #{id};
@@ -643,10 +644,11 @@
 
     <!--Scrap-->
 
-    <insert id="createScrap">
+    <select id="createScrap"  resultType="Long">
         INSERT INTO scrap_lecture_bank(user_id, lecture_bank_id)
         VALUES (#{user_id}, #{lecture_bank_id});
-    </insert>
+        SELECT LAST_INSERT_ID();
+    </select>
     <update id="unDeleteScrap">
         UPDATE scrap_lecture_bank SET is_deleted = 0
         WHERE lecture_bank_id = #{lecture_bank_id}
@@ -662,10 +664,10 @@
         </if>
     </update>
 
-    <select id="checkScrapDeleted" resultType="java.lang.Boolean">
-        SELECT is_deleted FROM scrap_lecture_bank
+    <select id="checkScrapDeleted" resultType="Long">
+        SELECT id FROM scrap_lecture_bank
         WHERE lecture_bank_id = #{lecture_bank_id}
-          AND user_id = #{user_id};
+          AND user_id = #{user_id} and is_deleted = 0;
     </select>
     <select id="checkScrapDeletedList" resultType="java.lang.Boolean" >
         SELECT is_deleted FROM scrap_lecture_bank

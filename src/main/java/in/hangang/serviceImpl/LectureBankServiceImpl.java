@@ -252,10 +252,9 @@ public class LectureBankServiceImpl implements LectureBankService {
     }
 
     @Override
-    public BaseResponse addComment(Long id, String comments) throws Exception{
+    public Long addComment(Long id, String comments) throws Exception{
         this.getLectureBank(id); // 해당 강의자료가 존재하는가?
-        lectureBankMapper.addComment(userService.getLoginUser().getId(),id,comments);
-        return new BaseResponse("댓글이 작성되었습니다", HttpStatus.CREATED);
+        return lectureBankMapper.addComment(userService.getLoginUser().getId(),id,comments);
     }
 
     @Override
@@ -385,18 +384,17 @@ public class LectureBankServiceImpl implements LectureBankService {
 
 
     @Override
-    public void createScrap(Long lecture_bank_id) throws Exception{
+    public Long createScrap(Long lecture_bank_id) throws Exception{
         Long user_id = userService.getLoginUser().getId();
 
         if(lecture_bank_id != null){
             this.getLectureBank(lecture_bank_id); // 해당 강의자료가 존재하는가?
-            Boolean check = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id); // null -> 스크랩한적없음 , true 스크랩했음, false 스크랩을 취소한적이있음
-            if(check == null){ // 스크랩한적이 없다면
-                lectureBankMapper.createScrap(user_id, lecture_bank_id); //삽입
-            }else if(check){ // 스크랩 했다면
-                lectureBankMapper.unDeleteScrap(user_id,lecture_bank_id); // 스크랩 취소
-            }else{
+            Long id = lectureBankMapper.checkScrapDeleted(user_id,lecture_bank_id); // null -> 스크랩한적없음 , true 스크랩했음, false 스크랩을 취소한적이있음
+            if(id != null){ // 스크랩한적이 없다면
                 throw new RequestInputException(ErrorMessage.SCRAP_ALREADY_EXISTS); // 스크랩이 이미 있다면
+
+            }else {
+                return lectureBankMapper.createScrap(user_id, lecture_bank_id); //삽입
             }
         }
         else // input값에러

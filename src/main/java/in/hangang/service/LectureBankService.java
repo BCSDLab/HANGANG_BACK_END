@@ -25,7 +25,7 @@ public interface LectureBankService {
 
     //comment====================================================================================
     List<LectureBankComment> getComments(Long lecture_bank_id , Criteria criteria);
-    BaseResponse addComment(Long lecture_bank_id, String comments) throws Exception;
+    Long addComment(Long lecture_bank_id, String comments) throws Exception;
     BaseResponse setComment(Long lecture_bank_comment_id, Long commentId,String comments) throws Exception;
     BaseResponse deleteComment(Long lecture_bank_comment_id,Long commentId) throws Exception;
 
@@ -46,7 +46,7 @@ public interface LectureBankService {
     //Thumbnail====================================================================================
 
     //Scrap====================================================================================
-    void createScrap(Long lecture_bank_id) throws Exception;
+    Long createScrap(Long lecture_bank_id) throws Exception;
     void deleteScrap(List<Long>lectureBank_IDList) throws Exception;
     List<ScrapLectureBank> getScrapList() throws Exception;
 
