@@ -116,7 +116,7 @@
             ,(select count(*) from lecture_bank_purchase as p where p.lecture_bank_id = LB.id and p.user_id = #{user.id} and p.is_deleted = 0  ) as is_purchase
         </if>
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            ,(select count(*) from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as is_scrap
+            ,(select s.id from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as user_scrap_id
         </if>
         FROM lecture_bank LB, user U, lecture L, semester_date S,
         (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
@@ -165,7 +165,7 @@
         <result column="hits" property="hits"/>
         <result column="is_hit" property="is_hit"/>
         <result column="is_purchase" property="is_purchase"/>
-        <result column="is_scrap" property="is_scrap"/>
+        <result column="user_scrap_id" property="user_scrap_id"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
         <result column="is_deleted" property="is_deleted"/>
@@ -238,14 +238,13 @@
         <result column="hits" property="hits"/>
         <result column="is_hit" property="is_hit"/>
         <result column="is_purchase" property="is_purchase"/>
-        <result column="is_scrap" property="is_scrap"/>
+        <result column="user_scrap_id" property="user_scrap_id"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
         <result column="is_deleted" property="is_deleted"/>
         <result column="semester_date" property="semester_date"/>
         <association property="user" resultMap="user"/>
         <association property="lecture" resultMap="lecture" />
-        <collection property="comments" column = "id" javaType="java.util.List" ofType="in.hangang.domain.LectureBankComment" select = "getComments" />
         <collection property="uploadFiles" column="id" javaType="java.util.List" ofType="in.hangang.domain.UploadFile" select="getFiles"/>
         <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
     </resultMap>
@@ -278,7 +277,7 @@
             ,(select count(*) from lecture_bank_purchase as p where p.lecture_bank_id = LB.id and p.user_id = #{user.id} and p.is_deleted = 0  ) as is_purchase
         </if>
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            ,(select count(*) from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as is_scrap
+            ,(select s.id from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as user_scrap_id
         </if>
         FROM lecture_bank AS LB
         JOIN user AS U ON LB.user_id = U.id
@@ -496,7 +495,8 @@
         FROM lecture_bank_comment AS C
         JOIN user AS U
         ON C.user_id = U.id
-        WHERE C.lecture_bank_id = #{lecture_bank_id} and C.is_deleted = 0;
+        WHERE C.lecture_bank_id = #{lecture_bank_id} and C.is_deleted = 0
+        LIMIT #{criteria.cursor} , #{criteria.limit};
     </select>
 
     <insert id="addComment">
@@ -534,8 +534,7 @@
     </update>
 
     <select id="getComment" resultType="in.hangang.domain.LectureBankComment">
-        SELECT * FROM lecture_bank_comment
-        WHERE id = #{id} and is_deleted = 0;
+        SELECT * FROM lecture_bank_comment WHERE id = #{id} and is_deleted = 0
     </select>
 
 

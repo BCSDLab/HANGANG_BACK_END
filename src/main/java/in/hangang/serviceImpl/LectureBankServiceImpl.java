@@ -2,6 +2,7 @@ package in.hangang.serviceImpl;
 
 import com.amazonaws.services.xray.model.Http;
 import in.hangang.domain.*;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.scrap.Scrap;
 import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.enums.BankCategory;
@@ -246,8 +247,8 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     //comments------------------------------------------------------------------------------------
     @Override
-    public List<LectureBankComment> getComments(Long lecture_bank_id){
-        return lectureBankMapper.getComments(lecture_bank_id);
+    public List<LectureBankComment> getComments(Long lecture_bank_id , Criteria criteria){
+        return lectureBankMapper.getComments(lecture_bank_id, criteria);
     }
 
     @Override

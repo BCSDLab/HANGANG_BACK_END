@@ -75,7 +75,7 @@ public class LectureBank {
     @ApiModelProperty(hidden = true)
     private Boolean is_hit = false;
     @ApiModelProperty(hidden = true)
-    private Boolean is_scrap = false;
+    private Long user_scrap_id = Long.valueOf(0);
     @ApiModelProperty(hidden = true)
     private Boolean is_purchase = false;
     @ApiModelProperty(hidden = true)
@@ -87,13 +87,12 @@ public class LectureBank {
     @ApiModelProperty(hidden = true)
     private Lecture lecture;
 
-
-    public Boolean getIs_scrap() {
-        return is_scrap;
+    public Long getUser_scrap_id() {
+        return user_scrap_id;
     }
 
-    public void setIs_scrap(Boolean is_scrap) {
-        this.is_scrap = is_scrap;
+    public void setUser_scrap_id(Long user_scrap_id) {
+        this.user_scrap_id = user_scrap_id;
     }
 
     public Boolean getIs_purchase() {

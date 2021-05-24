@@ -3,6 +3,7 @@ package in.hangang.controller;
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.*;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.enums.Board;
 import in.hangang.response.BaseResponse;
@@ -127,8 +128,8 @@ public class LectureBankController {
     @RequestMapping(value = "/{id}/comments", method = RequestMethod.GET)
     @ApiOperation(value ="강의자료 댓글 불러오기" , notes = "강의자료 댓글 전체 조회\n파라미터는 강의 자료 id 입니다.")
     public @ResponseBody
-    ResponseEntity getComments(@PathVariable Long id) throws Exception{
-        return new ResponseEntity<List<LectureBankComment>>(lectureBankService.getComments(id), HttpStatus.OK);
+    ResponseEntity getComments(@ModelAttribute Criteria criteria, @PathVariable Long id) throws Exception{
+        return new ResponseEntity<List<LectureBankComment>>(lectureBankService.getComments(id, criteria), HttpStatus.OK);
     }
 
     @Auth

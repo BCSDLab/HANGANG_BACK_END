@@ -2,6 +2,7 @@ package in.hangang.service;
 
 
 import in.hangang.domain.*;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.response.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +24,7 @@ public interface LectureBankService {
 
 
     //comment====================================================================================
-    List<LectureBankComment> getComments(Long lecture_bank_id);
+    List<LectureBankComment> getComments(Long lecture_bank_id , Criteria criteria);
     BaseResponse addComment(Long lecture_bank_id, String comments) throws Exception;
     BaseResponse setComment(Long lecture_bank_comment_id, Long commentId,String comments) throws Exception;
     BaseResponse deleteComment(Long lecture_bank_comment_id,Long commentId) throws Exception;

@@ -1,6 +1,7 @@
 package in.hangang.mapper;
 
 import in.hangang.domain.*;
+import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.scrap.Scrap;
 import in.hangang.domain.scrap.ScrapLectureBank;
 import org.apache.ibatis.annotations.Param;
@@ -45,7 +46,7 @@ public interface LectureBankMapper {
 
 
     //comments
-    List<LectureBankComment> getComments(@Param("lecture_bank_id")Long lecture_bank_id);
+    List<LectureBankComment> getComments(@Param("lecture_bank_id")Long lecture_bank_id, @Param("criteria") Criteria criteria);
     void addComment(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id, @Param("comments")String comments);
     void setComment(@Param("id")Long id, @Param("comments")String comments);
     void deleteComment(@Param("id") Long id);
