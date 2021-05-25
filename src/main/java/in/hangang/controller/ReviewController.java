@@ -2,6 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
+import in.hangang.annotation.Xss;
 import in.hangang.domain.Lecture;
 import in.hangang.domain.Report;
 import in.hangang.domain.criteria.Criteria;
@@ -67,6 +68,7 @@ public class ReviewController {
      */
 
     // 후기 CREATE
+    @Xss
     @Auth
     @ApiOperation( value = "강의 후기 작성", notes = "강의 후기 작성 성기능입니다." +
             "\nassignment : 과제 정보 ID\nassignment_amount : 과제량 (3:상, 2:중, 1:하)\nattendance_frequency : 출첵 빈도 (3:상, 2:중, 1:하)\ncomment : 강의 후기 (10글자 이상)" +

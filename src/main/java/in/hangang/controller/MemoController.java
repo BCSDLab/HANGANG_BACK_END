@@ -1,6 +1,7 @@
 package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
+import in.hangang.annotation.Xss;
 import in.hangang.domain.Memo;
 import in.hangang.domain.UserTimeTable;
 import in.hangang.response.BaseResponse;
@@ -20,7 +21,7 @@ public class MemoController {
 
     @Resource
     MemoService memoService;
-
+    @Xss
     @Auth
     @ApiOperation( value = "메모 생성", notes = "시간표에 있는 강의에 메모를 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/memo", method = RequestMethod.POST)
@@ -34,7 +35,7 @@ public class MemoController {
     public ResponseEntity<Memo> getMemo(@RequestParam Long timeTableId) throws Exception{
         return new ResponseEntity<Memo>(memoService.getMemo(timeTableId), HttpStatus.OK);
     }
-
+    @Xss
     @Auth
     @ApiOperation( value = "메모 수정", notes = "메모를 수정합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/memo", method = RequestMethod.PATCH)

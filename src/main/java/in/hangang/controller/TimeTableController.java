@@ -2,6 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
+import in.hangang.annotation.Xss;
 import in.hangang.domain.*;
 import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.response.BaseResponse;
@@ -36,6 +37,7 @@ public class TimeTableController {
         return new ResponseEntity<ArrayList<UserTimeTable>>(timetableService.getTableListByUserId(semesterDateId), HttpStatus.OK);
     }
 
+    @Xss
     @Auth
     @ApiOperation( value = "시간표 생성", notes = "원하는 학기, 원하는 이름으로 시간표를 생성할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable", method = RequestMethod.POST)
@@ -44,7 +46,7 @@ public class TimeTableController {
         timetableService.createTimetable(userTimeTable);
         return new ResponseEntity( new BaseResponse("시간표가 생성되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
-
+    @Xss
     @Auth
     @ApiOperation( value = "시간표 수정", notes = "시간표 이름을 수정할 수 있습니다. 학기는 수정이 불가능합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable", method = RequestMethod.PATCH)

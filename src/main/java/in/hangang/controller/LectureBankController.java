@@ -2,6 +2,7 @@ package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
+import in.hangang.annotation.Xss;
 import in.hangang.domain.*;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.scrap.ScrapLectureBank;
@@ -52,6 +53,7 @@ public class LectureBankController {
     }
 
 
+    @Xss
     @Auth
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ApiOperation(value ="강의자료 작성" , notes = "강의자료 작성)"
@@ -61,7 +63,7 @@ public class LectureBankController {
         return new ResponseEntity( lectureBankService.postLectureBank(lectureBank), HttpStatus.CREATED);
     }
 
-
+    @Xss
     @Auth
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @ApiOperation(value ="강의자료 수정" , notes = "강의 자료를 수정합니다\n파리미터는 강의자료 id 입니다",authorizations = @Authorization(value = "Bearer +accessToken"))
@@ -132,6 +134,7 @@ public class LectureBankController {
         return new ResponseEntity (lectureBankService.getComments(id, criteria), HttpStatus.OK);
     }
 
+    @Xss
     @Auth
     @RequestMapping(value = "/{id}/comment", method = RequestMethod.POST)
     @ApiOperation(value ="강의자료 댓글 작성" , notes = "강의자료 댓글을 입력합니다\n파라미터는 강의 자료 id 입니다."
@@ -142,7 +145,7 @@ public class LectureBankController {
     }
 
 
-
+    @Xss
     @Auth
     @RequestMapping(value = "/{id}/comment/{commentId}", method = RequestMethod.PUT)
     @ApiOperation(value ="강의자료 댓글 수정" , notes = "강의자료 댓글을 수정합니다\n파라미터는 댓글 id 입니다."

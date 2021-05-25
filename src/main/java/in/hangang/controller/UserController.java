@@ -132,7 +132,7 @@ public class UserController {
     public ResponseEntity getUserPointHistory(){
         return new ResponseEntity(userService.getUserPointHistory(), HttpStatus.OK);
     }
-
+    @Xss
     @Auth
     @PutMapping("/me")
     @ApiOperation( value = "개인정보 바꾸기",notes = "개인정보 바꾸기 ", authorizations = @Authorization(value = "Bearer +accessToken"))
