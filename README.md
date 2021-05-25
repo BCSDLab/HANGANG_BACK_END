@@ -23,8 +23,6 @@ https://api.hangang.in/swagger-ui.html
 sevice example
 
 
-https://user-images.githubusercontent.com/32263898/119538095-b8b4dd80-bdc5-11eb-8813-d75d7c7aff2b.mov
-
 
 https://user-images.githubusercontent.com/32263898/119538099-ba7ea100-bdc5-11eb-95f1-d75ac3b3f66c.mov
 
