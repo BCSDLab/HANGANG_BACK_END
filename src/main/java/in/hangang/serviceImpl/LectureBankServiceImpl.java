@@ -247,8 +247,11 @@ public class LectureBankServiceImpl implements LectureBankService {
 
     //comments------------------------------------------------------------------------------------
     @Override
-    public List<LectureBankComment> getComments(Long lecture_bank_id , Criteria criteria){
-        return lectureBankMapper.getComments(lecture_bank_id, criteria);
+    public Map<String,Object> getComments(Long lecture_bank_id , Criteria criteria){
+        Map<String, Object> map = new HashMap<>();
+        map.put("comments",lectureBankMapper.getComments(lecture_bank_id, criteria));
+        map.put("count", lectureBankMapper.getCommentCount(lecture_bank_id));
+        return map;
     }
 
     @Override

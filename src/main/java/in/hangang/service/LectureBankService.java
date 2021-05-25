@@ -24,7 +24,7 @@ public interface LectureBankService {
 
 
     //comment====================================================================================
-    List<LectureBankComment> getComments(Long lecture_bank_id , Criteria criteria);
+    Map<String,Object> getComments(Long lecture_bank_id , Criteria criteria);
     Long addComment(Long lecture_bank_id, String comments) throws Exception;
     BaseResponse setComment(Long lecture_bank_comment_id, Long commentId,String comments) throws Exception;
     BaseResponse deleteComment(Long lecture_bank_comment_id,Long commentId) throws Exception;

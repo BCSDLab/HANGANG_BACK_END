@@ -46,6 +46,7 @@ public interface LectureBankMapper {
 
 
     //comments
+    Long getCommentCount(Long id);
     List<LectureBankComment> getComments(@Param("lecture_bank_id")Long lecture_bank_id, @Param("criteria") Criteria criteria);
     Long addComment(@Param("user_id")Long user_id, @Param("lecture_bank_id")Long lecture_bank_id, @Param("comments")String comments);
     void setComment(@Param("id")Long id, @Param("comments")String comments);

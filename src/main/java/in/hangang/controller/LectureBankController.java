@@ -129,7 +129,7 @@ public class LectureBankController {
     @ApiOperation(value ="강의자료 댓글 불러오기" , notes = "강의자료 댓글 전체 조회\n파라미터는 강의 자료 id 입니다.")
     public @ResponseBody
     ResponseEntity getComments(@ModelAttribute Criteria criteria, @PathVariable Long id) throws Exception{
-        return new ResponseEntity<List<LectureBankComment>>(lectureBankService.getComments(id, criteria), HttpStatus.OK);
+        return new ResponseEntity (lectureBankService.getComments(id, criteria), HttpStatus.OK);
     }
 
     @Auth
@@ -140,6 +140,7 @@ public class LectureBankController {
     ResponseEntity addComment(@PathVariable Long id, @RequestBody @Validated(ValidationGroups.PostLectureBankComment.class)  LectureBankComment lectureBankComment) throws Exception{
         return new ResponseEntity(lectureBankService.addComment(id, lectureBankComment.getComments()),HttpStatus.CREATED);
     }
+
 
 
     @Auth

@@ -3,6 +3,10 @@
 <mapper namespace="in.hangang.mapper.LectureBankMapper">
 
 
+    <select id="getCommentCount" resultType="Long">
+        SELECT count(*) FROM hangang.lecture_bank_comment WHERE lecture_bank_id = #{id} AND is_deleted = 0;
+    </select>
+
     <select id="getCount" resultMap="countMap">
         SELECT
         <include refid="lectureBankColumnList">
