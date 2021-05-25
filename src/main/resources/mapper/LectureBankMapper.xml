@@ -500,6 +500,7 @@
         JOIN user AS U
         ON C.user_id = U.id
         WHERE C.lecture_bank_id = #{lecture_bank_id} and C.is_deleted = 0
+        ORDER BY C.id DESC
         LIMIT #{criteria.cursor} , #{criteria.limit};
     </select>
 
