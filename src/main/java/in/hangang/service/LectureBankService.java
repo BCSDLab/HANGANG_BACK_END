@@ -49,5 +49,7 @@ public interface LectureBankService {
     Long createScrap(Long lecture_bank_id) throws Exception;
     void deleteScrap(List<Long>lectureBank_IDList) throws Exception;
     List<ScrapLectureBank> getScrapList() throws Exception;
+    void sendLectureBankNoti(LectureBank lectureBank) throws Exception;
+    void sendCommentNoti(Long id, Long commentId, Long userId, String comments) throws Exception;
 
 }

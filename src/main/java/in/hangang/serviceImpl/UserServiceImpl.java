@@ -1,9 +1,10 @@
 package in.hangang.serviceImpl;
 
-import in.hangang.domain.AuthNumber;
-import in.hangang.domain.PointHistory;
-import in.hangang.domain.User;
-import in.hangang.domain.UserLectureBank;
+import in.hangang.config.SlackNotiSender;
+import in.hangang.domain.*;
+import in.hangang.domain.slack.SlackAttachment;
+import in.hangang.domain.slack.SlackParameter;
+import in.hangang.domain.slack.SlackTarget;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Major;
 import in.hangang.enums.Point;
@@ -19,6 +20,7 @@ import in.hangang.util.Jwt;
 import in.hangang.util.S3Util;
 import in.hangang.util.SesSender;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,11 @@ public class UserServiceImpl implements UserService {
 
     @Value("${token.refresh}")
     private String refresh_token;
+
+    @Value("${report_slack_url}")
+    private String notifyReportUrl;
+    @Autowired
+    SlackNotiSender slackNotiSender;
 
     private static final String signOutNickName = "(탈퇴한 회원)";
 
@@ -120,6 +127,8 @@ public class UserServiceImpl implements UserService {
         Long dbId =  userMapper.getUserIdFromPortalForReSignUp(user.getPortal_account());
         if ( dbId != null ){
             this.reSignUp(dbId, user);
+            user.setId(dbId);
+            sendNoti(user, "회원가입");
             return new BaseResponse("재가입이 완료되었습니다.", HttpStatus.OK);
         }
 
@@ -133,7 +142,7 @@ public class UserServiceImpl implements UserService {
 
         //회원가입후 user의 가입된 id를 구함
         Long userId = userMapper.getUserIdFromPortal(user.getPortal_account());
-
+        user.setId(userId);
         // 전공값의 내용이 올바르지 않다면
         for(int i =0; i<user.getMajor().size(); i++){
             boolean result = this.isMajorValid(user.getMajor().get(i));
@@ -153,9 +162,25 @@ public class UserServiceImpl implements UserService {
         //회원가입 포인트 이력 추가
         userMapper.addPointHistory(userId, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
         timetableMapper.createDefaultTimeTable(userId, timetableMapper.getLatestSemesterDateId());
+        sendNoti(user, "회원가입");
         return new BaseResponse("회원가입에 성공했습니다", HttpStatus.OK);
     }
+    @Override
+    public void sendNoti(User user, String event) throws Exception{
 
+        SlackTarget slackTarget = new SlackTarget(notifyReportUrl,"");
+
+        SlackParameter slackParameter = new SlackParameter();
+        SlackAttachment slackAttachment = new SlackAttachment();
+        slackAttachment.setTitle("유저");
+        slackAttachment.setAuthorName("한강 회원가입");
+        slackAttachment.setAuthorIcon("https://static.hangang.in/2021/05/30/49e7013f-458c-4f38-a681-b7ba03be0ca8-1622378903280.PNG");
+        String message = String.format("유저  id: %d, 유저 포탈 계정 : %s 인 유저가 %s 하였습니다.\n"
+                ,user.getId(), user.getPortal_account(), event);
+        slackAttachment.setText(message);
+        slackParameter.getSlackAttachments().add(slackAttachment);
+        slackNotiSender.send(slackTarget,slackParameter);
+    }
     //portal 계정으로 들어온 인증 이력을 만료 + soft delete
     private void invalidateAllAuthNumberByPortal(String portalAccount){
         // 회원가입 완료 시  phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴

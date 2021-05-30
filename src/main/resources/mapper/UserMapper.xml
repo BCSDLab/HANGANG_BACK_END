@@ -83,6 +83,13 @@
         FROM hangang.user WHERE id = #{id} and is_deleted = 0
         LIMIT 1;
     </select>
+
+
+    <!--
+    select ( select count(*) from hangang.lecture_bank_purchase where user_id = 19) as p
+,(select count(*) from hangang.lecture_bank_comment where user_id = 19 ) as c
+,(select count(*) from hangang.review where user_id = 19) as r ; 로 줄일 수 있다.
+    -->
     <select id="getLectureBankCount" resultType="Long">
         SELECT COUNT(*) FROM hangang.lecture_bank WHERE user_id=#{id} and is_deleted = 0;
     </select>

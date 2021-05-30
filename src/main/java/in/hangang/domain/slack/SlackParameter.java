@@ -9,20 +9,17 @@ public class SlackParameter  {
 	private String channel;
 	private String username;
 	private String text;
-	
 	@JsonProperty("attachments") private List<SlackAttachment> slackAttachments;
+
 	public SlackParameter() {
 		slackAttachments = new ArrayList<SlackAttachment>();
 	}
-
 	public List<SlackAttachment> getSlackAttachments() {
 		return slackAttachments;
 	}
-
 	public void setSlackAttachments(List<SlackAttachment> slackAttachments) {
 		this.slackAttachments = slackAttachments;
 	}
-
 	public String getChannel() {
 		return channel;
 	}

@@ -1,14 +1,16 @@
 package in.hangang.serviceImpl;
 
 import com.amazonaws.services.xray.model.Http;
+import in.hangang.config.SlackNotiSender;
 import in.hangang.domain.*;
+import in.hangang.domain.Report;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.scrap.Scrap;
 import in.hangang.domain.scrap.ScrapLectureBank;
-import in.hangang.enums.BankCategory;
-import in.hangang.enums.ErrorMessage;
-import in.hangang.enums.FIleType;
-import in.hangang.enums.Point;
+import in.hangang.domain.slack.SlackAttachment;
+import in.hangang.domain.slack.SlackParameter;
+import in.hangang.domain.slack.SlackTarget;
+import in.hangang.enums.*;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureBankMapper;
 import in.hangang.mapper.UserMapper;
@@ -19,6 +21,7 @@ import in.hangang.util.S3Util;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +43,14 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Qualifier("UserServiceImpl")
     protected UserService userService;
 
+    @Value("${report_slack_url}")
+    private String notifyReportUrl;
+
     @Autowired
     private S3Util s3Util;
+
+    @Autowired
+    SlackNotiSender slackNotiSender;
 
     //Main------------------------------------------------------------------------------------
 
@@ -160,18 +169,39 @@ public class LectureBankServiceImpl implements LectureBankService {
         //1개의 강의자료 삽입
         //n개의 s3_url posted = 1로 update
         Long id = lectureBankMapper.postLectureBank(lectureBank);
+
         //n개의 category 삽입
         //n개의 upload_file url 삽입
         // 강의자료 업로드시 유저의 포인트 ++ , point_history insert
         try {
             lectureBank.setId(id);
             lectureBankMapper.insertCategoryAndFiles(lectureBank, Point.LECTURE_UPLOAD.getPoint(), Point.LECTURE_UPLOAD.getTypeId());
+            sendLectureBankNoti(lectureBank);
         }catch (Throwable e){
             e.printStackTrace();
             throw new RequestInputException(ErrorMessage.URL_NOT_UNIQUE);
         }
 
         return new BaseResponse("강의자료가 업로드되었습니다.", HttpStatus.CREATED);
+    }
+
+    @Override
+    public void sendLectureBankNoti(LectureBank lectureBank) throws Exception{
+
+        SlackTarget slackTarget = new SlackTarget(notifyReportUrl,"");
+
+        SlackParameter slackParameter = new SlackParameter();
+        SlackAttachment slackAttachment = new SlackAttachment();
+        slackAttachment.setTitle("강의자료");
+        slackAttachment.setAuthorName("한강 강의자료 작성");
+        slackAttachment.setAuthorIcon("https://static.hangang.in/2021/05/30/49e7013f-458c-4f38-a681-b7ba03be0ca8-1622378903280.PNG");
+
+        String message = String.format("강의자료  id : %d 가  user_id: %d 에 의해 작성되었습니다. \n" + "제목\n===== [TITLE] ===== \n%s"
+                ,lectureBank.getId(), lectureBank.getUser_id(), lectureBank.getTitle());
+        message += String.format("작성된 내용\n===== [CONTENTS] ===== \n%s",lectureBank.getContent());
+        slackAttachment.setText(message);
+        slackParameter.getSlackAttachments().add(slackAttachment);
+        slackNotiSender.send(slackTarget,slackParameter);
     }
 
     /** 카테고리가 올바른 값으로 들어왔는지 검증하는 메소드  -  */
@@ -257,9 +287,28 @@ public class LectureBankServiceImpl implements LectureBankService {
     @Override
     public Long addComment(Long id, String comments) throws Exception{
         this.getLectureBank(id); // 해당 강의자료가 존재하는가?
-        return lectureBankMapper.addComment(userService.getLoginUser().getId(),id,comments);
+        Long userId = userService.getLoginUser().getId();
+        Long commentId = lectureBankMapper.addComment(userService.getLoginUser().getId(),id,comments);
+        sendCommentNoti(id,commentId,userId,comments);
+        return commentId;
     }
+    @Override
+    public void sendCommentNoti(Long id, Long commentId, Long userId, String comments) throws Exception{
 
+        SlackTarget slackTarget = new SlackTarget(notifyReportUrl,"");
+        SlackParameter slackParameter = new SlackParameter();
+        SlackAttachment slackAttachment = new SlackAttachment();
+        slackAttachment.setTitle("강의자료 댓글 ");
+        slackAttachment.setAuthorName("한강 강의자료 댓글 작성");
+        slackAttachment.setAuthorIcon("https://static.hangang.in/2021/05/30/49e7013f-458c-4f38-a681-b7ba03be0ca8-1622378903280.PNG");
+
+        String message = String.format("강의자료 id: %d에 댓글 id : %d가  user_id: %d 에 의해 작성되었습니다. \n"
+                ,id ,commentId, userId  );
+        message += String.format("작성된 내용\n===== [CONTENTS] ===== \n%s",comments);
+        slackAttachment.setText(message);
+        slackParameter.getSlackAttachments().add(slackAttachment);
+        slackNotiSender.send(slackTarget,slackParameter);
+    }
     @Override
     public BaseResponse setComment(Long id,Long commentId, String comments) throws Exception{
         // 해당강의자료가 존재하는가?

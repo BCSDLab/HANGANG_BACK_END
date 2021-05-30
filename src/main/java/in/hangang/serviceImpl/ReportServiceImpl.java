@@ -86,8 +86,9 @@ public class ReportServiceImpl implements ReportService {
 
         SlackParameter slackParameter = new SlackParameter();
         SlackAttachment slackAttachment = new SlackAttachment();
-        slackAttachment.setTitle("REPORT");
-
+        slackAttachment.setTitle("한강 신고");
+        slackAttachment.setAuthorName("한강 컨텐츠 신고");
+        slackAttachment.setAuthorIcon("https://static.hangang.in/2021/05/30/5aa690a2-9b17-41e7-9ae5-79dd078650d6-1622378988133.PNG");
         String reportName = in.hangang.enums.Report
                 .nameOf(Integer.parseInt(report.getReport_id().toString()));
         String boardName = Board.nameOf(report.getBoard_type_id());

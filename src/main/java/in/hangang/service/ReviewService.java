@@ -24,5 +24,5 @@ public interface ReviewService {
     ArrayList<Review> getScrapReviewList() throws Exception;
     void deleteScrapReview(Review review) throws Exception;
     Long getCountScrapReview() throws Exception;
-
+    void sendNoti(Review review) throws Exception;
 }

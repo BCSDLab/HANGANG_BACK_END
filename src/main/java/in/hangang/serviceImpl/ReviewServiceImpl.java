@@ -1,11 +1,15 @@
 package in.hangang.serviceImpl;
 
+import in.hangang.config.SlackNotiSender;
 import in.hangang.domain.Lecture;
 import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 import in.hangang.domain.User;
 import in.hangang.domain.criteria.LectureCriteria;
+import in.hangang.domain.slack.SlackAttachment;
+import in.hangang.domain.slack.SlackParameter;
+import in.hangang.domain.slack.SlackTarget;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
@@ -13,7 +17,9 @@ import in.hangang.mapper.*;
 import in.hangang.service.LectureService;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +32,10 @@ import java.util.Map;
 
 @Service("ReviewServiceImpl")
 public class ReviewServiceImpl implements ReviewService {
-
+    @Autowired
+    SlackNotiSender slackNotiSender;
+    @Value("${report_slack_url}")
+    private String notifyReportUrl;
     @Resource
     protected ReviewMapper reviewMapper;
 
@@ -117,6 +126,7 @@ public class ReviewServiceImpl implements ReviewService {
         //리뷰를 create후 작성된 id 반환.
         reviewMapper.createReview(review);
         Long reviewId = review.getReturn_id();
+        review.setId(reviewId);
         Long lectureId = review.getLecture_id();
 
         for(int i = 0; i<review.getAssignment().size(); i++){
@@ -145,7 +155,25 @@ public class ReviewServiceImpl implements ReviewService {
         lectureMapper.updateTotalRatingById(lectureId);
         userMapper.addPointHistory(user.getId(), Point.LECTURE_REVIEW.getPoint(), Point.LECTURE_REVIEW.getTypeId());
         userMapper.addPoint(user.getId(), Point.LECTURE_REVIEW.getPoint());
+        sendNoti(review);
+    }
 
+    @Override
+    public void sendNoti(Review review) throws Exception{
+
+        SlackTarget slackTarget = new SlackTarget(notifyReportUrl,"");
+
+        SlackParameter slackParameter = new SlackParameter();
+        SlackAttachment slackAttachment = new SlackAttachment();
+        slackAttachment.setTitle("강의평");
+        slackAttachment.setAuthorName("한강 강의평");
+        slackAttachment.setAuthorIcon("https://static.hangang.in/2021/05/30/49e7013f-458c-4f38-a681-b7ba03be0ca8-1622378903280.PNG");
+        String message = String.format("강의평 id: %d 가  유저 %d 에 의해서 작성되었습니다.\n"
+                ,review.getId(), review.getUser_id());
+        message += String.format("작성된 내용\n===== [CONTENTS] ===== \n%s",review.getComment());
+        slackAttachment.setText(message);
+        slackParameter.getSlackAttachments().add(slackAttachment);
+        slackNotiSender.send(slackTarget,slackParameter);
     }
 
     @Override

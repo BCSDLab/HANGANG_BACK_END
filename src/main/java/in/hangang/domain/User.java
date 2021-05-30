@@ -16,7 +16,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Component
 public class User {
-    @ApiModelProperty(hidden = true)
+
     private Long id;
 
     @Email(groups = {ValidationGroups.logIn.class, ValidationGroups.signUp.class, ValidationGroups.findPassword.class} , message = "이메일의 형식이 아닙니다.")
