@@ -26,8 +26,8 @@ public class TimeTableController {
 
     @ApiOperation( value = "강의 목록 확인", notes = "강의 리스트를 보여줍니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture/list", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<LectureTimeTable>> getLectureList(@ModelAttribute TimeTableCriteria timeTableCriteria) throws Exception{
-        return new ResponseEntity<ArrayList<LectureTimeTable>>(timetableService.getLectureList(timeTableCriteria), HttpStatus.OK);
+    public ResponseEntity getLectureList(@ModelAttribute TimeTableCriteria timeTableCriteria) throws Exception{
+        return new ResponseEntity(timetableService.getLectureList(timeTableCriteria), HttpStatus.OK);
     }
 
     @Auth

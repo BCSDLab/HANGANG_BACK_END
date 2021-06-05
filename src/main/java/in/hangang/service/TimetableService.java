@@ -5,9 +5,10 @@ import in.hangang.domain.criteria.TimeTableCriteria;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public interface TimetableService {
-    ArrayList<LectureTimeTable> getLectureList(TimeTableCriteria timeTableCriteria) throws Exception;
+    Map<String, Object> getLectureList(TimeTableCriteria timeTableCriteria) throws Exception;
     ArrayList<UserTimeTable> getTableListByUserId(Long semesterDateId) throws Exception;
     void createTimetable(UserTimeTable userTimetable) throws Exception;
     void updateTimeTable(UserTimeTable userTimeTable) throws Exception;

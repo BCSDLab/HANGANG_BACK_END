@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface TimetableMapper {
+    Long getCountLectureList(@Param("timeTableCriteria") TimeTableCriteria timeTableCriteria);
     ArrayList<LectureTimeTable> getLectureList(@Param("timeTableCriteria") TimeTableCriteria timeTableCriteria, @Param("user") User user);
     ArrayList<UserTimeTable> getTableListByUserId(Long userId, Long semesterDateId);
     TimeTableMap getTableById(Long id);
