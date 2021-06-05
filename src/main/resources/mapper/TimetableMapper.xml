@@ -47,6 +47,44 @@
         LIMIT #{timeTableCriteria.cursor}, #{timeTableCriteria.limit}
     </select>
 
+    <select id="getCountLectureList" resultType="Long">
+        SELECT count(*)
+        FROM hangang.lecture_timetable LT WHERE LT.semester_date = #{timeTableCriteria.semesterDateId} AND LT.is_deleted = 0
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.classification)">
+                AND
+                <foreach collection="timeTableCriteria.classification" item="classification" open="(" close=")" separator="or">
+                    LT.classification = #{classification}
+                </foreach>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.keyword)">
+                <choose>
+                    <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.criteria)">
+                        <if test='(timeTableCriteria.criteria eq "교수명".toString())'>
+                            AND (LT.professor like concat('%',#{timeTableCriteria.keyword},'%'))
+                        </if>
+                        <if test='(timeTableCriteria.criteria eq "교과명".toString())'>
+                            AND (LT.name like concat('%',#{timeTableCriteria.keyword},'%'))
+                        </if>
+                    </when>
+                    <otherwise>
+                        AND ((LT.name like concat('%',#{timeTableCriteria.keyword},'%')) OR (LT.professor like concat('%',#{timeTableCriteria.keyword},'%')))
+                    </otherwise>
+                </choose>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.department)">
+                AND
+                <foreach collection="timeTableCriteria.department" item="department" open="(" close=")" separator="or">
+                    department = #{department}
+                </foreach>
+            </when>
+        </choose>
+    </select>
+
     <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimeTable">
         SELECT id, semester_date_id, name FROM hangang.user_timetables WHERE user_id = #{userId} AND is_deleted = 0
         <choose>

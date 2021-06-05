@@ -27,12 +27,15 @@ public class TimetableServiceImpl implements TimetableService {
     UserService userService;
 
     @Override
-    public ArrayList<LectureTimeTable> getLectureList(TimeTableCriteria timeTableCriteria) throws Exception {
+    public Map<String, Object> getLectureList(TimeTableCriteria timeTableCriteria) throws Exception {
         //학기 정보가 비어있으면 예외 처리
         if(timeTableCriteria.getSemesterDateId()==null)
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
 
-        return timetableMapper.getLectureList(timeTableCriteria, userService.getLoginUser());
+        Map<String, Object> map = new HashMap<>();
+        map.put("count", timetableMapper.getCountLectureList(timeTableCriteria));
+        map.put("result", timetableMapper.getLectureList(timeTableCriteria, userService.getLoginUser()));
+        return map;
     }
 
     @Override
