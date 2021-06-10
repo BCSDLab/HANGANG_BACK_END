@@ -218,7 +218,7 @@
         <result column="B_user_id" property="user_id"/>
         <result column="B_title" property="title"/>
         <association property="lecture" resultMap="UserLectureMap"></association>
-        <collection  column="P_user_id" property="uploadFiles" javaType="java.util.List"  ofType="in.hangang.domain.UploadFile" select="getUserUploadFiles"> </collection>
+        <collection  column="B_id" property="uploadFiles" javaType="java.util.List"  ofType="in.hangang.domain.UploadFile" select="getUserUploadFiles"> </collection>
     </resultMap>
 
     <resultMap id="UserLectureMap" type="in.hangang.domain.Lecture">
@@ -251,9 +251,7 @@
             <property name="prefix" value=""/>
             <property name="alias" value="f."/>
         </include>
-        FROM hangang.user AS u JOIN hangang.lecture_bank_purchase AS p ON u.id = p.user_id
-        JOIN hangang.upload_file AS f ON f.lecture_bank_id = p.lecture_bank_id
-        WHERE u.id=#{P_user_id};
+        FROM hangang.upload_file AS f WHERE lecture_bank_id = #{B_user_id};
     </select>
 
     <insert id="grantAuthority">
