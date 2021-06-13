@@ -43,8 +43,7 @@ public class TimeTableController {
     @RequestMapping(value = "/timetable", method = RequestMethod.POST)
     public ResponseEntity creatTimeTable(@Validated(ValidationGroups.createUserTimeTable.class)
                                          @RequestBody UserTimeTable userTimeTable) throws Exception{
-        timetableService.createTimetable(userTimeTable);
-        return new ResponseEntity( new BaseResponse("시간표가 생성되었습니다.", HttpStatus.OK), HttpStatus.OK);
+        return new ResponseEntity(timetableService.createTimetable(userTimeTable), HttpStatus.OK);
     }
     @Xss
     @Auth

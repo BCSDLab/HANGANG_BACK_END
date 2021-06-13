@@ -10,7 +10,7 @@ import java.util.Map;
 public interface TimetableService {
     Map<String, Object> getLectureList(TimeTableCriteria timeTableCriteria) throws Exception;
     ArrayList<UserTimeTable> getTableListByUserId(Long semesterDateId) throws Exception;
-    void createTimetable(UserTimeTable userTimetable) throws Exception;
+    String createTimetable(UserTimeTable userTimetable) throws Exception;
     void updateTimeTable(UserTimeTable userTimeTable) throws Exception;
     void deleteTimetable(UserTimeTable userTimeTable) throws Exception;
     void createLectureOnTimeTable(TimeTable timeTable) throws Exception;
