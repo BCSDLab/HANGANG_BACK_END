@@ -50,7 +50,7 @@ public class TimetableServiceImpl implements TimetableService {
     }
 
     @Override
-    public void createTimetable(UserTimeTable userTimetable) throws Exception {
+    public String createTimetable(UserTimeTable userTimetable) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -60,7 +60,7 @@ public class TimetableServiceImpl implements TimetableService {
         if(timetableMapper.getSemesterDateId(userTimetable.getSemester_date_id())==null)
             throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
-        //TODO : 나누기
+        //시간표 생성 갯수 제한 (한 학기당 5개, 총 50개)
         if(timetableMapper.getCountSemesterDate(userId, userTimetable.getSemester_date_id())>=5)
             throw new RequestInputException(ErrorMessage.TIME_TABLE_LIMIT_SEMESTER);
         if(timetableMapper.getCountTimeTable(userId)>=50)
@@ -70,6 +70,8 @@ public class TimetableServiceImpl implements TimetableService {
         //메인으로 지정된 시간표가 없다면 메인 시간표로 지정
         if(timetableMapper.getMainTimeTableId(userId)==null)
             timetableMapper.assignMainTimeTable(timeTableId);
+
+        return "시간표가 생성되었습니다 id : " + timeTableId.toString();
     }
 
     @Override
