@@ -112,6 +112,9 @@ public class TimetableServiceImpl implements TimetableService {
         //해당 시간표를 삭제할 권한이 있는지 확인
         if(!timetableMapper.getUserIdByTimeTableId(timeTableId).equals(userId))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+        //메인 시간표인지 확인
+        if(timetableMapper.getMainTimeTableId(userId).equals(timeTableId))
+            throw new RequestInputException(ErrorMessage.DELETE_MAIN_TIMETABLE);
 
         timetableMapper.deleteTimetable(timeTableId);
     }
