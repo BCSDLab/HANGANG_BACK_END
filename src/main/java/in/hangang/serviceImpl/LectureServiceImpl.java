@@ -84,7 +84,7 @@ public class LectureServiceImpl implements LectureService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
         for(int i = 0; i< lectureId.size(); i++){
-            if(lectureMapper.checkAlreadyScraped(userId, lectureId.get(i))!=0)
+            if(lectureMapper.checkAlreadyScraped(userId, lectureId.get(i))==0)
                 throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         }
 
