@@ -156,11 +156,8 @@
     </select>
 
     <select id="getLectureListByTimeTableId" resultMap="lectureTimeTableList">
-        <!--
-        SELECT * FROM hangang.lecture_timetable
-        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
-        -->
         SELECT
+        TT.id as id,
         <include refid="lectureTimeTableList">
             <property name="prefix" value=""/>
             <property name="alias" value="LTT."/>
@@ -289,7 +286,7 @@
                 property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
         </collection>
         <collection
-                property="lecture_id" column="{id=id}" select="getLectureIdByLectureTimeTableId">
+                property="lecture_id" column="{name=name, professor=professor}" select="getLectureIdByLectureTimeTableId">
         </collection>
     </resultMap>
 
@@ -322,15 +319,14 @@
     </resultMap>
 
     <select id="getLectureIdByLectureTimeTableId" resultType="Long">
-        SELECT id FROM lecture WHERE (name, professor) IN (SELECT name, professor FROM lecture_timetable WHERE id = #{id})
+        SELECT id FROM lecture WHERE name=#{name} AND professor=#{professor}
     </select>
     <select id="getRatingByNameAndProfessor" resultType="Float">
         SELECT total_rating FROM lecture WHERE name = #{name} AND professor = #{professor};
     </select>
 
     <sql id="lectureTimeTableList">
-        ${alias}id AS ${prefix}id
-        ,${alias}is_custom AS ${prefix}is_custom
+        ${alias}is_custom AS ${prefix}is_custom
         ,${alias}semester_date AS ${prefix}semester_date
         ,${alias}code AS ${prefix}code
 		,${alias}name AS ${prefix}name
