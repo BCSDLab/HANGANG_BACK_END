@@ -15,7 +15,7 @@ public interface TimetableService {
     void deleteTimetable(UserTimeTable userTimeTable) throws Exception;
     void createLectureOnTimeTable(TimeTable timeTable) throws Exception;
     void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception;
-    void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception;
+    LectureTimeTable createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception;
     void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception;
     TimeTableMap getLectureListByTimeTableId(Long timeTableId) throws Exception;
     TimeTableMap getMainTimeTable() throws Exception;
