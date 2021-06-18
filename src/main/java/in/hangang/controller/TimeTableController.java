@@ -105,8 +105,7 @@ public class TimeTableController {
     @ApiOperation( value = "시간표에 강의 추가 직접 추가", notes = "시간표에 강의를 직접 만들어 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/custom/lecture", method = RequestMethod.POST)
     public ResponseEntity createCustomLectureOnTimeTable (@RequestBody LectureTimeTable lectureTimeTable) throws Exception{
-        timetableService.createCustomLectureOnTimeTable(lectureTimeTable);
-        return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
+        return new ResponseEntity(timetableService.createCustomLectureOnTimeTable(lectureTimeTable), HttpStatus.OK);
     }
 
     @Auth

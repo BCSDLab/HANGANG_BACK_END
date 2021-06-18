@@ -5,6 +5,7 @@ import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.exception.TimeTableException;
+import in.hangang.mapper.LectureMapper;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.TimetableService;
 import in.hangang.service.UserService;
@@ -21,6 +22,9 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Resource
     TimetableMapper timetableMapper;
+
+    @Resource
+    LectureMapper lectureMapper;
 
     @Resource
     @Qualifier("UserServiceImpl")
@@ -239,7 +243,7 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     @Transactional
-    public void createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception {
+    public LectureTimeTable createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception {
         Long timeTableId = lectureTimeTable.getUser_timetable_id();
         String code = "";
         for(int i=0; i<10; i++){
@@ -261,6 +265,9 @@ public class TimetableServiceImpl implements TimetableService {
         Long lectureId = timetableMapper.createLecture(lectureTimeTable);
         //시간표에 강의 등록
         timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
+
+        //추가된 강의 정보 반환
+        return timetableMapper.getLectureByLectureId(lectureId);
     }
 
     @Override
