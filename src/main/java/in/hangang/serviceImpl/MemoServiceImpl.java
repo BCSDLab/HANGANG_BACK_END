@@ -34,11 +34,8 @@ public class MemoServiceImpl implements MemoService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
 
-        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_id())))
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-
-        if(memoMapper.isExistsMemo(memo.getTimetable_id())!=null)
-            throw new RequestInputException(ErrorMessage.MEMO_ALREADY_EXISTS);
+        //if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_id())))
+        //    throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         memoMapper.createMemo(memo);
     }
@@ -67,9 +64,12 @@ public class MemoServiceImpl implements MemoService {
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
-        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_id())))
+
+        //수정 권한 확인
+        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_component())))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-        if(memoMapper.isExistsMemo(memo.getTimetable_id())==null)
+
+        if(memoMapper.isExistsMemo(memo.getTimetable_component())==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         memoMapper.updateMemo(memo);
     }
@@ -81,9 +81,10 @@ public class MemoServiceImpl implements MemoService {
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
-        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_id())))
+        //수정 권한 확인
+        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_component())))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-        if(memoMapper.isExistsMemo(memo.getTimetable_id())==null)
+        if(memoMapper.isExistsMemo(memo.getTimetable_component())==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         memoMapper.deleteMemo(memo);

@@ -185,10 +185,6 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
     }
 
-
-
-
-
     @Override
     public void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception {
         Long timeTableId = timeTable.getUser_timetable_id();
