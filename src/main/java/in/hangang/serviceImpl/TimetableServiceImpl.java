@@ -160,7 +160,7 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     @Transactional
-    public void createLectureOnTimeTable(TimeTable timeTable) throws Exception {
+    public LectureTimeTable createLectureOnTimeTable(TimeTable timeTable) throws Exception {
         Long lectureId = timeTable.getLecture_timetable_id();
         Long timeTableId = timeTable.getUser_timetable_id();
         //값이 하나라도 비어있다면 에러
@@ -183,6 +183,8 @@ public class TimetableServiceImpl implements TimetableService {
 
         checkCrashClassTime(originClass, newClass);
         timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
+
+        return timetableMapper.getLecture(timeTableId, lectureId);
     }
 
     @Override
@@ -263,7 +265,9 @@ public class TimetableServiceImpl implements TimetableService {
         timetableMapper.createLectureOnTimeTable(timeTableId, lectureId);
 
         //추가된 강의 정보 반환
-        return timetableMapper.getLectureByLectureId(lectureId);
+        //return timetableMapper.getLectureByLectureId(lectureId);
+
+        return timetableMapper.getLecture(timeTableId, lectureId);
     }
 
     @Override

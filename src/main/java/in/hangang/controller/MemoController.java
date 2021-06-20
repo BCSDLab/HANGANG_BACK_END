@@ -1,6 +1,7 @@
 package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
+import in.hangang.annotation.ValidationGroups;
 import in.hangang.annotation.Xss;
 import in.hangang.domain.Memo;
 import in.hangang.domain.UserTimeTable;
@@ -10,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -25,7 +27,7 @@ public class MemoController {
     @Auth
     @ApiOperation( value = "메모 생성", notes = "시간표에 있는 강의에 메모를 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/memo", method = RequestMethod.POST)
-    public ResponseEntity createMemo(@RequestBody Memo memo) throws Exception{
+    public ResponseEntity createMemo(@Validated(ValidationGroups.createMemo.class) @RequestBody Memo memo) throws Exception{
         memoService.createMemo(memo);
         return new ResponseEntity( new BaseResponse("메모가 정상적으로 추가되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
@@ -39,7 +41,7 @@ public class MemoController {
     @Auth
     @ApiOperation( value = "메모 수정", notes = "메모를 수정합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/memo", method = RequestMethod.PATCH)
-    public ResponseEntity updateMemo(@RequestBody Memo memo) throws Exception{
+    public ResponseEntity updateMemo(@Validated(ValidationGroups.createMemo.class) @RequestBody Memo memo) throws Exception{
         memoService.updateMemo(memo);
         return new ResponseEntity( new BaseResponse("메모가 정상적으로 수정됐습니다.", HttpStatus.OK), HttpStatus.OK);
     }
