@@ -221,7 +221,7 @@
 
     <update id="deleteLectureOnTimeTable">
         UPDATE hangang.timetables SET is_deleted = 1 WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId};
-        UPDATE hangang.memo SET is_deleted = 1 WHERE timetable_id = (SELECT id FROM hangang.timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId});
+        UPDATE hangang.memo SET is_deleted = 1 WHERE timetable_id = (SELECT id FROM hangang.timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0);
     </update>
 
     <update id="assignMainTimeTable">
