@@ -42,6 +42,7 @@ public class MemoServiceImpl implements MemoService {
 
     @Override
     public Memo getMemo(Long timeTableId) throws Exception {
+        Memo memo = new Memo();
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -51,10 +52,15 @@ public class MemoServiceImpl implements MemoService {
         //if(!userId.equals(timetableMapper.getUserIdByTimeTableId(timeTableId)))
             //throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
-        if(memoMapper.isExistsMemo(timeTableId)==null)
-            throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
+        if(memoMapper.isExistsMemo(timeTableId)==null) {
+            memo.setTimetable_component_id(timeTableId);
+            memo.setMemo("");
+            return memo;
+        }
 
-        return memoMapper.getMemo(timeTableId);
+        memo = memoMapper.getMemo(timeTableId);
+
+        return memo;
     }
 
     @Override
