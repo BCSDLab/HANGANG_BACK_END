@@ -13,7 +13,7 @@ public class Memo {
     @ApiModelProperty(hidden = true)
     private Long id;
     @NotNull(groups = {ValidationGroups.createMemo.class}, message = "timetable_id 값을 비워둘 수 없습니다.")
-    private Long timetable_component;
+    private Long timetable_component_id;
     @NotNull(groups = {ValidationGroups.createMemo.class}, message = "메모는 비워둘 수 없습니다.")
     @Length(groups = {ValidationGroups.createMemo.class}, min = 1, max = 500, message = "메모는 1자 이상 500자 이내로 입력해야 합니다.")
     private String memo;
@@ -32,12 +32,12 @@ public class Memo {
         this.id = id;
     }
 
-    public Long getTimetable_component() {
-        return timetable_component;
+    public Long getTimetable_component_id() {
+        return timetable_component_id;
     }
 
-    public void setTimetable_component(Long timetable_component) {
-        this.timetable_component = timetable_component;
+    public void setTimetable_component_id(Long timetable_component_id) {
+        this.timetable_component_id = timetable_component_id;
     }
 
     public String getMemo() {
