@@ -74,8 +74,9 @@ public class TimeTableController {
     @ApiOperation( value = "시간표에 강의 추가", notes = "시간표에 강의를 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture", method = RequestMethod.POST)
     public ResponseEntity createLectureOnTimeTable (@RequestBody TimeTable timeTable) throws Exception{
-        timetableService.createLectureOnTimeTable(timeTable);
-        return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
+
+        //return new ResponseEntity( new BaseResponse("강의가 정상적으로 추가되었습니다", HttpStatus.OK), HttpStatus.OK);
+        return new ResponseEntity(timetableService.createLectureOnTimeTable(timeTable), HttpStatus.OK);
     }
 
     @Auth

@@ -16,7 +16,7 @@ public interface TimetableMapper {
     Long createTimetable(Long user_id, Long semester_date_id, String name);
     void updateTimeTable(Long timeTableId, String name);
     void deleteTimetable(Long timeTableId);
-    void createLectureOnTimeTable(Long timeTableId, Long lectureId);
+    Long createLectureOnTimeTable(Long timeTableId, Long lectureId);
     void deleteLectureOnTimeTable(Long timeTableId, Long lectureId);
     ArrayList<String> getClassTimeByLectureId(Long lectureId);
     Long getSemesterDateByLectureId(Long lectureId);
@@ -27,6 +27,7 @@ public interface TimetableMapper {
     Long isExists(Long lectureId);
     Long getUserIdByTimeTableId(Long timeTableId);
     ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId);
+    LectureTimeTable getLecture(Long timeTableId, Long lectureId);
     Long getLectureIdByLectureTimeTableId(Long id);
     String getNameByTimeTableId(Long timeTableId);
     ArrayList<String> getClassTimeByTimeTable(Long timeTableId);

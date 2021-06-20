@@ -13,7 +13,7 @@ public interface TimetableService {
     String createTimetable(UserTimeTable userTimetable) throws Exception;
     void updateTimeTable(UserTimeTable userTimeTable) throws Exception;
     void deleteTimetable(UserTimeTable userTimeTable) throws Exception;
-    void createLectureOnTimeTable(TimeTable timeTable) throws Exception;
+    LectureTimeTable createLectureOnTimeTable(TimeTable timeTable) throws Exception;
     void deleteLectureOnTimeTable(TimeTable timeTable) throws Exception;
     LectureTimeTable createCustomLectureOnTimeTable(LectureTimeTable lectureTimeTable) throws Exception;
     void createCustomLectureOnTableByCode(CustomTimeTable customTimeTable) throws Exception;

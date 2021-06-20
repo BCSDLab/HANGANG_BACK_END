@@ -172,6 +172,19 @@
         WHERE TT.user_timetable_id = #{timeTableId} AND TT.is_deleted = 0;
     </select>
 
+    <select id="getLecture" resultMap="lectureTimeTableList">
+        SELECT
+        TT.id as id,
+        TT.lecture_id as lecture_timetable_id,
+        <include refid="lectureTimeTableList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LTT."/>
+        </include>
+        FROM timetables TT
+        JOIN lecture_timetable LTT ON LTT.id = TT.lecture_id
+        WHERE TT.user_timetable_id = #{timeTableId} AND TT.lecture_id = #{lectureId} AND TT.is_deleted = 0;
+    </select>
+
     <select id="getCountSemesterDate" resultType="Long">
         SELECT count(*) FROM hangang.user_timetables WHERE user_id = #{userId} AND semester_date_id = #{semesterDateId} AND is_deleted = 0
     </select>
@@ -188,9 +201,10 @@
         SELECT id FROM hangang.lecture_timetable WHERE id = #{lectureId} AND is_custom = 0
     </select>
 
-    <insert id="createLectureOnTimeTable">
+    <select id="createLectureOnTimeTable" resultType="Long">
         INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId});
-    </insert>
+        SELECT LAST_INSERT_ID();
+    </select>
 
     <select id="createTimetable" resultType="Long">
         INSERT INTO hangang.user_timetables(user_id, semester_date_id, name) VALUES(#{user_id}, #{semester_date_id}, #{name});
