@@ -162,6 +162,7 @@
     <select id="getLectureListByTimeTableId" resultMap="lectureTimeTableList">
         SELECT
         TT.id as id,
+        TT.lecture_id as lecture_timetable_id,
         <include refid="lectureTimeTableList">
             <property name="prefix" value=""/>
             <property name="alias" value="LTT."/>
@@ -180,7 +181,7 @@
     </select>
 
     <select id="isAlreadyExists" resultType="Long">
-        SELECT id FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0
+        SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0
     </select>
 
     <select id="isExists" resultType="Long">
@@ -219,7 +220,8 @@
     </select>
 
     <update id="deleteLectureOnTimeTable">
-        UPDATE hangang.timetables SET is_deleted = 1, updated_at = now() WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
+        UPDATE hangang.timetables SET is_deleted = 1 WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId};
+        UPDATE hangang.memo SET is_deleted = 1 WHERE timetable_id = (SELECT id FROM hangang.timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId});
     </update>
 
     <update id="assignMainTimeTable">
@@ -286,9 +288,11 @@
         <result column="class_time" property="class_time"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
+        <!--
         <collection
                 property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
         </collection>
+        -->
         <collection
                 property="lecture_id" column="{name=name, professor=professor}" select="getLectureIdByLectureTimeTableId">
         </collection>
@@ -317,8 +321,9 @@
         <collection
                 property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
         </collection>
+
         <collection
-                property="lecture_id" column="{id=id}" select="getLectureIdByLectureTimeTableId">
+                property="lecture_id" column="{name=name, professor=professor}" select="getLectureIdByLectureTimeTableId">
         </collection>
     </resultMap>
 
