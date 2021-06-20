@@ -66,10 +66,10 @@ public class MemoServiceImpl implements MemoService {
         Long userId = user.getId();
 
         //수정 권한 확인
-        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_component())))
+        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_component_id())))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
-        if(memoMapper.isExistsMemo(memo.getTimetable_component())==null)
+        if(memoMapper.isExistsMemo(memo.getTimetable_component_id())==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         memoMapper.updateMemo(memo);
     }
@@ -82,9 +82,9 @@ public class MemoServiceImpl implements MemoService {
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
         Long userId = user.getId();
         //수정 권한 확인
-        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_component())))
+        if(!userId.equals(memoMapper.getUserIdByTimeTablesId(memo.getTimetable_component_id())))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
-        if(memoMapper.isExistsMemo(memo.getTimetable_component())==null)
+        if(memoMapper.isExistsMemo(memo.getTimetable_component_id())==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         memoMapper.deleteMemo(memo);
