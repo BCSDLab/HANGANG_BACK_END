@@ -26,7 +26,7 @@ public interface TimetableMapper {
     Long isAlreadyExists(Long timeTableId, Long lectureId);
     Long isExists(Long lectureId);
     Long getUserIdByTimeTableId(Long timeTableId);
-    ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId);
+    ArrayList<LectureTimeTable> getLectureListByTimeTableId(Long timeTableId, Long userId);
     LectureTimeTable getLecture(Long timeTableId, Long lectureId);
     Long getLectureIdByLectureTimeTableId(Long id);
     String getNameByTimeTableId(Long timeTableId);

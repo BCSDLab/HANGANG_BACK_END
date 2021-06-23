@@ -77,7 +77,7 @@ public class ReviewController {
     @RequestMapping(value = "/reviews", method = RequestMethod.POST)
     public ResponseEntity createReview(@RequestBody @Validated(ValidationGroups.createReview.class) Review review) throws Exception {
         reviewService.createReview(review);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(new BaseResponse("정상적으로 작성되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
 
     // 추천 기능 ------------------------------------------------------------------------------------------------------
