@@ -1,5 +1,4 @@
 package in.hangang.serviceImpl;
-import com.mpatric.mp3agic.BaseException;
 import in.hangang.domain.*;
 import in.hangang.domain.criteria.TimeTableCriteria;
 import in.hangang.enums.ErrorMessage;
@@ -10,7 +9,6 @@ import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.TimetableService;
 import in.hangang.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -132,7 +130,7 @@ public class TimetableServiceImpl implements TimetableService {
         Long timeTableId = timetableMapper.getMainTimeTableId(userId);
         TimeTableMap timeTableMap = new TimeTableMap();
         timeTableMap = timetableMapper.getTableById(timeTableId);
-        timeTableMap.setLectureList(timetableMapper.getLectureListByTimeTableId(timeTableId));
+        timeTableMap.setLectureList(timetableMapper.getLectureListByTimeTableId(timeTableId, userId));
 
         return timeTableMap;
     }
@@ -312,7 +310,7 @@ public class TimetableServiceImpl implements TimetableService {
 
         TimeTableMap timeTableMap = new TimeTableMap();
         timeTableMap = timetableMapper.getTableById(timeTableId);
-        timeTableMap.setLectureList(timetableMapper.getLectureListByTimeTableId(timeTableId));
+        timeTableMap.setLectureList(timetableMapper.getLectureListByTimeTableId(timeTableId, userId));
 
         return timeTableMap;
     }

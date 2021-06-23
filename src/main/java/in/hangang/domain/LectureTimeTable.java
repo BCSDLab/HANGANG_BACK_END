@@ -44,6 +44,8 @@ public class LectureTimeTable {
     private float rating = 0.0F;
     @ApiModelProperty(hidden = true)
     private String memo;
+    @ApiModelProperty(hidden = true)
+    private boolean is_reviewed;
 
     public Long getId() {
         return id;
@@ -235,5 +237,13 @@ public class LectureTimeTable {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+
+    public boolean isIs_reviewed() {
+        return is_reviewed;
+    }
+
+    public void setIs_reviewed(boolean is_reviewed) {
+        this.is_reviewed = is_reviewed;
     }
 }

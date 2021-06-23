@@ -163,6 +163,8 @@
         SELECT
         TT.id as id,
         TT.lecture_id as lecture_timetable_id,
+        (SELECT EXISTS(SELECT * FROM review WHERE user_id = #{userId} AND
+        lecture_id = (SELECT id FROM lecture WHERE name = LTT.name AND professor = LTT.professor))) as is_reviewed,
         <include refid="lectureTimeTableList">
             <property name="prefix" value=""/>
             <property name="alias" value="LTT."/>
@@ -302,6 +304,7 @@
         <result column="class_time" property="class_time"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
+        <result column="is_reviewed" property="is_reviewed"/>
         <!--
         <collection
                 property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
@@ -341,6 +344,9 @@
         </collection>
     </resultMap>
 
+    <select id="getIsReviewed" resultType="boolean">
+        SELECT count(*) FROM review WHERE user_id = #{user_id}
+    </select>
     <select id="getLectureIdByLectureTimeTableId" resultType="Long">
         SELECT id FROM lecture WHERE name=#{name} AND professor=#{professor}
     </select>

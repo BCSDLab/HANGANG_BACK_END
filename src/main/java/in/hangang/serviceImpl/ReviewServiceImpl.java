@@ -112,16 +112,12 @@ public class ReviewServiceImpl implements ReviewService {
         if (user==null)
             throw new RequestInputException(ErrorMessage.INVALID_USER_EXCEPTION);
 
-        if(reviewMapper.getReviewByUserIdAndLectureId(review.getLecture_id(), user.getId())!=null)
+        //중복 작성 방지
+        if(reviewMapper.getReviewByUserIdAndLectureId(review.getLecture_id(), user.getId())!= null)
             throw new RequestInputException(ErrorMessage.PROHIBITED_ATTEMPT);
 
         review.setUser_id(user.getId());
         ArrayList<Long> semester = lectureService.getSemesterDateByLectureId(review.getLecture_id());
-        
-        //계절학기 과목 있기 때문에 주석 처리
-        //입력된 학기 정보가 강의가 개설된 학기에 포함되어있늕지 확인.
-        //if(!semester.contains(review.getSemester_id()))
-        //    throw new RequestInputException(ErrorMessage.INVALID_SEMESTER_DATE_EXCEPTION);
 
         review.setSemester_date(lectureMapper.getSemesterDateById(review.getSemester_id()));
         //리뷰를 create후 작성된 id 반환.
