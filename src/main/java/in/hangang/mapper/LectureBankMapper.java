@@ -85,6 +85,9 @@ public interface LectureBankMapper {
     void deleteMultiHit(@Param("id_list") ArrayList<Long> id_list);
     List<Long> getHitId(@Param("lecture_bank_id")Long lecture_bank_id);
     Integer checkHitIsdeleted(@Param("id")Long id);
+    List<LectureBank> getHitLectureBank(@Param("user")User user);
+    List<LectureBank> getHitLectureBankN(@Param("user")User user, @Param("counts")Integer counts);
+
 
     //file
     void insertUpload_file(@Param("lecture_bank_id")Long lecture_bank_id, @Param("url")String url, @Param("filename")String filename, @Param("ext")String ext);

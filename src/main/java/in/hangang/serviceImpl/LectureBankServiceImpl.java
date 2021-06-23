@@ -410,6 +410,16 @@ public class LectureBankServiceImpl implements LectureBankService {
         }
     }
 
+    @Override
+    public List<LectureBank> getHitLectureBank() throws Exception{
+        List<LectureBank> list = lectureBankMapper.getHitLectureBank(userService.getLoginUser());
+        if(list.size()<5){
+            List<LectureBank> newList = lectureBankMapper.getHitLectureBankN(userService.getLoginUser(), 5-list.size());
+            list.addAll(newList);
+        }
+        return list;
+    }
+
 
     //file------------------------------------------------------------------------------------
     //DOWNLOAD====================================================================================

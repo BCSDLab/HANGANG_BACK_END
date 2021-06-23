@@ -36,6 +36,7 @@ public interface LectureBankService {
 
     //hits====================================================================================
     void pushHit(Long lecture_bank_id) throws Exception;
+    List<LectureBank> getHitLectureBank() throws Exception;
 
     //file====================================================================================
 

@@ -492,6 +492,27 @@
         WHERE id=#{id};
     </select>
 
+
+    <select id="getHitLectureBank" resultType="in.hangang.domain.LectureBank">
+        SELECT * FROM lecture_bank WHERE is_deleted = 0
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            and lecture_id
+            IN (SELECT lecture_id FROM timetables WHERE is_deleted = 0 and user_timetable_id
+            IN (SELECT id FROM user_timetables WHERE is_deleted = 0 and user_id = #{user.id}))
+        </if>
+        ORDER BY hits DESC, id DESC LIMIT 5;
+    </select>
+
+    <select id="getHitLectureBankN" resultType="in.hangang.domain.LectureBank">
+        SELECT * FROM lecture_bank WHERE is_deleted = 0
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            and lecture_id
+            NOT IN (SELECT lecture_id FROM timetables WHERE is_deleted = 0 and user_timetable_id
+            IN (SELECT id FROM user_timetables WHERE is_deleted = 0 and user_id = #{user.id}))
+        </if>
+        ORDER BY hits DESC, id DESC LIMIT #{counts};
+    </select>
+
     <!--Comment-->
 
     <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
@@ -729,6 +750,7 @@
         </foreach>
         and is_deleted = 0 and user_id = #{user_id};
     </select>
+
 
 
 </mapper>

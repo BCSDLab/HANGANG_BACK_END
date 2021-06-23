@@ -177,6 +177,15 @@ public class LectureBankController {
     }
 
 
+    @RequestMapping(value = "/hit", method = RequestMethod.GET)
+    @ApiOperation(value ="추천 강의자료" , notes = "사용자의 시간표에 포함된 강의에 해당하는 강의자료들을 추천순으로 5개 불러옵니다."
+            ,authorizations = @Authorization(value = "Bearer +accessToken"))
+    public @ResponseBody
+    ResponseEntity getHitLectureBank() throws Exception{
+        return new ResponseEntity(lectureBankService.getHitLectureBank(), HttpStatus.OK);
+    }
+
+
     // 신고하기------------------------------------------------------------------------------------
     @Auth
     @RequestMapping(value = "/report", method = RequestMethod.POST)
