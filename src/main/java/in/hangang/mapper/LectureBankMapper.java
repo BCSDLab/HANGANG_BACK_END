@@ -26,7 +26,7 @@ public interface LectureBankMapper {
     List<UploadFile> getFiles(Long id);
     void initLectureBank(@Param("files")List<UploadFile> files, @Param("lectureBankId") Long id);
     void updateLectureBank(LectureBank lectureBank);
-    List<LectureBankCategory> getCategoryList(Long id);
+    //List<LectureBankCategory> getCategoryList(Long id);
     LectureBank getLectureBank(@Param("id")Long id);
     Lecture getLectureInfo(@Param("id")Long id);
     void setLectureBank(@Param("lecture_bank_id")Long lecture_bank_id, @Param("lecture_id")Long lecture_id, @Param("title")String title, @Param("content") String content, @Param("point_price")Integer point_price, @Param("semester_date_id")Long semester_date_id);

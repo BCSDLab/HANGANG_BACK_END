@@ -493,24 +493,28 @@
     </select>
 
 
-    <select id="getHitLectureBank" resultType="in.hangang.domain.LectureBank">
-        SELECT * FROM lecture_bank WHERE is_deleted = 0
+    <select id="getHitLectureBank" resultMap="searchLectureBank">
+        SELECT lb.*, l.*, u.*
+        FROM lecture_bank lb, lecture l, user u
+        WHERE lb.is_deleted = 0 and l.id = lb.lecture_id and lb.user_id = u.id
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            and lecture_id
-            IN (SELECT lecture_id FROM timetables WHERE is_deleted = 0 and user_timetable_id
-            IN (SELECT id FROM user_timetables WHERE is_deleted = 0 and user_id = #{user.id}))
+            and lb.lecture_id
+            IN (SELECT t.lecture_id FROM timetables t WHERE t.is_deleted = 0 and t.user_timetable_id
+            IN (SELECT ut.id FROM user_timetables ut WHERE ut.is_deleted = 0 and ut.user_id = #{user.id}))
         </if>
-        ORDER BY hits DESC, id DESC LIMIT 5;
+        ORDER BY lb.hits DESC, lb.id DESC LIMIT 5;
     </select>
 
-    <select id="getHitLectureBankN" resultType="in.hangang.domain.LectureBank">
-        SELECT * FROM lecture_bank WHERE is_deleted = 0
+    <select id="getHitLectureBankN" resultMap="searchLectureBank">
+        SELECT lb.*, l.*, u.*
+        FROM lecture_bank lb, lecture l, user u
+        WHERE lb.is_deleted = 0 and l.id = lb.lecture_id and lb.user_id = u.id
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            and lecture_id
-            NOT IN (SELECT lecture_id FROM timetables WHERE is_deleted = 0 and user_timetable_id
-            IN (SELECT id FROM user_timetables WHERE is_deleted = 0 and user_id = #{user.id}))
+            and lb.lecture_id
+            NOT IN (SELECT t.lecture_id FROM timetables t WHERE t.is_deleted = 0 and t.user_timetable_id
+            IN (SELECT ut.id FROM user_timetables ut WHERE ut.is_deleted = 0 and ut.user_id = #{user.id}))
         </if>
-        ORDER BY hits DESC, id DESC LIMIT #{counts};
+        ORDER BY lb.hits DESC, lb.id DESC LIMIT #{counts};
     </select>
 
     <!--Comment-->
