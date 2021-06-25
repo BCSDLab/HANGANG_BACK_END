@@ -40,26 +40,21 @@
         SELECT * FROM hangang.review WHERE user_id = #{userId} and is_deleted = 0;
     </select>
 
-    <insert id="createReview" parameterType="in.hangang.domain.Review">
-        <selectKey resultType="Long" keyProperty="return_id" order="AFTER">
-            SELECT LAST_INSERT_ID()
-        </selectKey>
+    <select id="createReview" resultType="Long">
         INSERT INTO hangang.review (semester_date, user_id, rating, assignment_amount, difficulty,
         grade_portion, attendance_frequency, comment, lecture_id)
         VALUES( #{semester_date}, #{user_id}, #{rating}, #{assignment_amount}, #{difficulty},
-        #{grade_portion}, #{attendance_frequency}, #{comment}, #{lecture_id} )
-    </insert>
+        #{grade_portion}, #{attendance_frequency}, #{comment}, #{lecture_id});
+        SELECT LAST_INSERT_ID();
+    </select>
 
-
-
-    <update id="updateReviewedAt">
-        UPDATE hangang.lecture SET last_reviewed_at = now() WHERE id = #{lecture_id}
-    </update>
-
-    <update id="updateTotalRating">
+    <update id="updateReview">
+        UPDATE lecture SET review_count = review_count + 1 WHERE id = #{id};
+        UPDATE lecture SET review_count = (SELECT count(*) FROM review WHERE lecture_id = #{id}) WHERE id = #{id};
+        UPDATE hangang.lecture SET last_reviewed_at = now() WHERE id = #{id};
         UPDATE hangang.lecture
-        SET total_rating = ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{lecture_id}), 2)
-        WHERE id=#{lecture_id}
+        SET total_rating = ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{id}), 2)
+        WHERE id=#{id};
     </update>
 
     <delete id="deleteReviewById">
@@ -77,7 +72,6 @@
         <result column="grade_portion" property="grade_portion"/>
         <result column="attendance_frequency" property="attendance_frequency"/>
         <result column="comment" property="comment"/>
-        <result column="return_id" property="return_id"/>
         <result column="is_deleted" property="is_deleted"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
@@ -110,7 +104,11 @@
     </select>
 
     <insert id="createReviewAssignment">
-        INSERT INTO hangang.review_assignment(review_id, assignment_id) VALUES(#{review_id}, #{assignment_id})
+        INSERT INTO hangang.review_assignment(review_id, assignment_id)
+        VALUES
+        <foreach item="assignment" collection="assignment" separator=",">
+            (#{reviewId}, #{assignment.id})
+        </foreach>
     </insert>
 
     <select id="getLectureIdByReviewId" resultType="Long">

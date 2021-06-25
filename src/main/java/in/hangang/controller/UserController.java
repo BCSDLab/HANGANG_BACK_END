@@ -115,8 +115,8 @@ public class UserController {
     @Auth
     @ApiOperation( value = "자신이 쓴 강의후기 불러오기",notes = "해당 유저가 작성한 게시글들을 불러옵니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping( value = "/review", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<Review>> getReview() throws Exception{
-        return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewListByUserId(), HttpStatus.OK);
+    public ResponseEntity getReview() throws Exception{
+        return new ResponseEntity(reviewService.getReviewListByUserId(), HttpStatus.OK);
     }
 
     @Auth

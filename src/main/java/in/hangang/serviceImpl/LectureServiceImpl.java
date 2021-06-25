@@ -35,8 +35,7 @@ public class LectureServiceImpl implements LectureService {
     private TimetableMapper timetableMapper;
 
     @Override
-    public Map<String, Object>
-    getLectureList(LectureCriteria lectureCriteria) throws Exception {
+    public Map<String, Object> getLectureList(LectureCriteria lectureCriteria) throws Exception {
         String[] sortList = {"최신순", "평점순", "평가순"};
         // 정렬 기준 검사
         if(lectureCriteria.getSort()!=null && !Arrays.asList(sortList).contains(lectureCriteria.getSort()))
@@ -58,9 +57,7 @@ public class LectureServiceImpl implements LectureService {
         if(lectureMapper.checkLectureExists(lectureId)==null)
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
-        User user = userService.getLoginUser();
-
-        return lectureMapper.getLecture(lectureId, user);
+        return lectureMapper.getLecture(lectureId, userService.getLoginUser());
     }
 
     @Override
@@ -77,7 +74,7 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    public void deleteScrapLecture(ArrayList<Long> lectureId) throws Exception {
+    public void deleteScrapLecture(List<Long> lectureId) throws Exception {
         User user = userService.getLoginUser();
         //유저 정보가 없는 경우 예외 처리
         if (user==null)
@@ -100,11 +97,6 @@ public class LectureServiceImpl implements LectureService {
         Long userId = user.getId();
 
         return lectureMapper.getScrapLectureList(userId);
-    }
-
-    @Override
-    public void updateReviewCount() {
-        lectureMapper.updateReviewCount();
     }
 
     @Override

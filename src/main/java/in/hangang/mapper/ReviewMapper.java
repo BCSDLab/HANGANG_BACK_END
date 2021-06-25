@@ -16,15 +16,14 @@ public interface ReviewMapper {
     List<Review> getReviewList(@Param("criteria") Criteria criteria, @Param("user") User user);
     ArrayList<Review> getReviewListByUserId(Long userId);
     Long createReview(Review review);
-    void updateReviewedAt(Long lecture_id);
-    void updateTotalRating(Long lecture_id);
+    void updateReview(Long id);
     Review getReviewById(Long id);
     ArrayList<Review> getReviewByLectureId(@Param("id") Long id, @Param("lectureCriteria") LectureCriteria lectureCriteria, @Param("user") User user);
     Long getCountReviewByLectureId(Long id);
     Long getReviewByUserIdAndLectureId(Long lecture_id, Long user_id);
     ArrayList<Assignment> getAssignmentByReviewId(Long review_id);
     void deleteReviewById(Long id);
-    void createReviewAssignment(Long review_id, Long assignment_id);
+    void createReviewAssignment(Long reviewId, @Param("assignment") List<Assignment> assignment);
     Long getLectureIdByReviewId(Long lecture_id);
     void createScrap(Long userId, Long reviewId);
     ArrayList<Review> getScrapReviewList(Long userId);

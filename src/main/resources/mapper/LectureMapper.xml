@@ -228,10 +228,6 @@
         SELECT name FROM hangang.lecture WHERE id = #{id}
     </select>
 
-    <update id="updateReviewCountById">
-        UPDATE lecture SET review_count = review_count + 1 WHERE id = #{id}
-    </update>
-
     <update id="updateReviewCount">
         update lecture, (select lecture_id, count(*) as count from review group by lecture_id) REV
         SET lecture.review_count = REV.count
