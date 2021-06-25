@@ -115,11 +115,11 @@ public class ReviewServiceImpl implements ReviewService {
         review.setSemester_date(lectureMapper.getSemesterDateById(review.getSemester_id()));
 
         //리뷰 생성후 id 반환.
-        Long reviewId = reviewMapper.createReview(review);
+        review.setId(reviewMapper.createReview(review));
 
 
-        reviewMapper.createReviewAssignment(reviewId, review.getAssignment());
-        hashtagMapper.insertReviewHashTag(reviewId, review.getHash_tags());
+        reviewMapper.createReviewAssignment(review.getId(), review.getAssignment());
+        hashtagMapper.insertReviewHashTag(review.getId(), review.getHash_tags());
         hashtagMapper.countUpHashTag(lectureId, review.getHash_tags());
         reviewMapper.updateReview(lectureId);
 
