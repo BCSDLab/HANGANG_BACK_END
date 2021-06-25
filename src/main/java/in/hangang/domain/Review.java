@@ -62,9 +62,6 @@ public class Review {
     @Size(min = 1, max = 4, message = "과제 정보는 최소 1개 최대 4개까지 선택하실 수 있습니다.")
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제 정보 항목은 비워둘 수 없습니다.")
     private ArrayList<Assignment> assignment;
-
-    @ApiModelProperty(hidden = true)
-    private Long return_id;
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
     @ApiModelProperty(hidden = true)
@@ -174,14 +171,6 @@ public class Review {
 
     public void setAssignment(ArrayList<Assignment> assignment) {
         this.assignment = assignment;
-    }
-
-    public Long getReturn_id() {
-        return return_id;
-    }
-
-    public void setReturn_id(Long return_id) {
-        this.return_id = return_id;
     }
 
     public Integer getTest_times() {

@@ -15,10 +15,9 @@ import java.util.Map;
 public interface LectureService {
     Map<String, Object> getLectureList(LectureCriteria lectureCriteria) throws Exception;
     Lecture getLecture(Long lectureId) throws Exception;
-    void updateReviewCount();
-    ArrayList<ClassTimeMap> getClassByLectureId(Long id) throws Exception;
-    ArrayList<Long> getSemesterDateByLectureId(Long id) throws Exception;
+    List<ClassTimeMap> getClassByLectureId(Long id) throws Exception;
+    List<Long> getSemesterDateByLectureId(Long id) throws Exception;
     void scrapLecture(Lecture lecture) throws Exception;
-    ArrayList<Lecture> getScrapLectureList() throws Exception;
-    void deleteScrapLecture(ArrayList<Long> lectureId) throws Exception;
+    List<Lecture> getScrapLectureList() throws Exception;
+    void deleteScrapLecture(List<Long> lectureId) throws Exception;
 }

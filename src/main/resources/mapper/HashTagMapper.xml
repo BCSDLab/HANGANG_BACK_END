@@ -3,7 +3,10 @@
 <mapper namespace="in.hangang.mapper.HashTagMapper">
     <insert id="insertReviewHashTag">
         INSERT INTO hangang.review_hash_tag(review_id, hash_tag_id)
-        VALUES(#{review_id} , #{hash_tag_id})
+        VALUES
+        <foreach item="hashTags" collection="hashTags" separator=",">
+            (#{reviewId}, #{hashTags.id})
+        </foreach>
     </insert>
 
     <insert id="insertHashTagCount">
@@ -27,9 +30,11 @@
     </select>
 
     <update id="countUpHashTag">
-        UPDATE hangang.hash_tag_count
-        SET count = count + 1
-        WHERE type = #{type} and lecture_id = #{lecture_id} and hash_tag_id = #{hash_tag_id}
+        <foreach collection="hashTags" item="hashTags" separator=";">
+        INSERT INTO hash_tag_count(type, lecture_id, hash_tag_id) VALUES(0, #{lectureId}, #{hashTags.id})
+        ON DUPLICATE KEY
+        UPDATE count = count + 1
+        </foreach>
     </update>
 
     <update id="updateTop3HashTag">
