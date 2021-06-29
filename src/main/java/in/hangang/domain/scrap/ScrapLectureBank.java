@@ -1,9 +1,13 @@
 package in.hangang.domain.scrap;
 
+import in.hangang.annotation.ValidationGroups;
+import in.hangang.domain.Lecture;
 import in.hangang.domain.LectureBank;
+import in.hangang.domain.User;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -24,6 +28,17 @@ public class ScrapLectureBank {
     private Timestamp created_at;
     private Timestamp updated_at;
     private Boolean is_deleted = false;
+
+
+    @ApiModelProperty(hidden = true)
+    private Boolean is_hit = false;
+    @ApiModelProperty(hidden = true)
+    private User user;
+    @ApiModelProperty(hidden = true)
+    private Lecture lecture;
+
+
+
 
     public String getThumbnail() {
         return thumbnail;
@@ -146,4 +161,27 @@ public class ScrapLectureBank {
         this.is_deleted = is_deleted;
     }
 
+    public Boolean getIs_hit() {
+        return is_hit;
+    }
+
+    public void setIs_hit(Boolean is_hit) {
+        this.is_hit = is_hit;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Lecture getLecture() {
+        return lecture;
+    }
+
+    public void setLecture(Lecture lecture) {
+        this.lecture = lecture;
+    }
 }

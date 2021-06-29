@@ -178,6 +178,26 @@
         <association property="lecture" resultMap="lecture" />
         <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
     </resultMap>
+    <resultMap id="scrapLectureBank" type="in.hangang.domain.scrap.ScrapLectureBank">
+        <id column="scrap_id" property="scrap_id"/>
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="lecture_id" property="lecture_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="hits" property="hits"/>
+        <result column="is_hit" property="is_hit"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <result column="scraped_at" property="scraped_at"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="semester_date" property="semester_date"/>
+        <association property="user" resultMap="user"/>
+        <association property="lecture" resultMap="lecture" />
+        <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
+    </resultMap>
     <resultMap id="countMap" type="in.hangang.domain.LectureBank">
         <id column="id" property="id"/>
         <result column="user_id" property="user_id"/>
@@ -720,19 +740,34 @@
         WHERE id = #{id};
     </select>
 
-    <select id="getScrapLectureBankList" resultType="in.hangang.domain.scrap.ScrapLectureBank">
+    <select id="getScrapLectureBankList" resultMap="scrapLectureBank">
         SELECT
         <include refid="lectureBankColumnList">
             <property name="prefix" value=""/>
             <property name="alias" value="lb."/>
         </include>,
+        (select count(*) from lecture_bank_hit as h where h.lecture_bank_id = lb.id and h.user_id = #{user_id}
+        and h.is_deleted = 0  ) as is_hit,
+        <include refid="UserColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="u."/>
+        </include>,
+        <include refid="lectureColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="l."/>
+        </include>,
         s.semester AS semester_date ,slb.id AS scrap_id, slb.updated_at AS scraped_at
-        FROM lecture_bank AS lb JOIN scrap_lecture_bank AS slb
+
+        FROM lecture_bank AS lb
+        JOIN scrap_lecture_bank AS slb
         ON lb.id = slb.lecture_bank_id
-        JOIN semester_date AS s
-        ON lb.semester_date = s.id
+
+        JOIN semester_date AS s ON lb.semester_date = s.id
+        JOIN lecture as l ON lb.lecture_id = l.id
+        JOIN user as u ON u.id = lb.user_id
+
         WHERE slb.user_id = #{user_id}
-        AND slb.is_deleted = 0 AND lb.is_deleted = 0
+        AND slb.is_deleted = 0 AND lb.is_deleted = 0 AND l.is_deleted = 0
         ORDER BY slb.updated_at desc, slb.id desc;
     </select>
     <select id="checkScrapList" resultType="in.hangang.domain.scrap.Scrap">
