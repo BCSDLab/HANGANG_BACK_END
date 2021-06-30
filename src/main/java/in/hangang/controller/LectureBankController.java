@@ -60,7 +60,7 @@ public class LectureBankController {
             +"\nsemester_date_id : 수강 학기 ID ( 1: 20191, 2: 20192, 3: 20201, 4: 20202, 5: 20211 )"
             +"" ,authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity postLectureBank(@RequestBody @Validated(ValidationGroups.PostLectureBank.class) LectureBank lectureBank) throws Exception {
-        return new ResponseEntity( lectureBankService.postLectureBank(lectureBank), HttpStatus.CREATED);
+        return new ResponseEntity(lectureBankService.postLectureBank(lectureBank), HttpStatus.CREATED);
     }
 
     @Xss
