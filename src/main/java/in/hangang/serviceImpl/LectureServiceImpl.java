@@ -54,7 +54,7 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public Lecture getLecture(Long lectureId) throws Exception {
-        if(lectureMapper.checkLectureExists(lectureId)==null)
+        if(!lectureMapper.checkLectureExists(lectureId))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         return lectureMapper.getLecture(lectureId, userService.getLoginUser());
@@ -64,7 +64,7 @@ public class LectureServiceImpl implements LectureService {
     public void scrapLecture(Lecture lecture) throws Exception {
         Long userId = userService.getLoginUser().getId();
 
-        if(lectureMapper.checkLectureExists(lecture.getId())==null)
+        if(!lectureMapper.checkLectureExists(lecture.getId()))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         if(lectureMapper.checkAlreadyScraped(userId, lecture.getId())!=0)
@@ -104,7 +104,7 @@ public class LectureServiceImpl implements LectureService {
         User user = userService.getLoginUser();
         Long userId = user.getId();
         //해당 강의가 존재하는지 확인.
-        if(lectureMapper.checkLectureExists(id)==null)
+        if(!lectureMapper.checkLectureExists(id))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         ArrayList<ClassTimeMap> resultList = lectureMapper.getClassByLectureId(id);
@@ -117,7 +117,7 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public ArrayList<Long> getSemesterDateByLectureId(Long id) throws Exception {
         //해당 강의가 존재하는지 확인.
-        if(lectureMapper.checkLectureExists(id)==null)
+        if(!lectureMapper.checkLectureExists(id))
             throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
 
         String name = lectureMapper.getNameById(id);

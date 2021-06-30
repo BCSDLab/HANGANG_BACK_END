@@ -24,7 +24,7 @@ public interface LectureMapper {
     ArrayList<Long> getSemesterDateIdByNameAndProfessor(String name, String professor);
     ArrayList<String> getSemesterDateByNameAndProfessor(String name, String professor);
     String getSemesterDateById(Long id);
-    Long checkLectureExists(Long id);
+    Boolean checkLectureExists(Long id);
     String getProfessorById(Long id);
     void updateTotalRatingById(Long id);
     void updateReviewCount();

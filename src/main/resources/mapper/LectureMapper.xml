@@ -216,8 +216,8 @@
         </collection>
     </resultMap>
 
-    <select id="checkLectureExists" resultType="Long">
-        SELECT id FROM hangang.lecture WHERE id = #{id}
+    <select id="checkLectureExists" resultType="Boolean">
+        SELECT EXISTS(SELECT * FROM hangang.lecture WHERE id = #{id})
     </select>
 
     <select id="getProfessorById" resultType="String">

@@ -27,7 +27,7 @@ public class TotalEvaluationServiceImpl implements TotalEvaluationService {
     @Override
     public Review getTotalEvaluation(Long id) throws Exception {
         //해당 강의가 존재하는지 확인.
-        if(lectureMapper.checkLectureExists(id)==null)
+        if(!lectureMapper.checkLectureExists(id))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         return totalEvaluationMapper.getTotalEvaluationByLectureId(id);
     }
@@ -35,7 +35,7 @@ public class TotalEvaluationServiceImpl implements TotalEvaluationService {
     @Override
     public Integer[] getRatingCountByLectureId(Long id) throws Exception {
         //해당 강의가 존재하는지 확인.
-        if(lectureMapper.checkLectureExists(id)==null)
+        if(!lectureMapper.checkLectureExists(id))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
         Integer[] ratings = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         ArrayList<Rating> ratingMap = totalEvaluationMapper.getRatingCountByLectureId(id);

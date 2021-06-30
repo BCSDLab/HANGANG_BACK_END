@@ -100,15 +100,15 @@ public class ReviewServiceImpl implements ReviewService {
     public void createReview(Review review) throws Exception {
 
         //해당 강의가 존재하는지 확인.
-        if(lectureMapper.checkLectureExists(review.getLecture_id())==null)
+        if(!lectureMapper.checkLectureExists(review.getLecture_id()))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         User user = userService.getLoginUser();
         Long lectureId = review.getLecture_id();
 
-        //중복 작성 방지
-        if(reviewMapper.getReviewByUserIdAndLectureId(review.getLecture_id(), user.getId())!= null)
-            throw new RequestInputException(ErrorMessage.PROHIBITED_ATTEMPT);
+        //NOTE : 중복 작성 방지
+        //if(reviewMapper.getReviewByUserIdAndLectureId(review.getLecture_id(), user.getId())!= null)
+        //    throw new RequestInputException(ErrorMessage.PROHIBITED_ATTEMPT);
 
         //작성자, 수강 학기 설정
         review.setUser_id(user.getId());
