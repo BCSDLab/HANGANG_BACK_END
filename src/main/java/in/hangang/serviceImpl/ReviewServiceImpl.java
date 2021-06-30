@@ -97,7 +97,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void createReview(Review review) throws Exception {
+    public Review createReview(Review review) throws Exception {
 
         //해당 강의가 존재하는지 확인.
         if(!lectureMapper.checkLectureExists(review.getLecture_id()))
@@ -127,6 +127,8 @@ public class ReviewServiceImpl implements ReviewService {
         userMapper.addPointHistory(user.getId(), Point.LECTURE_REVIEW.getPoint(), Point.LECTURE_REVIEW.getTypeId());
         userMapper.addPoint(user.getId(), Point.LECTURE_REVIEW.getPoint());
         sendNoti(review);
+
+        return reviewMapper.getReviewById(review.getId());
     }
 
     @Override
