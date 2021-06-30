@@ -68,8 +68,7 @@ public class ReviewController {
             authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/reviews", method = RequestMethod.POST)
     public ResponseEntity createReview(@RequestBody @Validated(ValidationGroups.createReview.class) Review review) throws Exception {
-        reviewService.createReview(review);
-        return new ResponseEntity(new BaseResponse("정상적으로 작성되었습니다.", HttpStatus.OK), HttpStatus.OK);
+        return new ResponseEntity(reviewService.createReview(review), HttpStatus.OK);
     }
 
     // 추천 기능 ------------------------------------------------------------------------------------------------------
