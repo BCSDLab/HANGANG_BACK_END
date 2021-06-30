@@ -18,7 +18,7 @@ public interface LectureBankService {
     //Main====================================================================================
     Map<String, Object> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception;
     LectureBank getLectureBank(Long id) throws Exception;
-    BaseResponse postLectureBank(LectureBank lectureBank) throws Exception;
+    LectureBank postLectureBank(LectureBank lectureBank) throws Exception;
     BaseResponse updateLectureBank(LectureBank lectureBank, Long id) throws Exception;
     void deleteLectureBank(Long id) throws Exception;
 

@@ -148,7 +148,7 @@ public class LectureBankServiceImpl implements LectureBankService {
      * 강의자료를 업로드하는 메소드
      */
     @Override
-    public BaseResponse postLectureBank(LectureBank lectureBank) throws Exception {
+    public LectureBank postLectureBank(LectureBank lectureBank) throws Exception {
         // 로그인한 유저의 ID값 삽입
         lectureBank.setUser_id(userService.getLoginUser().getId());
         // 강의자료 포인트값은 100원으로 고정
@@ -182,7 +182,7 @@ public class LectureBankServiceImpl implements LectureBankService {
             throw new RequestInputException(ErrorMessage.URL_NOT_UNIQUE);
         }
 
-        return new BaseResponse("강의자료가 업로드되었습니다.", HttpStatus.CREATED);
+        return lectureBankMapper.getLectureBankAll(id ,userService.getLoginUser());
     }
 
     @Override
