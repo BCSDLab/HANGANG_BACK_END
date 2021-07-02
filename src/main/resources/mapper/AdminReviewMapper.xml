@@ -12,11 +12,13 @@
     </select>
 
     <delete id="deleteReviewReported">
-        UPDATE hangang.review SET is_deleted = 1 WHERE id = #{id};
-        UPDATE hangang.review_assignment SET is_deleted = 1 WHERE review_id = #{id};
-        UPDATE hangang.review_hash_tag SET is_deleted = 1 WHERE review_id = #{id};
-        UPDATE hangang.review_like SET is_deleted = 1 WHERE review_id = #{id};
-        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{id} AND board_type_id = 3;
+        UPDATE hangang.review SET is_deleted = 1 WHERE id = #{review.id};
+        UPDATE hangang.lecture SET total_rating = IFNULL(ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{review.lecture_id} AND is_deleted = 0), 2), 0) WHERE id=#{review.lecture_id};
+        UPDATE hangang.lecture SET review_count = review_count - 1 WHERE id = #{review.lecture_id};
+        UPDATE hangang.review_assignment SET is_deleted = 1 WHERE review_id = #{review.id};
+        UPDATE hangang.review_hash_tag SET is_deleted = 1 WHERE review_id = #{review.id};
+        UPDATE hangang.review_like SET is_deleted = 1 WHERE review_id = #{review.id};
+        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{review.id} AND board_type_id = 3;
     </delete>
 
     <select id="getReport" resultType="Long">

@@ -50,11 +50,8 @@
 
     <update id="updateReview">
         UPDATE lecture SET review_count = review_count + 1 WHERE id = #{id};
-        UPDATE lecture SET review_count = (SELECT count(*) FROM review WHERE lecture_id = #{id}) WHERE id = #{id};
         UPDATE hangang.lecture SET last_reviewed_at = now() WHERE id = #{id};
-        UPDATE hangang.lecture
-        SET total_rating = ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{id}), 2)
-        WHERE id=#{id};
+        UPDATE hangang.lecture SET total_rating = IFNULL(ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0), 2), 0) WHERE id=#{id};
     </update>
 
     <delete id="deleteReviewById">

@@ -39,14 +39,14 @@
 
     <update id="updateTop3HashTag">
         DELETE FROM hash_tag_top3;
-        insert into hangang.hash_tag_top3(lecture_id, hash_tag_id, count)
-        select a.lecture_id, a.hash_tag_id, a.count from
-        ( select lecture_id, hash_tag_id, count ,
-        case when @grp = lecture_id
-        then @rownum:=@rownum + 1
-        else @rownum :=1
-        end as rownum , (@grp := lecture_id)
-        as dum from hangang.hash_tag_count, (select @rownum:=0, @grp:='') r
-        order by lecture_id, count desc ) a where rownum <![CDATA[<=]]> 3;
+        INSERT INTO hangang.hash_tag_top3(lecture_id, hash_tag_id, count)
+        SELECT a.lecture_id, a.hash_tag_id, a.count FROM
+        ( SELECT lecture_id, hash_tag_id, count ,
+        CASE WHEN @grp = lecture_id
+        THEN @rownum:=@rownum + 1
+        ELSE @rownum :=1
+        END AS rownum , (@grp := lecture_id)
+        AS dum FROM hangang.hash_tag_count, (SELECT @rownum:=0, @grp:='') r
+        ORDER BY lecture_id, count DESC ) a WHERE rownum <![CDATA[<=]]> 3;
     </update>
 </mapper>
