@@ -44,7 +44,7 @@ public class AdminReviewServiceImpl extends ReviewServiceImpl implements AdminRe
         // 리뷰 스크랩 삭제
         // 리뷰 좋아요 삭제
         // 신고내역에서 삭제
-        adminReviewMapper.deleteReviewReported(id);
+        adminReviewMapper.deleteReviewReported(review);
 
         return new BaseResponse("강의평이 삭제되었습니다.", HttpStatus.OK);
     }
