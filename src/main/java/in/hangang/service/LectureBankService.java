@@ -2,31 +2,32 @@ package in.hangang.service;
 
 
 import in.hangang.domain.*;
+import in.hangang.domain.criteria.Criteria;
+import in.hangang.domain.scrap.ScrapLectureBank;
+import in.hangang.response.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface LectureBankService {
     //Main====================================================================================
-    List<LectureBank> searchLectureBanks(LectureBankCriteria lectureBankCriteria);
+    Map<String, Object> searchLectureBanks(LectureBankCriteria lectureBankCriteria) throws Exception;
     LectureBank getLectureBank(Long id) throws Exception;
-    Lecture getLecture(Long id);
-    Long createLectureBank() throws Exception;
-    void setLectureBank(LectureBank lectureBank) throws Exception;
-    void submitLectureBank(LectureBank lectureBank) throws Exception;
+    LectureBank postLectureBank(LectureBank lectureBank) throws Exception;
+    BaseResponse updateLectureBank(LectureBank lectureBank, Long id) throws Exception;
     void deleteLectureBank(Long id) throws Exception;
-    void cancelLectureBank(Long id) throws Exception;
-    Boolean checkWriter(Long lecture_bank_id) throws Exception;
 
 
     //comment====================================================================================
-    List<LectureBankComment> getComments(Long lecture_bank_id);
-    void addComment(Long lecture_bank_id, String comments) throws Exception;
-    void setComment(Long lecture_bank_comment_id, String comments) throws Exception;
-    void deleteComment(Long lecture_bank_comment_id) throws Exception;
-    Boolean checkCommentWriter(Long lecture_bank_comment_id)throws Exception;
+    Map<String,Object> getComments(Long lecture_bank_id , Criteria criteria);
+    Long addComment(Long lecture_bank_id, String comments) throws Exception;
+    BaseResponse setComment(Long lecture_bank_comment_id, Long commentId,String comments) throws Exception;
+    BaseResponse deleteComment(Long lecture_bank_comment_id,Long commentId) throws Exception;
 
     //purchase====================================================================================
     Boolean checkPurchase(Long lecture_bank_id) throws Exception;
@@ -34,26 +35,22 @@ public interface LectureBankService {
 
 
     //hits====================================================================================
-    Boolean checkHits(Long lecture_bank_id) throws  Exception;
     void pushHit(Long lecture_bank_id) throws Exception;
+    List<LectureBank> getHitLectureBank() throws Exception;
 
     //file====================================================================================
 
     //UPLOAD
-    List<Long> LectureBankFilesUpload(List<MultipartFile> fileList, Long id) throws Exception;
-    Long fileUpload(MultipartFile file, Long id) throws Exception;
-    void cancelUpload(Long id) throws Exception;
-    void hardDeleteFile() throws Exception;
-    //DOWNLOAD
-    List<UploadFile> getFileList(Long lecture_bank_id) throws Exception;
-    //org.springframework.core.io.Resource getprivateObject(Long id) throws Exception;
+    List<String> fileUpload(MultipartFile[] files) throws Exception;
     String getObjectUrl(Long id) throws Exception;
 
     //Thumbnail====================================================================================
-    String makeThumbnail(MultipartFile multipartFile) throws Exception;
 
-    //REPORT------------------------------------------------------------------------------------
-    void reportLectureBank(Long lecture_bank_id, Long report_id) throws Exception;
-    void reportLectureBankComment(Long lecture_bank_comment_id, Long report_id) throws Exception;
+    //Scrap====================================================================================
+    Long createScrap(Long lecture_bank_id) throws Exception;
+    void deleteScrap(List<Long>lectureBank_IDList) throws Exception;
+    List<ScrapLectureBank> getScrapList() throws Exception;
+    void sendLectureBankNoti(LectureBank lectureBank) throws Exception;
+    void sendCommentNoti(Long id, Long commentId, Long userId, String comments) throws Exception;
 
 }

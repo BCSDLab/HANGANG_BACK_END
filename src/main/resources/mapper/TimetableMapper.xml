@@ -2,28 +2,91 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.TimetableMapper">
 
+    <select id="getLectureByLectureId" resultMap="lectureList">
+        SELECT * FROM lecture_timetable WHERE id = #{lectureId};
+    </select>
+    <select id="getLatestSemesterDateId" resultType="Long">
+        SELECT id FROM semester_date ORDER BY id DESC LIMIT 1
+    </select>
     <select id="getLectureList" resultMap="lectureList">
-        SELECT * FROM hangang.lecture_timetable WHERE semester_date = #{semesterDateId} AND is_deleted = 0
+        SELECT *
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM scrap_timetable ST WHERE ST.lecture_timetable_id = LT.id AND ST.user_id = #{user.id} AND is_deleted = 0) as is_scraped
+        </if>
+        FROM hangang.lecture_timetable LT WHERE LT.semester_date = #{timeTableCriteria.semesterDateId} AND LT.is_deleted = 0
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(classification)">
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.classification)">
                 AND
-                <foreach collection="classification" item="classification" open="(" close=")" separator="or">
-                    classification = #{classification}
+                <foreach collection="timeTableCriteria.classification" item="classification" open="(" close=")" separator="or">
+                    LT.classification = #{classification}
                 </foreach>
             </when>
         </choose>
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
-                AND ((name like concat('%',#{keyword},'%')) OR (professor like concat('%',#{keyword},'%')))
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.keyword)">
+                <choose>
+                    <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.criteria)">
+                        <if test='(timeTableCriteria.criteria eq "교수명".toString())'>
+                            AND (LT.professor like concat('%',#{timeTableCriteria.keyword},'%'))
+                        </if>
+                        <if test='(timeTableCriteria.criteria eq "교과명".toString())'>
+                            AND (LT.name like concat('%',#{timeTableCriteria.keyword},'%'))
+                        </if>
+                    </when>
+                    <otherwise>
+                        AND ((LT.name like concat('%',#{timeTableCriteria.keyword},'%')) OR (LT.professor like concat('%',#{timeTableCriteria.keyword},'%')))
+                    </otherwise>
+                </choose>
             </when>
         </choose>
         <choose>
-            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
-                AND department = #{department}
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.department)">
+                AND
+                <foreach collection="timeTableCriteria.department" item="department" open="(" close=")" separator="or">
+                    department = #{department}
+                </foreach>
             </when>
         </choose>
+        ORDER BY LT.id ASC
+        LIMIT #{timeTableCriteria.cursor}, #{timeTableCriteria.limit}
+    </select>
 
-        LIMIT #{cursor}, #{limit}
+    <select id="getCountLectureList" resultType="Long">
+        SELECT count(*)
+        FROM hangang.lecture_timetable LT WHERE LT.semester_date = #{timeTableCriteria.semesterDateId} AND LT.is_deleted = 0
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.classification)">
+                AND
+                <foreach collection="timeTableCriteria.classification" item="classification" open="(" close=")" separator="or">
+                    LT.classification = #{classification}
+                </foreach>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.keyword)">
+                <choose>
+                    <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.criteria)">
+                        <if test='(timeTableCriteria.criteria eq "교수명".toString())'>
+                            AND (LT.professor like concat('%',#{timeTableCriteria.keyword},'%'))
+                        </if>
+                        <if test='(timeTableCriteria.criteria eq "교과명".toString())'>
+                            AND (LT.name like concat('%',#{timeTableCriteria.keyword},'%'))
+                        </if>
+                    </when>
+                    <otherwise>
+                        AND ((LT.name like concat('%',#{timeTableCriteria.keyword},'%')) OR (LT.professor like concat('%',#{timeTableCriteria.keyword},'%')))
+                    </otherwise>
+                </choose>
+            </when>
+        </choose>
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(timeTableCriteria.department)">
+                AND
+                <foreach collection="timeTableCriteria.department" item="department" open="(" close=")" separator="or">
+                    department = #{department}
+                </foreach>
+            </when>
+        </choose>
     </select>
 
     <select id="getTableListByUserId" resultType="in.hangang.domain.UserTimeTable">
@@ -43,9 +106,17 @@
         <result column="id" property="id"/>
         <result column="semester_date_id" property="tableSemesterDate"/>
         <result column="name" property="tableName"/>
+        <!--
         <collection property="lectureList" ofType="in.hangang.domain.LectureTimeTable" column="{id=id}" select="getLectureListByTimeTableId">
         </collection>
+        -->
     </resultMap>
+
+    <select id="getTimeTableIdByLecture" resultType="Long">
+        SELECT user_timetable_id FROM timetables TT
+        INNER JOIN user_timetables UT ON TT.user_timetable_id = UT.id
+        WHERE TT.lecture_id = #{lectureId} AND UT.user_id = #{userId} AND TT.is_deleted = 0
+    </select>
 
     <select id="getClassTimeByLectureId" resultType="String">
         SELECT class_time FROM hangang.lecture_timetable WHERE id = #{lectureId};
@@ -64,6 +135,22 @@
         WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
     </select>
 
+    <select id="getClassMapByTimeTable" resultMap="classTimeMap">
+        SELECT id, name, class_time, professor FROM hangang.lecture_timetable
+        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timetableId} AND is_deleted = 0);
+    </select>
+
+    <select id="getClassMapByLectureId" resultMap="classTimeMap">
+        SELECT id, name, class_time, professor FROM hangang.lecture_timetable WHERE id = #{lectureId}
+    </select>
+
+    <resultMap id="classTimeMap" type="in.hangang.domain.LectureTimeTable">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="professor" property="professor"/>
+        <result column="class_time" property="class_time"/>
+    </resultMap>
+
     <select id="getUserIdByTimeTableId" resultType="Long">
         SELECT user_id FROM user_timetables WHERE id = #{timeTableId} AND is_deleted=0;
     </select>
@@ -73,11 +160,11 @@
     </select>
 
     <select id="getLectureListByTimeTableId" resultMap="lectureTimeTableList">
-        <!--
-        SELECT * FROM hangang.lecture_timetable
-        WHERE id = ANY(SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND is_deleted = 0);
-        -->
-        SELECT TT.id,
+        SELECT
+        TT.id as id,
+        TT.lecture_id as lecture_timetable_id,
+        (SELECT EXISTS(SELECT * FROM review WHERE user_id = #{userId} AND
+        lecture_id = (SELECT id FROM lecture WHERE name = LTT.name AND professor = LTT.professor))) as is_reviewed,
         <include refid="lectureTimeTableList">
             <property name="prefix" value=""/>
             <property name="alias" value="LTT."/>
@@ -85,6 +172,19 @@
         FROM timetables TT
         JOIN lecture_timetable LTT ON LTT.id = TT.lecture_id
         WHERE TT.user_timetable_id = #{timeTableId} AND TT.is_deleted = 0;
+    </select>
+
+    <select id="getLecture" resultMap="lectureTimeTableList">
+        SELECT
+        TT.id as id,
+        TT.lecture_id as lecture_timetable_id,
+        <include refid="lectureTimeTableList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LTT."/>
+        </include>
+        FROM timetables TT
+        JOIN lecture_timetable LTT ON LTT.id = TT.lecture_id
+        WHERE TT.user_timetable_id = #{timeTableId} AND TT.lecture_id = #{lectureId} AND TT.is_deleted = 0;
     </select>
 
     <select id="getCountSemesterDate" resultType="Long">
@@ -96,16 +196,17 @@
     </select>
 
     <select id="isAlreadyExists" resultType="Long">
-        SELECT id FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0
+        SELECT lecture_id FROM timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0
     </select>
 
     <select id="isExists" resultType="Long">
         SELECT id FROM hangang.lecture_timetable WHERE id = #{lectureId} AND is_custom = 0
     </select>
 
-    <insert id="createLectureOnTimeTable">
+    <select id="createLectureOnTimeTable" resultType="Long">
         INSERT INTO hangang.timetables(user_timetable_id, lecture_id) VALUES(#{timeTableId}, #{lectureId});
-    </insert>
+        SELECT LAST_INSERT_ID();
+    </select>
 
     <select id="createTimetable" resultType="Long">
         INSERT INTO hangang.user_timetables(user_id, semester_date_id, name) VALUES(#{user_id}, #{semester_date_id}, #{name});
@@ -135,7 +236,8 @@
     </select>
 
     <update id="deleteLectureOnTimeTable">
-        UPDATE hangang.timetables SET is_deleted = 1, updated_at = now() WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId}
+        UPDATE hangang.timetables SET is_deleted = 1 WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId};
+        UPDATE hangang.memo SET is_deleted = 1 WHERE timetable_id = (SELECT id FROM hangang.timetables WHERE user_timetable_id = #{timeTableId} AND lecture_id = #{lectureId} AND is_deleted = 0);
     </update>
 
     <update id="assignMainTimeTable">
@@ -152,9 +254,39 @@
         SELECT id FROM hangang.user_timetables WHERE user_id = #{userId} AND is_main = 1 AND is_deleted = 0
     </select>
 
+    <insert id="createScrapLecture">
+        INSERT INTO hangang.scrap_timetable(user_id, lecture_timetable_id) VALUES(#{userId}, #{lectureId});
+    </insert>
+
+    <select id="getLectureByScrap" resultMap="in.hangang.mapper.LectureMapper.lectureList">
+        SELECT * FROM lecture WHERE (name, professor)
+        IN (SELECT name, professor FROM lecture_timetable WHERE id
+        IN (SELECT lecture_timetable_id from scrap_timetable WHERE user_id = #{userId} AND is_deleted = 0));
+    </select>
+
+    <select id="getScrapLectureList" resultMap="lectureList">
+        SELECT * FROM hangang.lecture_timetable
+        WHERE id = ANY(SELECT lecture_timetable_id FROM hangang.scrap_timetable WHERE user_id = #{userId} AND is_deleted = 0);
+    </select>
+
+    <select id="getScrapLectureByLectureId" resultType="Long">
+        SELECT id FROM hangang.scrap_timetable WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId} AND is_deleted = 0;
+    </select>
+
+    <update id="deleteScrapLecture">
+        UPDATE hangang.scrap_timetable SET is_deleted = 1 WHERE user_id = #{userId} AND lecture_timetable_id = #{lectureId};
+    </update>
+
+    <delete id="deleteLecture">
+        DELETE FROM hangang.lecture_timetable WHERE id = #{lectureId}
+    </delete>
+
+    <insert id="createDefaultTimeTable">
+        INSERT INTO hangang.user_timetables(user_id, semester_date_id, name, is_main) VALUES(#{userId}, #{semesterDateId}, '기본 시간표', 1);
+    </insert>
+
     <resultMap id="lectureTimeTableList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
-        <result column="lecture_id" property="lecture_id"/>
         <result column="is_custom" property="is_custom"/>
         <result column="semester_date" property="semester_date"/>
         <result column="code" property="code"/>
@@ -172,10 +304,20 @@
         <result column="class_time" property="class_time"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
+        <result column="is_reviewed" property="is_reviewed"/>
+        <!--
+        <collection
+                property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
+        </collection>
+        -->
+        <collection
+                property="lecture_id" column="{name=name, professor=professor}" select="getLectureIdByLectureTimeTableId">
+        </collection>
     </resultMap>
 
     <resultMap id="lectureList" type="in.hangang.domain.LectureTimeTable">
         <result column="id" property="id"/>
+        <result column="is_scraped" property="is_scraped"/>
         <result column="is_custom" property="is_custom"/>
         <result column="semester_date" property="semester_date"/>
         <result column="code" property="code"/>
@@ -196,15 +338,24 @@
         <collection
                 property="rating" column="{name=name, professor=professor}" select="getRatingByNameAndProfessor">
         </collection>
+
+        <collection
+                property="lecture_id" column="{name=name, professor=professor}" select="getLectureIdByLectureTimeTableId">
+        </collection>
     </resultMap>
 
+    <select id="getIsReviewed" resultType="boolean">
+        SELECT count(*) FROM review WHERE user_id = #{user_id}
+    </select>
+    <select id="getLectureIdByLectureTimeTableId" resultType="Long">
+        SELECT id FROM lecture WHERE name=#{name} AND professor=#{professor}
+    </select>
     <select id="getRatingByNameAndProfessor" resultType="Float">
         SELECT total_rating FROM lecture WHERE name = #{name} AND professor = #{professor};
     </select>
 
     <sql id="lectureTimeTableList">
-        ${alias}id AS ${prefix}lecture_id
-        ,${alias}is_custom AS ${prefix}is_custom
+        ${alias}is_custom AS ${prefix}is_custom
         ,${alias}semester_date AS ${prefix}semester_date
         ,${alias}code AS ${prefix}code
 		,${alias}name AS ${prefix}name

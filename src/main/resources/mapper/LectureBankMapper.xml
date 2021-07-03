@@ -2,131 +2,362 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.LectureBankMapper">
 
-<!--lecture bank main-->
-        <select id="findLectureBankByKeyword" resultMap="searchLectureBank">
-            SELECT
-            <include refid="lectureBankColumnList">
-                <property name="prefix" value=""/>
-                <property name="alias" value="LB."/>
-            </include>,
-            <include refid="UserColumnList">
-                <property name="prefix" value=""/>
-                <property name="alias" value="U."/>
-            </include>,
-            <include refid="lectureColumnList">
-                <property name="prefix" value=""/>
-                <property name="alias" value="L."/>
-            </include>
-            FROM lecture_bank LB, user U, lecture L,
-            (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
-            WHERE
-            (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id)
-            and LB.available = 1
-            and LB.is_deleted = 0
-            and LB.reported = 0
-            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(category)">
+
+    <select id="getCommentCount" resultType="Long">
+        SELECT count(*) FROM hangang.lecture_bank_comment WHERE lecture_bank_id = #{id} AND is_deleted = 0;
+    </select>
+
+    <select id="getCount" resultMap="countMap">
+        SELECT
+        <include refid="lectureBankColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LB."/>
+        </include>,
+        <include refid="UserColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="U."/>
+        </include>,
+        <include refid="lectureColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="L."/>
+        </include>
+        FROM lecture_bank LB, user U, lecture L,
+        (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id and LB.is_deleted = 0 and LBC.is_deleted = 0) LBC
+        WHERE
+        (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id and LB.is_deleted = 0)
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.category)">
             and
-            <foreach collection="category" item="category" open="(" close=")"  separator="or">
+            <foreach collection="lectureBankCriteria.category" item="category" open="(" close=")"  separator="or">
                 LBC.category = #{category}
             </foreach>
         </if>
-            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(keyword)">
-                and
-                (LB.title like concat('%',#{keyword},'%')
-                or L.name like concat('%',#{keyword},'%')
-                or L.professor like concat('%',#{keyword},'%'))
-            </if>
-            <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(department)">
-                and
-                (L.department = #{department})
-            </if>
-            order by ${order} desc limit #{cursor}, #{limit}
-        </select>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.keyword)">
+            and
+            (LB.title like concat('%',#{lectureBankCriteria.keyword},'%')
+            or L.name like concat('%',#{lectureBankCriteria.keyword},'%')
+            or L.professor like concat('%',#{lectureBankCriteria.keyword},'%'))
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.department)">
+            and
+            (L.department = #{lectureBankCriteria.department})
+        </if>
+    </select>
+    <update id="deleteLectureBank">
+        UPDATE lecture_bank SET is_deleted = 1 WHERE id = #{id};
+        UPDATE scrap_lecture_bank SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_category SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_comment SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_hit SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE lecture_bank_purchase SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        UPDATE report_log SET is_deleted = 1 WHERE board_type_id = 1 AND content_id= #{id};
+        UPDATE upload_file SET is_deleted = 1 WHERE lecture_bank_id = #{id};
+        <foreach collection="files" item="f" separator="" >
+            UPDATE hangang.s3_url
+            SET is_posted = 0
+            WHERE image_url = #{f.url};
+        </foreach>
+        <foreach collection="comments" item="c" separator="" >
+            UPDATE hangang.report_log
+            SET is_deleted = 1
+            WHERE board_type_id = 2  AND  content_id = #{c.id};
+        </foreach>
+
+    </update>
+
+    <insert id="insertS3Url">
+        <foreach collection="uploadFiles" separator="" item="f">
+            INSERT INTO hangang.s3_url(image_url, ext, file_name, file_ext, size, user_id) VALUES(#{f.url}, #{f.ext}, #{f.fileName}, #{f.file_ext}, #{f.size}, #{f.user_id});
+        </foreach>
+    </insert>
+
+    <select id="getExt" resultType="String">
+        SELECT file_ext FROM hangang.s3_url WHERE image_url = #{url} LIMIT 1;
+    </select>
+
+    <select id="postLectureBank"  resultType="Long">
+        INSERT INTO hangang.lecture_bank(user_id, lecture_id, title, content, point_price, semester_date, thumbnail)
+        VALUES(#{user_id}, #{lecture_id}, #{title}, #{content}, #{point_price}, #{semester_id}, #{thumbnail});
+        <foreach collection="files" item="i" separator="">
+            UPDATE hangang.s3_url
+            SET is_posted = 1
+            WHERE image_url=#{i};
+        </foreach>
+        SELECT LAST_INSERT_ID();
+    </select>
+
+    <update id="insertCategoryAndFiles">
+        <foreach collection="lectureBank.files" item="f" separator="">
+            INSERT INTO hangang.upload_file( url , filename, ext,size) SELECT image_url AS url, file_name AS filename, ext, size FROM hangang.s3_url WHERE image_url = #{f};
+            UPDATE hangang.upload_file SET lecture_bank_id = #{lectureBank.id} WHERE url = #{f};
+        </foreach>
+        <foreach collection="lectureBank.category" item="c" separator="">
+            INSERT INTO hangang.lecture_bank_category(lecture_bank_id, category) VALUES ( #{lectureBank.id}, #{c} );
+        </foreach>
+        INSERT INTO hangang.user_point_history(user_id, variance, point_type_id) VALUES ( #{lectureBank.user_id}, #{variance}, #{point_type_id});
+        UPDATE hangang.user SET point = point + #{variance} WHERE id =#{lectureBank.user_id};
+    </update>
+
+    <!-- TODO order에 hits순으로 하는 경우 같은 hits로 정렬되므로 무작위 출력이될 수 있다-->
+    <select id="findLectureBankByKeyword" resultMap="searchLectureBank">
+        SELECT
+        <include refid="lectureBankColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LB."/>
+        </include>,
+        <include refid="UserColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="U."/>
+        </include>,
+        <include refid="lectureColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="L."/>
+        </include>,
+        S.semester as semester_date
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id} and h.is_deleted = 0  ) as is_hit
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from lecture_bank_purchase as p where p.lecture_bank_id = LB.id and p.user_id = #{user.id} and p.is_deleted = 0  ) as is_purchase
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select s.id from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as user_scrap_id
+        </if>
+        FROM lecture_bank LB, user U, lecture L, semester_date S,
+        (SELECT lecture_bank_id, category FROM lecture_bank LB, lecture_bank_category LBC WHERE LB.id = LBC.lecture_bank_id) LBC
+        WHERE
+        (LB.user_id = U.id and LB.lecture_id = L.id and LB.id = LBC.lecture_bank_id and S.id = LB.semester_date)
+        and LB.is_deleted = 0
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.category)">
+            and
+            <foreach collection="lectureBankCriteria.category" item="category" open="(" close=")"  separator="or">
+                LBC.category = #{category}
+            </foreach>
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.keyword)">
+            and
+            (LB.title like concat('%',#{lectureBankCriteria.keyword},'%')
+            or L.name like concat('%',#{lectureBankCriteria.keyword},'%')
+            or L.professor like concat('%',#{lectureBankCriteria.keyword},'%'))
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(lectureBankCriteria.department)">
+            and
+            (L.department = #{lectureBankCriteria.department})
+        </if>
+        <choose>
+            <when test="lectureBankCriteria.order.equals('hits')">
+                order by ${lectureBankCriteria.order} desc, id desc limit #{lectureBankCriteria.cursor}, #{lectureBankCriteria.limit}
+            </when>
+            <otherwise>
+                order by ${lectureBankCriteria.order} desc limit #{lectureBankCriteria.cursor}, #{lectureBankCriteria.limit}
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getCategory" resultType="String">
+        SELECT category FROM hangang.lecture_bank_category WHERE lecture_bank_id = #{id} and is_deleted =0
+    </select>
+    <select id = "getHits" resultType="Long">
+        SELECT lecture_bank_id FROM hangang.lecture_bank_hit WHERE user_id = #{id};
+    </select>
+    <resultMap id="searchLectureBank" type="in.hangang.domain.LectureBank">
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="lecture_id" property="lecture_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="hits" property="hits"/>
+        <result column="is_hit" property="is_hit"/>
+        <result column="is_purchase" property="is_purchase"/>
+        <result column="user_scrap_id" property="user_scrap_id"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="semester_date" property="semester_date"/>
+        <association property="user" resultMap="user"/>
+        <association property="lecture" resultMap="lecture" />
+        <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
+    </resultMap>
+    <resultMap id="scrapLectureBank" type="in.hangang.domain.scrap.ScrapLectureBank">
+        <id column="scrap_id" property="scrap_id"/>
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="lecture_id" property="lecture_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="hits" property="hits"/>
+        <result column="is_hit" property="is_hit"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <result column="scraped_at" property="scraped_at"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="semester_date" property="semester_date"/>
+        <association property="user" resultMap="user"/>
+        <association property="lecture" resultMap="lecture" />
+        <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
+    </resultMap>
+    <resultMap id="countMap" type="in.hangang.domain.LectureBank">
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="lecture_id" property="lecture_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="hits" property="hits"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="semester_date" property="semester_date"/>
+        <association property="user" resultMap="user"/>
+        <association property="lecture" resultMap="lecture" />
+    </resultMap>
+    <sql id="lectureBankColumnList">
+        ${alias}id AS ${prefix}id,
+        ${alias}thumbnail AS ${prefix}thumbnail,
+        ${alias}user_id AS ${prefix}user_id,
+        ${alias}lecture_id AS ${prefix}lecture_id,
+        ${alias}title AS ${prefix}title,
+        ${alias}content AS ${prefix}content,
+        ${alias}point_price AS ${prefix}point_price,
+        ${alias}hits AS ${prefix}hits,
+        ${alias}created_at AS ${prefix}created_at,
+        ${alias}updated_at AS ${prefix}updated_at
+    </sql>
+
+    <sql id="lectureColumnList">
+        ${alias}name AS ${prefix}name,
+        ${alias}professor AS ${prefix}professor,
+        ${alias}department AS ${prefix}department,
+        ${alias}code AS ${prefix}code,
+        ${alias}classification AS ${prefix}classification
+    </sql>
+    <sql id="UserColumnList">
+        ${alias}nickname AS ${prefix}nickname
+    </sql>
 
 
-        <sql id="lectureBankColumnList">
-            ${alias}id AS ${prefix}id,
-            ${alias}user_id AS ${prefix}user_id,
-            ${alias}lecture_id AS ${prefix}lecture_id,
-            ${alias}title AS ${prefix}title,
-            ${alias}content AS ${prefix}content,
-            ${alias}point_price AS ${prefix}point_price,
-            ${alias}hits AS ${prefix}hits,
-            ${alias}created_at AS ${prefix}created_at,
-            ${alias}updated_at AS ${prefix}updated_at
-        </sql>
-        <sql id="UserColumnList">
-             ${alias}nickname AS ${prefix}nickname
-        </sql>
-        <sql id="lectureColumnList">
-             ${alias}name AS ${prefix}name,
-             ${alias}professor AS ${prefix}professor,
-             ${alias}department AS ${prefix}department
-        </sql>
+    <resultMap id="user" type="in.hangang.domain.User">
+        <result column="nickname" property="nickname"/>
+    </resultMap>
 
+    <resultMap id="lecture" type="in.hangang.domain.Lecture">
+        <result column="name" property="name"/>
+        <result column="professor" property="professor"/>
+        <result column="department" property="department"/>
+        <result column="code" property="code"/>
+        <result column="classification" property="classification"/>
+    </resultMap>
 
-        <resultMap id="searchLectureBank" type="in.hangang.domain.LectureBank">
-            <result column="id" property="id"/>
-            <result column="user_id" property="user_id"/>
-            <result column="lecture_id" property="lecture_id"/>
-            <result column="title" property="title"/>
-            <result column="content" property="content"/>
-            <result column="point_price" property="point_price"/>
-            <result column="hits" property="hits"/>
-            <result column="created_at" property="created_at"/>
-            <result column="updated_at" property="updated_at"/>
-            <association property="user" resultMap="user"/>
-            <association property="lecture" resultMap="lecture"/>
-        </resultMap>
-
-
-        <resultMap id="user" type="in.hangang.domain.User">
-            <result column="nickname" property="nickname"/>
-        </resultMap>
-
-        <resultMap id="lecture" type="in.hangang.domain.Lecture">
-            <result column="name" property="name"/>
-            <result column="professor" property="professor"/>
-            <result column="department" property="department"/>
-        </resultMap>
+    <resultMap id="searchLectureBankAndFiles" type="in.hangang.domain.LectureBank">
+        <id column="id" property="id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="lecture_id" property="lecture_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="hits" property="hits"/>
+        <result column="is_hit" property="is_hit"/>
+        <result column="is_purchase" property="is_purchase"/>
+        <result column="user_scrap_id" property="user_scrap_id"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <result column="is_deleted" property="is_deleted"/>
+        <result column="semester_date" property="semester_date"/>
+        <association property="user" resultMap="user"/>
+        <association property="lecture" resultMap="lecture" />
+        <collection property="uploadFiles" column="id" javaType="java.util.List" ofType="in.hangang.domain.UploadFile" select="getFiles"/>
+        <collection property="category" column="id" javaType="java.util.List" ofType="String" select="getCategory"/>
+    </resultMap>
 
 
 
-        <select id="getCategoryList" resultType="in.hangang.domain.LectureBankCategory">
-            select id, lecture_bank_id, category from lecture_bank_category where lecture_bank_id = #{sdf}
-        </select>
+    <select id="getFiles" resultType="in.hangang.domain.UploadFile">
+        SELECT id, lecture_bank_id, url, filename, ext, size FROM hangang.upload_file WHERE lecture_bank_id = #{id} and is_deleted = 0;
+    </select>
+
+    <select id="getLectureBankAll" resultMap="searchLectureBankAndFiles">
+        SELECT
+        <include refid="lectureBankColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="LB."/>
+        </include>,
+        <include refid="UserColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="U."/>
+        </include>,
+        <include refid="lectureColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="L."/>
+        </include>,
+        S.semester as semester_date
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from lecture_bank_hit as h where h.lecture_bank_id = LB.id and h.user_id = #{user.id}  and h.is_deleted = 0  ) as is_hit
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select count(*) from lecture_bank_purchase as p where p.lecture_bank_id = LB.id and p.user_id = #{user.id} and p.is_deleted = 0  ) as is_purchase
+        </if>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(select s.id from scrap_lecture_bank as s where s.lecture_bank_id = LB.id and s.user_id = #{user.id} and s.is_deleted = 0  ) as user_scrap_id
+        </if>
+        FROM lecture_bank AS LB
+        JOIN user AS U ON LB.user_id = U.id
+        JOIN lecture AS L ON LB.lecture_id = L.id
+        JOIN semester_date AS S ON S.id = LB.semester_date
+        WHERE LB.id = #{id} and LB.is_deleted = 0;
+    </select>
 
 
-        <select id="getLectureBank" resultType="in.hangang.domain.LectureBank">
-            SELECT * FROM lecture_bank WHERE id = #{id}
-        </select>
+    <update id = "initLectureBank">
+
+        <foreach collection="files" item="i" separator="">
+            UPDATE hangang.s3_url
+            SET is_posted = 0
+            WHERE image_url = #{i.url};
+        </foreach>
+
+        DELETE FROM hangang.upload_file WHERE lecture_bank_id = #{lectureBankId};
+        DELETE FROM hangang.lecture_bank_category WHERE lecture_bank_id = #{lectureBankId};
+    </update>
+
+
+    <update id="updateLectureBank">
+        UPDATE hangang.lecture_bank
+        SET title=#{title} , content = #{content}, semester_date = #{semester_id} , thumbnail = #{thumbnail} , lecture_id = #{lecture_id}
+        WHERE id = #{id};
+        <foreach collection="files" item="i" separator="">
+            UPDATE hangang.s3_url
+            SET is_posted = 1
+            WHERE image_url = #{i};
+            INSERT INTO hangang.upload_file( url , filename, ext, size ) SELECT image_url AS url, file_name AS filename, ext, size FROM hangang.s3_url WHERE image_url = #{i};
+            UPDATE hangang.upload_file SET lecture_bank_id = #{id} WHERE url = #{i};
+        </foreach>
+        <foreach collection="category" item="c" separator="">
+            INSERT INTO hangang.lecture_bank_category(lecture_bank_id, category) VALUES ( #{id}, #{c} );
+        </foreach>
+    </update>
+
+    <!-- ============================================================================= -->
+    <select id="is_writer" resultType="Long">
+        SELECT id FROM hangang.lecture_bank WHERE id = #{lectureBankId} and user_id = #{userId}
+    </select>
+
+    <select id="getLectureBank" resultType="in.hangang.domain.LectureBank">
+        SELECT * FROM lecture_bank WHERE id = #{id} and is_deleted = 0
+    </select>
 
     <select id="getLectureInfo" resultMap="lecture">
         SELECT * FROM lecture WHERE id = #{id};
     </select>
 
-    <insert id="createLectureBank">
-        INSERT INTO lecture_bank (user_id, lecture_id, title)
-        VALUES(#{user_id}, 0,'');
-    </insert>
-
-    <select id="getLectureBankId" resultType="java.lang.Long">
-        SELECT id FROM lecture_bank
-        where user_id = #{user_id} AND available = 0
-        ORDER BY created_at desc LIMIT 1;
-    </select>
-
     <update id="setLectureBank">
         UPDATE lecture_bank SET title = #{title}, content = #{content}, lecture_id = #{lecture_id}
-                              ,point_price = #{point_price}, semester_date_id = #{semester_date_id}
+                              ,point_price = #{point_price}, semester_date = #{semester_date_id}
         WHERE id = #{lecture_bank_id};
     </update>
-    <update id="setLectureBankAvailable">
-        UPDATE lecture_bank SET available = 1
-        WHERE id = #{lecture_bank_id};
-    </update>
-
-
 
     <insert id="addCategory">
         INSERT INTO lecture_bank_category(lecture_bank_id, category)
@@ -153,14 +384,10 @@
         </foreach>;
     </delete>
 
-    <delete id="deleteLectureBank">
-        UPDATE lecture_bank SET is_deleted =1
-        WHERE id = #{id} AND user_id = #{user_id};
-    </delete>
 
     <select id="getCategoryIdList" resultType="java.lang.Long">
         SELECT id FROM lecture_bank_category
-        where lecture_bank_id = #{lecture_bank_id};
+        where lecture_bank_id = #{lecture_bank_id} and is_deleted = 0 ;
     </select>
 
     <select id="getWriterId" resultType="java.lang.Long">
@@ -178,15 +405,15 @@
         where semester = #{semester}
     </select>
 
-<!--purchase-->
+    <!--purchase-->
 
-    <select id="checkPurchased" resultType="Integer">
-        SELECT purchased FROM lecture_bank_purchase
-        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
+    <select id="checkPurchased" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_purchase
+        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id} and is_deleted = 0;
     </select>
     <insert id="purchaseInsert">
-        INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id, purchased)
-        VALUES (#{user_id}, #{lecture_bank_id}, 1);
+        INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id)
+        VALUES (#{user_id}, #{lecture_bank_id});
     </insert>
     <update id="setPoint">
         UPDATE user set point = point + #{point}
@@ -216,19 +443,42 @@
         WHERE id = #{user_id};
     </select>
 
+    <insert id="purchase">
+        INSERT INTO lecture_bank_purchase(user_id, lecture_bank_id)
+        VALUES (#{user_id}, #{lecture_bank_id});
+        UPDATE user set point = point - #{point_price}
+        where id = #{user_id};
+        INSERT INTO user_point_history(user_id, variance, point_type_id)
+        VALUES (#{user_id}, #{point_price} * (-1), #{point_type_id_purchase});
+        UPDATE user set point = point + #{point_price}
+        where id = #{writer_id};
+        INSERT INTO user_point_history(user_id, variance, point_type_id)
+        VALUES (#{writer_id}, #{point_price}, #{point_type_id_sell});
+    </insert>
+
 
 
     <!--Hit-->
-    <select id="checkHits" resultType="Integer">
-        SELECT hit FROM lecture_bank_hit WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id};
+    <select id="checkHits" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_hit
+        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id}
+          AND is_deleted = 0;
     </select>
 
+    <select id="checkHitExist" resultType="java.lang.Long">
+        SELECT id FROM lecture_bank_hit
+        WHERE user_id=#{user_id} AND lecture_bank_id=#{lecture_bank_id}
+        ORDER BY id desc limit 1;
+    </select>
+
+
+
     <update id="subHit">
-        UPDATE lecture_bank_hit SET hit = 0
+        UPDATE lecture_bank_hit SET is_deleted = 1
         WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
     </update>
     <update id="addHit">
-        UPDATE lecture_bank_hit SET hit = 1
+        UPDATE lecture_bank_hit SET is_deleted = 0
         WHERE lecture_bank_id = #{lecture_bank_id} AND user_id = #{user_id};
     </update>
     <update id="addHit_lecture_bank">
@@ -238,8 +488,8 @@
         UPDATE lecture_bank SET hits = hits - 1 WHERE id = #{lecture_bank_id};
     </update>
     <insert id="hitInsert">
-        INSERT INTO lecture_bank_hit(user_id, lecture_bank_id,hit)
-        values(#{user_id}, #{lecture_bank_id},1);
+        INSERT INTO lecture_bank_hit(user_id, lecture_bank_id)
+        values(#{user_id}, #{lecture_bank_id});
     </insert>
     <update id="deleteHit">
         UPDATE lecture_bank_hit SET is_deleted = 1
@@ -253,33 +503,72 @@
         </foreach>;
     </update>
     <select id="getHitId" resultType="java.lang.Long">
-        SELECT id FROM lecture_bank_purchase
+        SELECT id FROM lecture_bank_hit
         WHERE lecture_bank_id=#{lecture_bank_id};
     </select>
 
-<!--Comment-->
-
-    <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
-        SELECT * FROM lecture_bank_comment WHERE reported = 0
-        AND lecture_bank_id = #{lecture_bank_id};
+    <select id="checkHitIsdeleted" resultType="java.lang.Integer">
+        SELECT is_deleted FROM lecture_bank_hit
+        WHERE id=#{id};
     </select>
 
-    <insert id="addComment">
+
+    <select id="getHitLectureBank" resultMap="searchLectureBank">
+        SELECT lb.*, l.*, u.*
+        FROM lecture_bank lb, lecture l, user u
+        WHERE lb.is_deleted = 0 and l.id = lb.lecture_id and lb.user_id = u.id
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            and lb.lecture_id
+            IN (SELECT t.lecture_id FROM timetables t WHERE t.is_deleted = 0 and t.user_timetable_id
+            IN (SELECT ut.id FROM user_timetables ut WHERE ut.is_deleted = 0 and ut.user_id = #{user.id}))
+        </if>
+        ORDER BY lb.hits DESC, lb.id DESC LIMIT 5;
+    </select>
+
+    <select id="getHitLectureBankN" resultMap="searchLectureBank">
+        SELECT lb.*, l.*, u.*
+        FROM lecture_bank lb, lecture l, user u
+        WHERE lb.is_deleted = 0 and l.id = lb.lecture_id and lb.user_id = u.id
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            and lb.lecture_id
+            NOT IN (SELECT t.lecture_id FROM timetables t WHERE t.is_deleted = 0 and t.user_timetable_id
+            IN (SELECT ut.id FROM user_timetables ut WHERE ut.is_deleted = 0 and ut.user_id = #{user.id}))
+        </if>
+        ORDER BY lb.hits DESC, lb.id DESC LIMIT #{counts};
+    </select>
+
+    <!--Comment-->
+
+    <select id="getComments" resultType="in.hangang.domain.LectureBankComment">
+        SELECT C.id, C.lecture_bank_id, C.user_id, U.nickname ,C.comments, C.created_at, C.updated_at
+        FROM lecture_bank_comment AS C
+        JOIN user AS U
+        ON C.user_id = U.id
+        WHERE C.lecture_bank_id = #{lecture_bank_id} and C.is_deleted = 0
+        ORDER BY C.id DESC
+        LIMIT #{criteria.cursor} , #{criteria.limit};
+    </select>
+
+    <select id="addComment" resultType="Long">
         INSERT INTO lecture_bank_comment(user_id, lecture_bank_id, comments)
         VALUES (#{user_id}, #{lecture_bank_id}, #{comments});
-    </insert>
+        SELECT LAST_INSERT_ID();
+    </select>
     <update id="setComment">
         UPDATE lecture_bank_comment SET comments = #{comments}
         where id = #{id};
     </update>
+
+    <!-- 어드민에서도 사용중 -->
     <update id="deleteComment">
         UPDATE lecture_bank_comment SET is_deleted = 1
         where id = #{id};
+        UPDATE report_log SET is_deleted = 1 WHERE board_type_id = 2 AND content_id = #{id};
     </update>
 
     <select id="getCommentWriterId" resultType="java.lang.Long">
         SELECT user_id FROM lecture_bank_comment
-        where id = #{id};
+        where id = #{id} and is_deleted = 0 ;
     </select>
 
     <select id="getCommentIdList" resultType="java.lang.Long">
@@ -295,22 +584,22 @@
         </foreach>;
     </update>
 
+    <select id="getComment" resultType="in.hangang.domain.LectureBankComment">
+        SELECT * FROM lecture_bank_comment WHERE id = #{id} and is_deleted = 0
+    </select>
 
-<!--File-->
+
+    <!--File-->
 
     <insert id="insertUpload_file">
         INSERT INTO upload_file(lecture_bank_id, url, filename, ext)
         VALUES (#{lecture_bank_id}, #{url}, #{filename}, #{ext});
     </insert>
 
-    <select id="getFileList" resultType="in.hangang.domain.UploadFile">
-        SELECT * FROM upload_file
-        where lecture_bank_id = #{lecture_bank_id};
-    </select>
     <select id="getUploadFileId" resultType="java.lang.Long">
         SELECT id FROM upload_file
-        where lecture_bank_id = #{lecture_bank_id}
-        ORDER BY created_at desc LIMIT 1;
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc LIMIT 1;
     </select>
     <select id="getFileIdList" resultType="java.lang.Long">
         SELECT id FROM upload_file
@@ -327,8 +616,8 @@
             #{id}
         </foreach>;
     </update>
-    <select id="getUrl" resultType="java.lang.String">
-        SELECT url FROM upload_file
+    <select id="getUrl" resultType="in.hangang.domain.UploadFile">
+        SELECT url,fileName FROM upload_file
         WHERE id = #{id};
     </select>
     <select id="getFileId" resultType="java.lang.Long">
@@ -337,7 +626,7 @@
     </select>
     <select id="getLectureBankId_file" resultType="java.lang.Long">
         SELECT lecture_bank_id FROM upload_file
-        WHERE id = #{id};
+        WHERE id = #{id} and is_deleted = 0 ;
     </select>
 
     <update id="deleteFile">
@@ -383,32 +672,123 @@
         SELECT lecture_bank_id FROM upload_file
         WHERE id = #{upload_file_id};
     </select>
-<!--else-->
+    <select id="getFileExtofOne" resultType="java.lang.String">
+        SELECT ext FROM upload_file
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc limit 1;
+    </select>
+
+    <select id="getUploadFileId_limit" resultType="java.lang.Long">
+        SELECT id FROM upload_file
+        WHERE lecture_bank_id = #{lecture_bank_id}
+        ORDER BY id desc LIMIT #{limit};
+    </select>
+
+    <!--else-->
 
     <insert id="addPointHistory">
         INSERT INTO user_point_history(user_id, variance, point_type_id)
         VALUES (#{user_id}, #{variance}, #{point_type_id});
     </insert>
 
-<!--REPORT-->
 
-    <insert id="reportLectureBank">
-        INSERT INTO lecture_bank_report(lecture_bank_id, report_id)
-        VALUES (#{lecture_bank_id}, #{report_id});
-    </insert>
+    <!--Scrap-->
 
-    <insert id="reportLectureBankComment">
-        INSERT INTO lecture_bank_report(lecture_bank_comment_id, report_id)
-        VALUES (#{lecture_bank_comment_id}, #{report_id});
-    </insert>
-    <update id="makeLectureBankReported">
-        UPDATE lecture_bank SET reported = 1
-        WHERE id = #{lecture_bank_id};
+    <select id="createScrap"  resultType="Long">
+        INSERT INTO scrap_lecture_bank(user_id, lecture_bank_id)
+        VALUES (#{user_id}, #{lecture_bank_id});
+        SELECT LAST_INSERT_ID();
+    </select>
+    <update id="unDeleteScrap">
+        UPDATE scrap_lecture_bank SET is_deleted = 0
+        WHERE lecture_bank_id = #{lecture_bank_id}
+          AND user_id = #{user_id};
     </update>
-    <update id="makeLectureBankCommentReported">
-        UPDATE lecture_bank_comment SET reported = 1
-        WHERE id = #{lecture_bank_comment_id};
+    <update id="deleteScrapList" parameterType="java.util.List">
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(id_list)">
+            UPDATE scrap_lecture_bank SET is_deleted = 1
+            WHERE
+            <foreach collection="id_list" item="id" open="(" close=")"  separator="or">
+                id = #{id}
+            </foreach>;
+        </if>
     </update>
+
+    <select id="checkScrapDeleted" resultType="Long">
+        SELECT id FROM scrap_lecture_bank
+        WHERE lecture_bank_id = #{lecture_bank_id}
+          AND user_id = #{user_id} and is_deleted = 0;
+    </select>
+    <select id="checkScrapDeletedList" resultType="java.lang.Boolean" >
+        SELECT is_deleted FROM scrap_lecture_bank
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(id_list)">
+            WHERE id in
+            <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+                #{id}
+            </foreach>
+        </if>;
+    </select>
+    <select id="getScrapID" resultType="java.lang.Long">
+        SELECT id FROM scrap_lecture_bank
+        WHERE lecture_bank_id = #{lecture_bank_id}
+          AND user_id = #{user_id}
+        ORDER BY id desc limit 1;
+    </select>
+
+    <select id="checkScrapExist" resultType="java.lang.Long">
+        SELECT id FROM scrap_lecture_bank
+        WHERE id = #{id};
+    </select>
+
+    <select id="getScrapLectureBankList" resultMap="scrapLectureBank">
+        SELECT
+        <include refid="lectureBankColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="lb."/>
+        </include>,
+        (select count(*) from lecture_bank_hit as h where h.lecture_bank_id = lb.id and h.user_id = #{user_id}
+        and h.is_deleted = 0  ) as is_hit,
+        <include refid="UserColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="u."/>
+        </include>,
+        <include refid="lectureColumnList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="l."/>
+        </include>,
+        s.semester AS semester_date ,slb.id AS scrap_id, slb.updated_at AS scraped_at
+
+        FROM lecture_bank AS lb
+        JOIN scrap_lecture_bank AS slb
+        ON lb.id = slb.lecture_bank_id
+
+        JOIN semester_date AS s ON lb.semester_date = s.id
+        JOIN lecture as l ON lb.lecture_id = l.id
+        JOIN user as u ON u.id = lb.user_id
+
+        WHERE slb.user_id = #{user_id}
+        AND slb.is_deleted = 0 AND lb.is_deleted = 0 AND l.is_deleted = 0
+        ORDER BY slb.updated_at desc, slb.id desc;
+    </select>
+    <select id="checkScrapList" resultType="in.hangang.domain.scrap.Scrap">
+        SELECT id, lecture_bank_id as content_id, user_id, created_at, updated_at, is_deleted
+        FROM scrap_lecture_bank
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(id_list)">
+            WHERE id in
+            <foreach collection="id_list" item="id" open="(" close=")"  separator=",">
+                #{id}
+            </foreach>
+        </if>;
+    </select>
+    <select id="checkScrap" resultType="in.hangang.domain.scrap.Scrap">
+        SELECT id, lecture_bank_id as content_id, user_id, created_at, updated_at, is_deleted
+        FROM scrap_lecture_bank
+        WHERE
+        <foreach collection="idList" item="i" separator="or" open="(" close=")">
+            id = #{i}
+        </foreach>
+        and is_deleted = 0 and user_id = #{user_id};
+    </select>
 
 
 

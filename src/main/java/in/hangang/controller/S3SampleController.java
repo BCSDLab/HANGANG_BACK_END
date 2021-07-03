@@ -72,7 +72,6 @@ public class S3SampleController {
         //Swagger에서는 여러 개의 파일을 받을 수 없음.
         //그러나 Postman에서 작동하는 것을 확인함
         //Body - form-data - file형태 지정 - key : files
-
     @ApiImplicitParams(
             @ApiImplicitParam(name = "files", required = true, dataType = "__file", paramType = "form")
     )

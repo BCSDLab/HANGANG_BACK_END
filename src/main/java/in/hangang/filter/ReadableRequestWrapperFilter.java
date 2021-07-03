@@ -182,7 +182,7 @@ public class ReadableRequestWrapperFilter implements Filter {
 
         @Override
         public BufferedReader getReader() {
-            return new BufferedReader(new InputStreamReader(this.getInputStream(), this.encoding));
+            return new BufferedReader(new InputStreamReader (this.getInputStream(), this.encoding));
         }
     }
 }

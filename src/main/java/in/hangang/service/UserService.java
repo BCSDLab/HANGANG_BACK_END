@@ -1,10 +1,7 @@
 package in.hangang.service;
 
 
-import in.hangang.domain.AuthNumber;
-import in.hangang.domain.PointHistory;
-import in.hangang.domain.User;
-import in.hangang.domain.UserLectureBank;
+import in.hangang.domain.*;
 import in.hangang.response.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,10 +18,11 @@ public interface UserService {
     boolean checkNickname(String nickname);
     void findPassword(User user)throws  Exception;
     User getLoginUser() throws Exception;
-    String setProfile(MultipartFile multipartFile) throws Exception;
     Map<String, Long> getLectureBankCount();
     List<PointHistory> getUserPointHistory();
-    void updateUser(User user);
+    void updateUser(User user) throws  Exception;
     BaseResponse deleteUser();
     List<UserLectureBank> getUserPurchasedLectureBank();
+    BaseResponse updateUserSort();
+    void sendNoti(User user,String event) throws Exception;
 }

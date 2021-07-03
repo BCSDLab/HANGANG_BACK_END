@@ -7,6 +7,8 @@ public class LectureTimeTable {
     @ApiModelProperty(hidden = true)
     private Long id;
     private Long lecture_id;
+    private Long lecture_timetable_id;
+    private boolean is_scraped = false;
     @ApiModelProperty(hidden = true)
     private boolean is_custom;
     private Long user_timetable_id;
@@ -39,7 +41,11 @@ public class LectureTimeTable {
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
-    private float rating;
+    private float rating = 0.0F;
+    @ApiModelProperty(hidden = true)
+    private String memo;
+    @ApiModelProperty(hidden = true)
+    private boolean is_reviewed;
 
     public Long getId() {
         return id;
@@ -207,5 +213,37 @@ public class LectureTimeTable {
 
     public void setRating(float rating) {
         this.rating = rating;
+    }
+
+    public boolean isIs_scraped() {
+        return is_scraped;
+    }
+
+    public void setIs_scraped(boolean is_scraped) {
+        this.is_scraped = is_scraped;
+    }
+
+    public Long getLecture_timetable_id() {
+        return lecture_timetable_id;
+    }
+
+    public void setLecture_timetable_id(Long lecture_timetable_id) {
+        this.lecture_timetable_id = lecture_timetable_id;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
+    }
+
+    public boolean isIs_reviewed() {
+        return is_reviewed;
+    }
+
+    public void setIs_reviewed(boolean is_reviewed) {
+        this.is_reviewed = is_reviewed;
     }
 }

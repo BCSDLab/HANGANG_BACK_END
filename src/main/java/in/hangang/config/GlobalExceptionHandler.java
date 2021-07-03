@@ -8,10 +8,12 @@ import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.BaseException;
 import in.hangang.exception.CriticalException;
 import in.hangang.exception.NonCriticalException;
+import in.hangang.exception.TimeTableException;
 import in.hangang.util.Parser;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -67,10 +69,27 @@ public class GlobalExceptionHandler {
 			baseException.setErrorMessage(message);
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 		}
+		if (e instanceof BindException){
+			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.VALIDATION_FAIL_EXCEPTION);
+			List<ObjectError> messageList = ((BindException) e).getAllErrors();
+			String message = "";
+			for(int i=0; i<messageList.size(); i++){
+				String validationMessage =  messageList.get(i).getDefaultMessage();
+				message += "[" + validationMessage + "]";
+			}
+			baseException.setErrorMessage(message);
+			baseException.setErrorTrace(e.getStackTrace()[0].toString());
+		}
+		//동적으로 메시지를 주는 경우
+		if ( e instanceof TimeTableException){
+			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.TIME_TABLE_CRUSHED);
+			baseException.setErrorMessage(((TimeTableException) e).getMyMessage());
+			baseException.setErrorTrace(e.getStackTrace()[0].toString());
+		}
 
 		if(baseException == null){
 			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.UNDEFINED_EXCEPTION);
-			baseException.setErrorMessage(e.getMessage()); // 죄송합니다 빛통일님ㅠㅠㅠ - 정수현
+			baseException.setErrorMessage(e.getMessage());
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 			slack = true;
 		}

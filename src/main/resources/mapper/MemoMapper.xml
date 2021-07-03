@@ -2,19 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.MemoMapper">
     <insert id="createMemo">
-        INSERT INTO hangang.memo(timetable_id, memo) VALUES(#{timetable_id}, #{memo});
+        INSERT INTO hangang.memo(timetable_id, memo) VALUES(#{timetable_component_id}, #{memo});
     </insert>
 
     <select id="getMemo" resultType="in.hangang.domain.Memo">
-        SELECT timetable_id, memo FROM hangang.memo WHERE timetable_id = #{timeTableId} AND is_deleted = 0;
+        SELECT timetable_id as timetable_component_id, memo FROM hangang.memo WHERE timetable_id = #{timeTableId} AND is_deleted = 0;
     </select>
 
     <update id="updateMemo">
-        UPDATE hangang.memo SET memo = #{memo} WHERE timetable_id = #{timetable_id} AND is_deleted = 0;
+        UPDATE hangang.memo SET memo = #{memo} WHERE timetable_id = #{timetable_component_id} AND is_deleted = 0;
     </update>
 
     <delete id="deleteMemo">
-        UPDATE hangang.memo SET is_deleted = 1 WHERE timetable_id = #{timetable_id} AND is_deleted = 0;
+        UPDATE hangang.memo SET is_deleted = 1 WHERE timetable_id = #{timetable_component_id} AND is_deleted = 0;
     </delete>
 
     <select id="isExistsMemo" resultType="Long">

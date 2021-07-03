@@ -7,5 +7,5 @@ import java.util.HashMap;
 
 public interface TotalEvaluationService {
     Review getTotalEvaluation(Long id) throws Exception;
-    ArrayList<HashMap<String, String>> getRatingCountByLectureId(Long id) throws Exception;
+    Integer[] getRatingCountByLectureId(Long id) throws Exception;
 }

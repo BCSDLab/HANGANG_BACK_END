@@ -31,4 +31,26 @@ public enum Report {
         this.id = id;
     }
 
+    public static String nameOf(int id){
+        String name=null;
+        switch(id){
+            case 1:
+                name = Report.SLANG.getName();
+                break;
+            case 2:
+                name = Report.COPYRIGHT.getName();
+                break;
+            case 3:
+                name = Report.FORGE.getName();
+                break;
+            case 4:
+                name = Report.ADVERTISEMENT.getName();
+                break;
+            case 5:
+                name = Report.OBSCENE.getName();
+                break;
+        }
+        return name;
+    }
+
 }

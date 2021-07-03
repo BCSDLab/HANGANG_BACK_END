@@ -4,9 +4,18 @@ import java.util.ArrayList;
 
 public class TimeTableCriteria extends Criteria {
     private String keyword;
+    private String criteria;
     private ArrayList<String> classification;
     private Long semesterDateId;
-    private String department;
+    private ArrayList<String> department;
+
+    public String getCriteria() {
+        return criteria;
+    }
+
+    public void setCriteria(String criteria) {
+        this.criteria = criteria;
+    }
 
     public String getKeyword() {
         return keyword;
@@ -32,11 +41,11 @@ public class TimeTableCriteria extends Criteria {
         this.semesterDateId = semesterDateId;
     }
 
-    public String getDepartment() {
+    public ArrayList<String> getDepartment() {
         return department;
     }
 
-    public void setDepartment(String department) {
+    public void setDepartment(ArrayList<String> department) {
         this.department = department;
     }
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.admin.AdminLectureBankMapper">
+
+
+
+    <select id="getReportedLectureBankComment" resultType="in.hangang.domain.report.LectureBankCommentReport">
+        SELECT l.id, r.content,t.type, l.user_id,l.content_id, cm.comments,l.created_at, l.updated_at
+        FROM hangang.report_log AS l
+        JOIN hangang.report AS r ON l.report_id = r.id
+        JOIN hangang.board_type AS t ON l.board_type_id = t.id
+        JOIN hangang.lecture_bank_comment AS cm ON l.content_id = cm.id
+        WHERE l.board_type_id = 2 AND l.is_deleted = 0 AND cm.is_deleted= 0;
+    </select>
+
+    <select id="getReportedLectureBank" resultMap="getReportedLectureBankMap">
+        SELECT l.id, r.content AS content_name ,t.type, l.user_id, l.content_id, lb.title, lb.content,lb.point_price, l.created_at, l.updated_at
+        FROM hangang.report_log AS l
+        JOIN hangang.report AS r ON l.report_id = r.id
+        JOIN hangang.board_type AS t ON l.board_type_id = t.id
+        JOIN hangang.lecture_bank AS lb ON l.content_id = lb.id
+        WHERE l.board_type_id = 1  AND l.is_deleted = 0 AND lb.is_deleted = 0;
+    </select>
+
+    <select id="getReportedLectureBankFiles" resultType="in.hangang.domain.UploadFile">
+        SELECT id, filename, url, ext FROM hangang.upload_file WHERE lecture_bank_id = #{id};
+    </select>
+
+    <resultMap id="getReportedLectureBankMap" type="in.hangang.domain.report.LectureBankReport">
+        <result column="id" property="id"/>
+        <result column="content_name" property="content_name"/>
+        <result column="type" property="type"/>
+        <result column="user_id" property="user_id"/>
+        <result column="content_id" property="content_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="point_price" property="point_price"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <collection  column="content_id" property="files" javaType="java.util.List"  ofType="in.hangang.domain.UploadFile" select="getReportedLectureBankFiles"> </collection>
+    </resultMap>
+
+
+    <update id="softDeleteReported">
+        UPDATE hangang.report_log SET is_deleted = 1 WHERE content_id = #{contentId} AND board_type_id = #{typeId}
+    </update>
+
+    <select id="getContent" resultType="Long">
+        SELECT id FROM hangang.report_log WHERE board_type_id = #{typeId} AND content_id = #{contentId} AND is_deleted = 0;
+    </select>
+
+</mapper>

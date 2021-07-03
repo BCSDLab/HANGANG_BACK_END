@@ -10,6 +10,8 @@ import in.hangang.response.BaseResponse;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,9 +28,11 @@ public class UserController {
 
 
     @Resource
+    @Qualifier("UserServiceImpl")
     private UserService userService;
 
-    @Resource
+    @Autowired
+    @Qualifier("ReviewServiceImpl")
     private ReviewService reviewService;
 
     // 로그인
@@ -108,17 +112,11 @@ public class UserController {
         return new ResponseEntity( userService.getLoginUser(), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/profile")
-    @ApiOperation(value ="프로필 사진 설정" , notes = "프로필 사진을 설정합니다")
-    public ResponseEntity setProfile(@RequestBody MultipartFile multiPartFile) throws Exception{
-        return new ResponseEntity( new BaseResponse(userService.setProfile(multiPartFile), HttpStatus.OK), HttpStatus.OK);
-    }
-
     @Auth
     @ApiOperation( value = "자신이 쓴 강의후기 불러오기",notes = "해당 유저가 작성한 게시글들을 불러옵니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping( value = "/review", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<Review>> getReview() throws Exception{
-        return new ResponseEntity<ArrayList<Review>>(reviewService.getReviewListByUserId(), HttpStatus.OK);
+    public ResponseEntity getReview() throws Exception{
+        return new ResponseEntity(reviewService.getReviewListByUserId(), HttpStatus.OK);
     }
 
     @Auth
@@ -134,11 +132,11 @@ public class UserController {
     public ResponseEntity getUserPointHistory(){
         return new ResponseEntity(userService.getUserPointHistory(), HttpStatus.OK);
     }
-
+    @Xss
     @Auth
     @PutMapping("/me")
     @ApiOperation( value = "개인정보 바꾸기",notes = "개인정보 바꾸기 ", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity updateUser(@Validated(ValidationGroups.updateUser.class) @RequestBody User user){
+    public ResponseEntity updateUser(@Validated(ValidationGroups.updateUser.class) @RequestBody User user)throws  Exception{
         userService.updateUser(user);
         return new ResponseEntity(new BaseResponse("수정이 완료 되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }
@@ -159,4 +157,10 @@ public class UserController {
     }
 
 
+    @Auth
+    @PutMapping("/logout-all")
+    @ApiOperation( value = "모든 기기 로그아웃",notes = "토큰에 사용하는 유저의 솔트를 재발급한다.", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity logOutAll(){
+        return new ResponseEntity( userService.updateUserSort(), HttpStatus.OK);
+    }
 }

@@ -64,31 +64,51 @@
         UPDATE hangang.auth_number SET is_deleted = 1 WHERE id=#{id}
     </update>
 
-    <select id="getMe" resultMap="userAll">
+    <select id="getRole" resultType="String">
         SELECT
-        <include refid="user-all">
-            <property name="prefix" value=""/>
-            <property name="alias" value=""/>
-        </include>
-        FROM hangang.user
-        WHERE id = #{id}
+        r.role
+        FROM hangang.user AS u
+        JOIN hangang.admin AS a ON a.user_id = u.id
+        JOIN hangang.admin_role AS r ON a.admin_role_id = r.id
+        WHERE u.id = #{U_id}
+        LIMIT 1;
     </select>
 
+    <select id = "getMe" resultMap="userAll">
+        SELECT
+        <include refid="user-all">
+            <property name="prefix" value="U_"/>
+            <property name="alias" value=""/>
+        </include>
+        FROM hangang.user WHERE id = #{id} and is_deleted = 0
+        LIMIT 1;
+    </select>
+
+
+    <!--
+    select ( select count(*) from hangang.lecture_bank_purchase where user_id = 19) as p
+,(select count(*) from hangang.lecture_bank_comment where user_id = 19 ) as c
+,(select count(*) from hangang.review where user_id = 19) as r ; 로 줄일 수 있다.
+    -->
     <select id="getLectureBankCount" resultType="Long">
-        SELECT COUNT(*) FROM hangang.lecture_bank WHERE user_id=#{id};
+        SELECT COUNT(*) FROM hangang.lecture_bank WHERE user_id=#{id} and is_deleted = 0;
     </select>
 
     <select id="getLectureReviewCount" resultType="Long">
-        SELECT COUNT(*) FROM hangang.review WHERE user_id=#{id};
+        SELECT COUNT(*) FROM hangang.review WHERE user_id=#{id} and is_deleted = 0;
     </select>
 
     <select id="getLectureBankCommentCount" resultType="Long">
-        SELECT COUNT(*) FROM hangang.lecture_bank_comment WHERE user_id=#{id};
+        SELECT COUNT(*) FROM hangang.lecture_bank_comment WHERE user_id=#{id} and is_deleted = 0;
     </select>
 
     <insert id="addPointHistory">
         INSERT INTO hangang.user_point_history(user_id,variance,point_type_id) VALUES(#{user_id}, #{variance}, #{pointTypeId})
     </insert>
+
+    <update id="addPoint">
+        UPDATE hangang.user SET point = point + #{variance} WHERE id = #{user_id}
+    </update>
 
     <select id="getUserPointHistory" resultType="in.hangang.domain.PointHistory">
         SELECT up.id, up.user_id, type.title,up.variance, created_at
@@ -98,33 +118,37 @@
         WHERE up.user_id = #{id}
     </select>
     <resultMap id="userAll" type="in.hangang.domain.User">
-        <result column="id" property="id"/>
-        <result column="portal_account" property="portal_account"/>
-        <result column="nickname" property="nickname"/>
-        <result column="profile_image_url" property="profile_image_url"/>
-        <result column="point" property="point"/>
-        <result column="is_deleted" property="is_deleted"/>
-        <result column="created_at" property="created_at"/>
-        <result column="updated_at" property="updated_at"/>
-        <collection  column="id" property="major" javaType="java.util.ArrayList"  ofType="String" select="getMajor"> </collection>
+        <result column="U_id" property="id"/>
+        <result column="U_name" property="name"/>
+        <result column="U_portal_account" property="portal_account"/>
+        <result column="U_nickname" property="nickname"/>
+        <result column="U_point" property="point"/>
+        <result column="U_is_deleted" property="is_deleted"/>
+        <result column="U_created_at" property="created_at"/>
+        <result column="U_updated_at" property="updated_at"/>
+        <association property="role" column="U_id" javaType="String" select="getRole"></association>
+        <collection column="U_id" property="authorityList" javaType="java.util.ArrayList" ofType="in.hangang.domain.Authority" select="getAuthority"/>
+        <collection  column="U_id" property="major" javaType="java.util.ArrayList"  ofType="String" select="getMajor"> </collection>
     </resultMap>
+
+    <select id="getAuthority" resultType="in.hangang.domain.Authority">
+        SELECT au.id, au.authority FROM hangang.user AS u
+        JOIN hangang.admin AS a ON a.user_id = u.id
+        JOIN hangang.admin_authority AS au ON a.admin_authority_id = au.id
+        WHERE u.id = #{U_id};
+    </select>
 
 
     <sql id="user-all">
         ${alias}id AS ${prefix}id
+        ,${alias}name AS ${prefix}name
 		,${alias}portal_account AS ${prefix}portal_account
 		,${alias}nickname AS ${prefix}nickname
-		,${alias}profile_image_url AS ${prefix}profile_image_url
 		,${alias}point AS ${prefix}point
 		,${alias}is_deleted AS ${prefix}is_deleted
         ,${alias}created_at AS ${prefix}created_at
         ,${alias}updated_at AS ${prefix}updated_at
     </sql>
-
-    <update id="setProfile">
-        UPDATE hangang.user SET profile_image_url = #{url} WHERE id = #{id} and is_deleted=0
-    </update>
-
 
 
     <insert id="insertMajors" >
@@ -144,13 +168,24 @@
 
 
     <insert id="updateUser" >
-        UPDATE hangang.user SET nickname = #{nickname} WHERE id = #{id} and is_deleted=0;
+        UPDATE hangang.user SET nickname = #{nickname}
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(name)">
+                ,name = #{name}
+            </when>
+            <otherwise>
+                ,name = null
+            </otherwise>
+        </choose>
+        WHERE id = #{id} and is_deleted=0;
         DELETE FROM hangang.major WHERE user_id = #{id};
         INSERT INTO hangang.major(user_id, major) VALUES
         <foreach collection="major" item="m" separator=",">
             (#{id}, #{m})
         </foreach>
     </insert>
+
+
 
     <update id="reSignUp" >
         UPDATE hangang.user SET is_deleted = 0, nickname = #{nickname}, password=#{password}, salt=#{salt} where id = #{id}
@@ -183,7 +218,7 @@
         <result column="B_user_id" property="user_id"/>
         <result column="B_title" property="title"/>
         <association property="lecture" resultMap="UserLectureMap"></association>
-        <collection  column="P_user_id" property="uploadFiles" javaType="java.util.List"  ofType="in.hangang.domain.UploadFile" select="getUserUploadFiles"> </collection>
+        <collection  column="B_id" property="uploadFiles" javaType="java.util.List"  ofType="in.hangang.domain.UploadFile" select="getUserUploadFiles"> </collection>
     </resultMap>
 
     <resultMap id="UserLectureMap" type="in.hangang.domain.Lecture">
@@ -207,7 +242,7 @@
         JOIN hangang.lecture_bank_purchase AS p ON u.id = p.user_id
         JOIN hangang.lecture_bank AS b ON p.lecture_bank_id = b.id
         JOIN hangang.lecture AS l ON b.lecture_id = l.id
-        WHERE u.id=#{id};
+        WHERE u.id=#{id} and  u.is_deleted = 0 and p.is_deleted = 0 and b.is_deleted = 0;
     </select>
 
     <select id="getUserUploadFiles" resultType="in.hangang.domain.UploadFile">
@@ -216,10 +251,13 @@
             <property name="prefix" value=""/>
             <property name="alias" value="f."/>
         </include>
-        FROM hangang.user AS u JOIN hangang.lecture_bank_purchase AS p ON u.id = p.user_id
-        JOIN hangang.upload_file AS f ON f.lecture_bank_id = p.lecture_bank_id
-        WHERE u.id=#{P_user_id};
+        FROM hangang.upload_file AS f WHERE lecture_bank_id = #{B_user_id};
     </select>
 
-
+    <insert id="grantAuthority">
+        INSERT INTO hangang.admin(user_id, admin_authority_id, admin_role_id) VALUES(#{id}, #{flag}, 2)
+    </insert>
+    <delete id="deleteAuthority">
+        DELETE FROM hangang.admin WHERE user_id = #{id} and admin_authority_id = #{flag}
+    </delete>
 </mapper>

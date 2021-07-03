@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.ReportMapper">
+    <select id="createReport" resultType="Long">
+        INSERT INTO hangang.report_log(board_type_id, content_id, report_id, user_id) VALUES(#{board_type_id}, #{content_id}, #{report_id}, #{user_id});
+        SELECT LAST_INSERT_ID();
+    </select>
+
+    <select id="checkAlreadyReported" resultType="Long">
+        SELECT id FROM hangang.report_log WHERE board_type_id = #{board_type_id} AND content_id = #{content_id} AND user_id = #{user_id} AND is_deleted = 0;
+    </select>
+    <select id="getlatestReport" resultType="in.hangang.domain.Report">
+        SELECT * FROM report_log WHERE id = #{id}
+
+</select>
+    <select id="getReportedLectureBank" resultType="in.hangang.domain.LectureBank">
+        SELECT * FROM lecture_bank
+        WHERE id = #{id} AND is_deleted = 0;
+    </select>
+    <select id="getReportedLectureBankComment" resultType="in.hangang.domain.LectureBankComment">
+        SELECT * FROM lecture_bank_comment
+        WHERE id = #{id} AND is_deleted = 0;
+    </select>
+    <select id="getReportedReview" resultType="in.hangang.domain.Review">
+        SELECT * FROM review
+        WHERE id = #{id} AND is_deleted = 0;
+    </select>
+</mapper>

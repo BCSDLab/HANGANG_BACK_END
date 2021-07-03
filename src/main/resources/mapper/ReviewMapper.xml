@@ -3,7 +3,11 @@
 <mapper namespace="in.hangang.mapper.ReviewMapper">
 
     <select id="getReviewList" resultMap="review">
-        SELECT * FROM hangang.review WHERE is_deleted = 0 LIMIT #{cursor}, #{limit}
+        SELECT *
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
+        </if>
+        FROM hangang.review R WHERE R.is_deleted = 0 LIMIT #{criteria.cursor}, #{criteria.limit}
     </select>
 
     <select id="getReviewById" resultMap="review">
@@ -11,33 +15,43 @@
     </select>
 
     <select id="getReviewByLectureId" resultMap="review">
-        SELECT * FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0 LIMIT #{cursor}, #{limit}
+        SELECT *
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
+            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
+        </if>
+        ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.is_deleted = 0) as like_count
+        FROM hangang.review R WHERE R.lecture_id = #{id} AND R.is_deleted = 0
+        <if test="lectureCriteria.sort!=null">
+            <if test='(lectureCriteria.sort eq "좋아요 순".toString())'>
+                ORDER BY like_count DESC, R.id ASC
+            </if>
+            <if test='(lectureCriteria.sort eq "최신 순".toString())'>
+                ORDER BY R.created_at DESC, R.id ASC
+            </if>
+        </if>
+        LIMIT #{lectureCriteria.cursor}, #{lectureCriteria.limit}
+    </select>
+
+    <select id="getCountReviewByLectureId" resultType="Long">
+        SELECT count(*) FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0
     </select>
 
     <select id="getReviewListByUserId" resultMap="review">
-        SELECT * FROM hangang.review WHERE user_id = #{userId}
+        SELECT * FROM hangang.review WHERE user_id = #{userId} and is_deleted = 0;
     </select>
 
-    <insert id="createReview" parameterType="in.hangang.domain.Review">
-        <selectKey resultType="Long" keyProperty="return_id" order="AFTER">
-            SELECT LAST_INSERT_ID()
-        </selectKey>
+    <select id="createReview" resultType="Long">
         INSERT INTO hangang.review (semester_date, user_id, rating, assignment_amount, difficulty,
         grade_portion, attendance_frequency, comment, lecture_id)
         VALUES( #{semester_date}, #{user_id}, #{rating}, #{assignment_amount}, #{difficulty},
-        #{grade_portion}, #{attendance_frequency}, #{comment}, #{lecture_id} )
-    </insert>
+        #{grade_portion}, #{attendance_frequency}, #{comment}, #{lecture_id});
+        SELECT LAST_INSERT_ID();
+    </select>
 
-
-
-    <update id="updateReviewedAt">
-        UPDATE hangang.lecture SET last_reviewed_at = now() WHERE id = #{lecture_id}
-    </update>
-
-    <update id="updateTotalRating">
-        UPDATE hangang.lecture
-        SET total_rating = ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{lecture_id}), 2)
-        WHERE id=#{lecture_id}
+    <update id="updateReview">
+        UPDATE lecture SET review_count = review_count + 1 WHERE id = #{id};
+        UPDATE hangang.lecture SET last_reviewed_at = now() WHERE id = #{id};
+        UPDATE hangang.lecture SET total_rating = IFNULL(ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0), 2), 0) WHERE id=#{id};
     </update>
 
     <delete id="deleteReviewById">
@@ -48,17 +62,17 @@
         <result column="id" property="id"/>
         <result column="lecture_id" property="lecture_id"/>
         <result column="user_id" property="user_id"/>
+        <result column="is_liked" property="is_liked"/>
         <result column="rating" property="rating"/>
         <result column="assignment_amount" property="assignment_amount"/>
         <result column="difficulty" property="difficulty"/>
         <result column="grade_portion" property="grade_portion"/>
         <result column="attendance_frequency" property="attendance_frequency"/>
         <result column="comment" property="comment"/>
-        <result column="return_id" property="return_id"/>
         <result column="is_deleted" property="is_deleted"/>
         <result column="created_at" property="created_at"/>
         <result column="updated_at" property="updated_at"/>
-        <collection property="likes" javaType="Long" column="{board_id=id}" ofType="Long"
+        <collection property="likes" javaType="Long" column="{review_id=id}" ofType="Long"
                     select="in.hangang.mapper.LikesMapper.getLikesByReviewId">
         </collection>
         <collection property="hash_tags" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.HashTag"
@@ -87,7 +101,11 @@
     </select>
 
     <insert id="createReviewAssignment">
-        INSERT INTO hangang.review_assignment(review_id, assignment_id) VALUES(#{review_id}, #{assignment_id})
+        INSERT INTO hangang.review_assignment(review_id, assignment_id)
+        VALUES
+        <foreach item="assignment" collection="assignment" separator=",">
+            (#{reviewId}, #{assignment.id})
+        </foreach>
     </insert>
 
     <select id="getLectureIdByReviewId" resultType="Long">

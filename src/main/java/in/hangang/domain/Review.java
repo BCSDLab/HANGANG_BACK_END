@@ -23,9 +23,13 @@ public class Review {
     @ApiModelProperty(hidden = true)
     private Long user_id;
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "수강 학기는 비워둘 수 없습니다.")
+    private Long semester_id;
+    @ApiModelProperty(hidden = true)
     private String semester_date;
     @ApiModelProperty(hidden = true)
     private String nickname;
+    @ApiModelProperty(hidden = true)
+    private boolean is_liked = false;
 
     @DecimalMax(groups = {ValidationGroups.createReview.class}, value = "5.0", message = "별점의 최대값은 5.0입니다.")
     @DecimalMin(groups = {ValidationGroups.createReview.class}, value = "0.5", message = "별점의 최소값은 0.5입니다.")
@@ -58,15 +62,14 @@ public class Review {
     @Size(min = 1, max = 4, message = "과제 정보는 최소 1개 최대 4개까지 선택하실 수 있습니다.")
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "과제 정보 항목은 비워둘 수 없습니다.")
     private ArrayList<Assignment> assignment;
-
-    @ApiModelProperty(hidden = true)
-    private Long return_id;
     @ApiModelProperty(hidden = true)
     private Boolean is_deleted;
     @ApiModelProperty(hidden = true)
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
+    @ApiModelProperty(hidden = true)
+    private String message;
 
     public Long getId() {
         return id;
@@ -172,14 +175,6 @@ public class Review {
         this.assignment = assignment;
     }
 
-    public Long getReturn_id() {
-        return return_id;
-    }
-
-    public void setReturn_id(Long return_id) {
-        this.return_id = return_id;
-    }
-
     public Integer getTest_times() {
         return test_times;
     }
@@ -218,5 +213,29 @@ public class Review {
 
     public void setUpdated_at(Timestamp updated_at) {
         this.updated_at = updated_at;
+    }
+
+    public boolean isIs_liked() {
+        return is_liked;
+    }
+
+    public void setIs_liked(boolean is_liked) {
+        this.is_liked = is_liked;
+    }
+
+    public Long getSemester_id() {
+        return semester_id;
+    }
+
+    public void setSemester_id(Long semester_id) {
+        this.semester_id = semester_id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -1,9 +1,10 @@
 package in.hangang.serviceImpl;
 
-import in.hangang.domain.AuthNumber;
-import in.hangang.domain.PointHistory;
-import in.hangang.domain.User;
-import in.hangang.domain.UserLectureBank;
+import in.hangang.config.SlackNotiSender;
+import in.hangang.domain.*;
+import in.hangang.domain.slack.SlackAttachment;
+import in.hangang.domain.slack.SlackParameter;
+import in.hangang.domain.slack.SlackTarget;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Major;
 import in.hangang.enums.Point;
@@ -11,6 +12,7 @@ import in.hangang.exception.AccessTokenInvalidException;
 import in.hangang.exception.RefreshTokenExpireException;
 import in.hangang.exception.RefreshTokenInvalidException;
 import in.hangang.exception.RequestInputException;
+import in.hangang.mapper.TimetableMapper;
 import in.hangang.mapper.UserMapper;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.UserService;
@@ -18,6 +20,7 @@ import in.hangang.util.Jwt;
 import in.hangang.util.S3Util;
 import in.hangang.util.SesSender;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,11 +38,11 @@ import java.util.*;
 
 
 @Transactional
-@Service
+@Service("UserServiceImpl")
 public class UserServiceImpl implements UserService {
 
     @Resource
-    private UserMapper userMapper;
+    protected UserMapper userMapper;
     @Resource
     private Jwt jwt;
     @Value("${refresh.user.name}")
@@ -52,12 +55,19 @@ public class UserServiceImpl implements UserService {
     private SpringTemplateEngine springTemplateEngine;
     @Resource
     private S3Util s3Util;
+    @Resource
+    private TimetableMapper timetableMapper;
 
     @Value("${token.access}")
     private String access_token;
 
     @Value("${token.refresh}")
     private String refresh_token;
+
+    @Value("${report_slack_url}")
+    private String notifyReportUrl;
+    @Autowired
+    SlackNotiSender slackNotiSender;
 
     private static final String signOutNickName = "(탈퇴한 회원)";
 
@@ -117,6 +127,8 @@ public class UserServiceImpl implements UserService {
         Long dbId =  userMapper.getUserIdFromPortalForReSignUp(user.getPortal_account());
         if ( dbId != null ){
             this.reSignUp(dbId, user);
+            user.setId(dbId);
+            sendNoti(user, "회원가입");
             return new BaseResponse("재가입이 완료되었습니다.", HttpStatus.OK);
         }
 
@@ -129,30 +141,46 @@ public class UserServiceImpl implements UserService {
         this.invalidateAllAuthNumberByPortal(user.getPortal_account());
 
         //회원가입후 user의 가입된 id를 구함
-        Long user_id = userMapper.getUserIdFromPortal(user.getPortal_account());
-
+        Long userId = userMapper.getUserIdFromPortal(user.getPortal_account());
+        user.setId(userId);
         // 전공값의 내용이 올바르지 않다면
         for(int i =0; i<user.getMajor().size(); i++){
             boolean result = this.isMajorValid(user.getMajor().get(i));
             if ( !result )
                 throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
-        userMapper.insertMajors(user_id,user.getMajor());
+        userMapper.insertMajors(userId,user.getMajor());
 
         // user salt = timestamp + user_id + BCrypt
         // salt 삽입
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        String salt = user_id.toString() + calendar.getTime();
+        String salt = userId.toString() + calendar.getTime();
         salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
-        userMapper.setSalt(salt,user_id);
+        userMapper.setSalt(salt,userId);
 
         //회원가입 포인트 이력 추가
-        userMapper.addPointHistory(user_id, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
-
+        userMapper.addPointHistory(userId, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
+        timetableMapper.createDefaultTimeTable(userId, timetableMapper.getLatestSemesterDateId());
+        sendNoti(user, "회원가입");
         return new BaseResponse("회원가입에 성공했습니다", HttpStatus.OK);
     }
+    @Override
+    public void sendNoti(User user, String event) throws Exception{
 
+        SlackTarget slackTarget = new SlackTarget(notifyReportUrl,"");
+
+        SlackParameter slackParameter = new SlackParameter();
+        SlackAttachment slackAttachment = new SlackAttachment();
+        slackAttachment.setTitle("유저");
+        slackAttachment.setAuthorName("한강 회원가입");
+        slackAttachment.setAuthorIcon("https://static.hangang.in/2021/05/30/49e7013f-458c-4f38-a681-b7ba03be0ca8-1622378903280.PNG");
+        String message = String.format("유저  id: %d, 유저 포탈 계정 : %s 인 유저가 %s 하였습니다.\n"
+                ,user.getId(), user.getPortal_account(), event);
+        slackAttachment.setText(message);
+        slackParameter.getSlackAttachments().add(slackAttachment);
+        slackNotiSender.send(slackTarget,slackParameter);
+    }
     //portal 계정으로 들어온 인증 이력을 만료 + soft delete
     private void invalidateAllAuthNumberByPortal(String portalAccount){
         // 회원가입 완료 시  phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴
@@ -433,14 +461,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
-    public String setProfile(MultipartFile multipartFile) throws Exception{
-        // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
-        Long id = this.getLoginUserId();
-        String url = s3Util.uploadObject(multipartFile);
-        userMapper.setProfile(id, url);
-        return "프로필 사진이 설정되었습니다";
-    }
+
 
     @Override
     public Map<String, Long> getLectureBankCount(){
@@ -478,13 +499,12 @@ public class UserServiceImpl implements UserService {
         }
     }
     @Override
-    public void updateUser(User user){
+    public void updateUser(User user) throws  Exception{
 
         if  (user.getMajor().size() == 0 ){
             throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
-
-        Long id = this.getLoginUserId();
+        User dbUser = this.getLoginUser();
 
         // 전공값의 내용이 올바르지 않다면
         for(int i =0; i<user.getMajor().size(); i++){
@@ -493,10 +513,16 @@ public class UserServiceImpl implements UserService {
                 throw new RequestInputException(ErrorMessage.MAJOR_INVALID_EXCEPTION);
         }
 
+        // 현재 유저의 닉네임과 들어온 닉네임이 같은 경우는 체크하지 않는다
+        // 다른 경우 체크한다.
+        if ( !dbUser.getNickname().equals(user.getNickname())){
+            this.checkNickname(user.getNickname());
+        }
         //updateUser
-        userMapper.updateUser(id,user.getNickname(),user.getMajor());
+        userMapper.updateUser(dbUser.getId() ,user.getNickname(),user.getMajor(), user.getName());
 
     }
+
     @Override
     public BaseResponse deleteUser(){
         // soft delete and nickname update to "(탈퇴한 회원)"
@@ -523,4 +549,18 @@ public class UserServiceImpl implements UserService {
         return userMapper.getUserPurchasedLectureBank(id);
 
     }
+
+    @Override
+    public BaseResponse updateUserSort(){
+        Long userId = this.getLoginUserId();
+        // user salt = timestamp + user_id + BCrypt
+        // salt 삽입
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        String salt = userId.toString() + calendar.getTime();
+        salt = (BCrypt.hashpw(salt , BCrypt.gensalt()));
+        userMapper.setSalt(salt,userId);
+        return new BaseResponse("모든 기기에서 로그아웃 되었습니다.", HttpStatus.OK);
+    }
+
 }

@@ -14,6 +14,7 @@ public final class ValidationGroups {
     private ValidationGroups() { }
 
     // Standard groups
+    public interface  Search extends Default {};
     public interface Create extends Default {};
     public interface Update extends Default {};
     public interface signUp extends  Default{};
@@ -29,4 +30,8 @@ public final class ValidationGroups {
     // Admin groups
     public interface CreateAdmin extends Default {};
     public interface UpdateAdmin extends Default {};
+
+    //LectureBank
+    public interface PostLectureBank extends Default  {};
+    public interface PostLectureBankComment extends Default  {};
 }

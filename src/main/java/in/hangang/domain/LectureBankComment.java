@@ -1,16 +1,36 @@
 package in.hangang.domain;
 
+import in.hangang.annotation.ValidationGroups;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Component
 public class LectureBankComment {
+
+    @ApiModelProperty(hidden = true)
     private Long id;
-    private Long user_id;
+    @ApiModelProperty(hidden = true)
     private Long lecture_bank_id;
+    @ApiModelProperty(hidden = true)
+    private Long user_id;
+    @ApiModelProperty(hidden = true)
+    private String nickname;
+    @NotNull(groups = {ValidationGroups.PostLectureBankComment.class} ,message = "본문을 비울 수는 없습니다")
+    @Length(min=1,  groups = {ValidationGroups.PostLectureBankComment.class}, message = "본문은 최소 한글자 이상입니다")
     private String comments;
+
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
     @ApiModelProperty(hidden = true)
     private Timestamp created_at;
