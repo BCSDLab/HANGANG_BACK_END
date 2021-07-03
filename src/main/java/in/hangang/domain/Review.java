@@ -68,6 +68,8 @@ public class Review {
     private Timestamp created_at;
     @ApiModelProperty(hidden = true)
     private Timestamp updated_at;
+    @ApiModelProperty(hidden = true)
+    private String message;
 
     public Long getId() {
         return id;
@@ -227,5 +229,13 @@ public class Review {
 
     public void setSemester_id(Long semester_id) {
         this.semester_id = semester_id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -128,7 +128,9 @@ public class ReviewServiceImpl implements ReviewService {
         userMapper.addPoint(user.getId(), Point.LECTURE_REVIEW.getPoint());
         sendNoti(review);
 
-        return reviewMapper.getReviewById(review.getId());
+        Review returnReview = reviewMapper.getReviewById(review.getId());
+        returnReview.setMessage("리뷰가 정상적으로 작성되었습니다.");
+        return returnReview;
     }
 
     @Override
