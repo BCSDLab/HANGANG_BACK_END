@@ -22,6 +22,8 @@ public class User {
     @Email(groups = {ValidationGroups.logIn.class, ValidationGroups.signUp.class, ValidationGroups.findPassword.class} , message = "이메일의 형식이 아닙니다.")
     @NotNull(groups = {ValidationGroups.logIn.class, ValidationGroups.signUp.class,ValidationGroups.findPassword.class} , message = "이메일은 비워둘 수 없습니다.")
     private String portal_account;
+
+    @Size( min=64, max = 64,groups = { ValidationGroups.signUp.class, ValidationGroups.findPassword.class,  ValidationGroups.logIn.class}, message = "비밀번호의 해쉬값은 64글자입니다")
     @NotNull(groups = {ValidationGroups.logIn.class, ValidationGroups.signUp.class, ValidationGroups.findPassword.class} , message = "패스워드는 비워둘 수 없습니다.")
     private String password;
     @Size(min = 1, max=30 , groups = {ValidationGroups.updateUser.class, ValidationGroups.signUp.class}, message = "닉네임은 1글자이상 30글자 이하입니다.")
