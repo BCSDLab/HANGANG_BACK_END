@@ -6,9 +6,9 @@
         LEFT JOIN semester_date_division SDD
         ON SD.id = SDD.semester_date_id
         WHERE SDD.start_time <![CDATA[<=]]> #{currentTime}
-        <if test="isRegular == 0">
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(isRegular)">
             AND SDD.is_regular = #{isRegular}
         </if>
-        ORDER BY SD.id LIMIT 1
+        ORDER BY SD.id DESC LIMIT 1
     </select>
 </mapper>

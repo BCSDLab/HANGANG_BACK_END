@@ -11,14 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/semester")
 public class SemesterController {
 
     @Resource
     SemesterService semesterService;
 
     @ApiOperation(value = "현재 학기 조회", notes = "현재 진행되고 있는 학기를 조회 가능합니다")
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = "/semester", method = RequestMethod.GET)
     public ResponseEntity getCurrentSemester(Long isRegular) throws Exception{
         return new ResponseEntity(semesterService.getCurrentSemesterDate(isRegular), HttpStatus.OK);
     }
