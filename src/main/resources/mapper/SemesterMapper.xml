@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in.hangang.mapper.SemesterMapper">
+    <select id="getCurrentSemester" resultType="in.hangang.domain.Semester">
+        SELECT SD.id, SD.semester, SDD.start_time, SDD.is_regular FROM semester_date SD
+        LEFT JOIN semester_date_division SDD
+        ON SD.id = SDD.semester_date_id
+        WHERE SDD.start_time <![CDATA[<=]]> #{currentTime}
+        <if test="isRegular == 0">
+            AND SDD.is_regular = #{isRegular}
+        </if>
+        ORDER BY SD.id LIMIT 1
+    </select>
+</mapper>
