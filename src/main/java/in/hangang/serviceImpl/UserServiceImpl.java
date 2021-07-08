@@ -15,6 +15,7 @@ import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.mapper.UserMapper;
 import in.hangang.response.BaseResponse;
+import in.hangang.service.SemesterService;
 import in.hangang.service.UserService;
 import in.hangang.util.Jwt;
 import in.hangang.util.S3Util;
@@ -57,6 +58,8 @@ public class UserServiceImpl implements UserService {
     private S3Util s3Util;
     @Resource
     private TimetableMapper timetableMapper;
+    @Resource
+    SemesterService semesterService;
 
     @Value("${token.access}")
     private String access_token;
@@ -161,7 +164,7 @@ public class UserServiceImpl implements UserService {
 
         //회원가입 포인트 이력 추가
         userMapper.addPointHistory(userId, Point.SIGN_UP.getPoint(), Point.SIGN_UP.getTypeId());
-        timetableMapper.createDefaultTimeTable(userId, timetableMapper.getLatestSemesterDateId());
+        timetableMapper.createDefaultTimeTable(userId, semesterService.getCurrentSemesterDate(1L).getId());
         sendNoti(user, "회원가입");
         return new BaseResponse("회원가입에 성공했습니다", HttpStatus.OK);
     }
