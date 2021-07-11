@@ -3,6 +3,7 @@ package in.hangang.domain.report;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.sql.Timestamp;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LectureBankCommentReport {
 

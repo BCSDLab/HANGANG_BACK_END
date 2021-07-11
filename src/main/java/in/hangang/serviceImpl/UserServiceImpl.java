@@ -39,7 +39,7 @@ import java.util.*;
 
 
 @Transactional
-@Service("UserServiceImpl")
+@Service
 public class UserServiceImpl implements UserService {
 
     @Resource
@@ -58,8 +58,8 @@ public class UserServiceImpl implements UserService {
     private S3Util s3Util;
     @Resource
     private TimetableMapper timetableMapper;
-    @Resource
-    SemesterService semesterService;
+    @Resource(name = "semesterServiceImpl")
+    private SemesterService semesterService;
 
     @Value("${token.access}")
     private String access_token;

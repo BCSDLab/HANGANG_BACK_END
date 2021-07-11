@@ -15,7 +15,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Transactional
-@Service("AdminUserServiceImpl")
+@Service
 public class AdminUserServiceImpl extends UserServiceImpl implements AdminUserService {
 
 

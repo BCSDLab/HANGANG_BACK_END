@@ -1,8 +1,6 @@
 package in.hangang.domain;
 
-import org.springframework.stereotype.Component;
 
-@Component
 public class LectureBankCategory {
     private Long id;
     private Long lecture_bank_id;

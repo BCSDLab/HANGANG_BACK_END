@@ -1,10 +1,8 @@
 package in.hangang.domain.criteria;
 
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
-@Component
 public class LectureCriteria extends Criteria{
     private String keyword;
     private ArrayList<String> classification;

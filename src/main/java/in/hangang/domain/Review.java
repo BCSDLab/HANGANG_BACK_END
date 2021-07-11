@@ -1,11 +1,9 @@
 package in.hangang.domain;
 
 import in.hangang.annotation.ValidationGroups;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
@@ -14,7 +12,6 @@ import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-@Component
 public class Review {
     @ApiModelProperty(hidden = true)
     private Long id;

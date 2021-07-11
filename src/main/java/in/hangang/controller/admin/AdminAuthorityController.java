@@ -5,20 +5,18 @@ import in.hangang.domain.GrantAdmin;
 import in.hangang.service.admin.AdminUserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/admin")
 public class AdminAuthorityController {
 
-    @Autowired
-    @Qualifier("AdminUserServiceImpl")
+    @Resource(name = "adminUserServiceImpl")
     private AdminUserService adminUserService;
 
 

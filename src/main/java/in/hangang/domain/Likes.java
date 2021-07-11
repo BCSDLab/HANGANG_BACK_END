@@ -1,9 +1,5 @@
 package in.hangang.domain;
 
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-
-@Component
 public class Likes {
     private Long id;
     private Integer type;

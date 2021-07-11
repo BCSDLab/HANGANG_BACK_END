@@ -3,10 +3,12 @@ package in.hangang.mapper;
 import in.hangang.domain.*;
 import in.hangang.domain.criteria.TimeTableCriteria;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@Repository
 public interface TimetableMapper {
     LectureTimeTable getLectureByLectureId(Long lectureId);
     Long getCountLectureList(@Param("timeTableCriteria") TimeTableCriteria timeTableCriteria);

@@ -3,13 +3,10 @@ package in.hangang.domain;
 import in.hangang.annotation.ValidationGroups;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
-import java.sql.Time;
 import java.sql.Timestamp;
 
-@Component
 public class UserTimeTable {
     @ApiModelProperty(hidden = true)
     private Long id;

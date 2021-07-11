@@ -8,7 +8,6 @@ import in.hangang.mapper.MemoMapper;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.MemoService;
 import in.hangang.service.UserService;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,8 +15,7 @@ import javax.annotation.Resource;
 @Service
 public class MemoServiceImpl implements MemoService {
 
-    @Resource
-    @Qualifier("UserServiceImpl")
+    @Resource(name = "userServiceImpl")
     UserService userService;
 
     @Resource

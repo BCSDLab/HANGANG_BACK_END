@@ -1,11 +1,8 @@
 package in.hangang.serviceImpl;
 
-import com.amazonaws.services.xray.model.Http;
 import in.hangang.config.SlackNotiSender;
 import in.hangang.domain.*;
-import in.hangang.domain.Report;
 import in.hangang.domain.criteria.Criteria;
-import in.hangang.domain.scrap.Scrap;
 import in.hangang.domain.scrap.ScrapLectureBank;
 import in.hangang.domain.slack.SlackAttachment;
 import in.hangang.domain.slack.SlackParameter;
@@ -13,19 +10,19 @@ import in.hangang.domain.slack.SlackTarget;
 import in.hangang.enums.*;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureBankMapper;
-import in.hangang.mapper.UserMapper;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.LectureBankService;
 import in.hangang.service.UserService;
 import in.hangang.util.S3Util;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,14 +30,13 @@ import java.util.List;
 import java.util.Map;
 
 @Transactional
-@Service("LectureBankServiceImpl")
+@Service
 public class LectureBankServiceImpl implements LectureBankService {
 
-    @Autowired
+    @Resource
     protected LectureBankMapper lectureBankMapper;
 
-    @Autowired
-    @Qualifier("UserServiceImpl")
+    @Resource(name = "userServiceImpl")
     protected UserService userService;
 
     @Value("${report_slack_url}")

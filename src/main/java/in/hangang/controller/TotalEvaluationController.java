@@ -12,8 +12,8 @@ import javax.annotation.Resource;
 @RestController
 public class TotalEvaluationController {
 
-    @Resource
-    TotalEvaluationService totalEvaluationService;
+    @Resource(name = "totalEvaluationServiceImpl")
+    private TotalEvaluationService totalEvaluationService;
 
     @ApiOperation( value = "강의 종합평가 보기", notes = "해당 강의의 종합평가를 확인할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/evaluation/total/{id}", method = RequestMethod.GET)

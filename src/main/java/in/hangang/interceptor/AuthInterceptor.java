@@ -3,19 +3,16 @@ package in.hangang.interceptor;
 import in.hangang.annotation.Auth;
 import in.hangang.domain.User;
 import in.hangang.enums.ErrorMessage;;
-import in.hangang.exception.AccessTokenExpireException;
 import in.hangang.exception.AccessTokenInvalidException;
 import in.hangang.exception.ForbiddenException;
 import in.hangang.service.UserService;
 import in.hangang.util.Jwt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.http.Cookie;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,8 +24,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
     /*
     token.user.name
      */
-    @Autowired
-    @Qualifier("UserServiceImpl")
+    @Resource(name = "userServiceImpl")
     private UserService userService;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

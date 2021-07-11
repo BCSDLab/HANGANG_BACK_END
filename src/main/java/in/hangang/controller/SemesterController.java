@@ -13,8 +13,8 @@ import javax.annotation.Resource;
 @RestController
 public class SemesterController {
 
-    @Resource
-    SemesterService semesterService;
+    @Resource(name = "semesterServiceImpl")
+    private SemesterService semesterService;
 
     @ApiOperation(value = "현재 학기 조회", notes = "현재 진행되고 있는 학기를 조회 가능합니다")
     @RequestMapping(value = "/semester", method = RequestMethod.GET)

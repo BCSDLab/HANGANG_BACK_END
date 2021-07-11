@@ -1,9 +1,7 @@
 package in.hangang.serviceImpl;
 
 import in.hangang.domain.ClassTimeMap;
-import in.hangang.domain.LectureTimeTable;
 import in.hangang.domain.User;
-import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Lecture;
 import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.enums.ErrorMessage;
@@ -12,23 +10,19 @@ import in.hangang.mapper.LectureMapper;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.LectureService;
 import in.hangang.service.UserService;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Array;
 import java.util.*;
 
-import org.apache.commons.lang3.ObjectUtils;
 
-@Service("LectureServiceImpl")
+@Service
 public class LectureServiceImpl implements LectureService {
 
     @Resource
     private LectureMapper lectureMapper;
 
-    @Qualifier("UserServiceImpl")
-    @Resource
+    @Resource(name = "userServiceImpl")
     private UserService userService;
 
     @Resource

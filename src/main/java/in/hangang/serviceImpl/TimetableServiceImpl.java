@@ -8,7 +8,6 @@ import in.hangang.mapper.LectureMapper;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.TimetableService;
 import in.hangang.service.UserService;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +23,7 @@ public class TimetableServiceImpl implements TimetableService {
     @Resource
     LectureMapper lectureMapper;
 
-    @Resource
-    @Qualifier("UserServiceImpl")
+    @Resource(name = "userServiceImpl")
     UserService userService;
 
     @Override

@@ -11,24 +11,23 @@ import in.hangang.response.BaseResponse;
 import in.hangang.service.LectureBankService;
 import in.hangang.service.ReportService;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/lecture-banks")
 public class LectureBankController {
 
-    @Autowired
-    @Qualifier("LectureBankServiceImpl")
+    @Resource(name = "lectureBankServiceImpl")
     private LectureBankService lectureBankService;
 
-    @Autowired
+    @Resource(name = "reportServiceImpl")
     private ReportService reportService;
 
 
