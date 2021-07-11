@@ -14,11 +14,9 @@ import in.hangang.enums.ErrorMessage;
 import in.hangang.enums.Point;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.*;
-import in.hangang.service.LectureService;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@Service("ReviewServiceImpl")
+@Service
 public class ReviewServiceImpl implements ReviewService {
     @Autowired
     SlackNotiSender slackNotiSender;
@@ -41,7 +39,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Resource
     protected ReviewMapper reviewMapper;
 
-    @Resource
+    @Resource(name = "hashTagMapper")
     private HashTagMapper hashtagMapper;
 
     @Resource
@@ -50,15 +48,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Resource
     private LikesMapper likesMapper;
 
-    @Resource
-    @Qualifier("UserServiceImpl")
+    @Resource(name = "userServiceImpl")
     private UserService userService;
 
     @Resource
     private UserMapper userMapper;
-
-    @Resource
-    private LectureService lectureService;
 
     @Override
     public List<Review> getReviewList(Criteria criteria) throws Exception {

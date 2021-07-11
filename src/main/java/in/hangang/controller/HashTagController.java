@@ -15,8 +15,8 @@ import javax.annotation.Resource;
 @RestController
 public class HashTagController {
 
-    @Resource
-    HashTagService hashTagService;
+    @Resource(name = "hashTagServiceImpl")
+    private HashTagService hashTagService;
 
     @ApiOperation( value = "해시태그 순위 갱신", notes = "Top3 해시태그를 수동으로 갱신합니다. (강의에 노출되는 Top3 해시태그는 10분마다 자동으 갱신됩니다.)")
     @RequestMapping(value = "/hashtag", method = RequestMethod.PATCH)

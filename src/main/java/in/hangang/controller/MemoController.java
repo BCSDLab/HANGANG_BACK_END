@@ -21,8 +21,9 @@ import java.util.ArrayList;
 @RestController
 public class MemoController {
 
-    @Resource
-    MemoService memoService;
+    @Resource(name = "memoServiceImpl")
+    private MemoService memoService;
+
     @Xss
     @Auth
     @ApiOperation( value = "메모 생성", notes = "시간표에 있는 강의에 메모를 추가할 수 있습니다.", authorizations = @Authorization(value = "Bearer +accessToken"))

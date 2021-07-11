@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import in.hangang.annotation.ValidationGroups;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.*;
 import java.sql.Timestamp;
@@ -14,7 +13,6 @@ import java.util.List;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Component
 public class User {
 
     private Long id;

@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 public class HashTagServiceImpl implements HashTagService {
 
     @Resource
-    HashTagMapper hashtagMapper;
+    private HashTagMapper hashtagMapper;
 
     @Override
     public void updateTop3HashTag() {

@@ -2,14 +2,12 @@ package in.hangang.domain;
 import in.hangang.annotation.ValidationGroups;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 
-@Component
 public class LectureBankCriteria {
 
     @Min(value = 1, groups = ValidationGroups.Search.class, message = "최소값은 1입니다")

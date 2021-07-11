@@ -4,35 +4,28 @@ import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.annotation.Xss;
 import in.hangang.domain.AuthNumber;
-import in.hangang.domain.Review;
 import in.hangang.domain.User;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.ReviewService;
 import in.hangang.service.UserService;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 
 @RequestMapping("/user")
 @RestController
 public class UserController {
 
 
-    @Resource
-    @Qualifier("UserServiceImpl")
+    @Resource(name = "userServiceImpl")
     private UserService userService;
 
-    @Autowired
-    @Qualifier("ReviewServiceImpl")
+    @Resource(name = "reviewServiceImpl")
     private ReviewService reviewService;
 
     // 로그인

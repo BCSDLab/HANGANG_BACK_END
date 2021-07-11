@@ -3,37 +3,31 @@ package in.hangang.controller;
 import in.hangang.annotation.Auth;
 import in.hangang.annotation.ValidationGroups;
 import in.hangang.annotation.Xss;
-import in.hangang.domain.Lecture;
 import in.hangang.domain.Report;
 import in.hangang.domain.criteria.Criteria;
 import in.hangang.domain.Review;
 import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.enums.Board;
-import in.hangang.enums.ContentType;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.ReportService;
 import in.hangang.service.ReviewService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 
 @RestController
 public class ReviewController {
 
-    @Autowired
-    @Qualifier("ReviewServiceImpl")
-    ReviewService reviewService;
+    @Resource(name = "reviewServiceImpl")
+    private ReviewService reviewService;
 
-    @Resource
-    ReportService reportService;
+    @Resource(name = "reportServiceImpl")
+    private ReportService reportService;
 
     // CRUD ------------------------------------------------------------------------------------------------------
     // 강의 후기 전체 READ

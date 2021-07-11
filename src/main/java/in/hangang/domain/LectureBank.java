@@ -4,9 +4,7 @@ package in.hangang.domain;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import in.hangang.annotation.ValidationGroups;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiParam;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -17,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Component
 public class LectureBank {
 
     @ApiModelProperty(hidden = true)

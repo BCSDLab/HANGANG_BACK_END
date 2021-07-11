@@ -1,6 +1,5 @@
 package in.hangang.serviceImpl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import in.hangang.config.SlackNotiSender;
 import in.hangang.domain.*;
 import in.hangang.domain.slack.SlackAttachment;
@@ -12,17 +11,11 @@ import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.ReportMapper;
 import in.hangang.service.ReportService;
 import in.hangang.service.UserService;
-import in.hangang.util.Parser;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -30,8 +23,7 @@ public class ReportServiceImpl implements ReportService {
     @Resource
     ReportMapper reportMapper;
 
-    @Resource
-    @Qualifier("UserServiceImpl")
+    @Resource(name = "userServiceImpl")
     UserService userService;
 
     @Resource

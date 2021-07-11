@@ -3,21 +3,19 @@ package in.hangang.controller.admin;
 import in.hangang.annotation.Auth;
 import in.hangang.response.BaseResponse;
 import in.hangang.service.admin.AdminLectureBankService;
-import in.hangang.service.admin.AdminReviewService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminLectureBankController {
 
-    @Autowired
-    @Qualifier("AdminLectureBankServiceImpl")
+    @Resource(name = "adminLectureBankServiceImpl")
     private AdminLectureBankService adminLectureBankService;
 
     @GetMapping("/lecture-bank")

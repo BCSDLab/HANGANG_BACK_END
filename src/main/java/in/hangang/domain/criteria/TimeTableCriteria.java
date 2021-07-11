@@ -1,6 +1,8 @@
 package in.hangang.domain.criteria;
 
+
 import java.util.ArrayList;
+
 
 public class TimeTableCriteria extends Criteria {
     private String keyword;

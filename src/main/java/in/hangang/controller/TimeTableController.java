@@ -21,8 +21,8 @@ import java.util.HashMap;
 @RestController
 public class TimeTableController {
 
-    @Resource
-    TimetableService timetableService;
+    @Resource(name = "timetableServiceImpl")
+    private TimetableService timetableService;
 
     @ApiOperation( value = "강의 목록 확인", notes = "강의 리스트를 보여줍니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/timetable/lecture/list", method = RequestMethod.GET)

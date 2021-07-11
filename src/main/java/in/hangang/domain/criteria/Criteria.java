@@ -2,9 +2,7 @@ package in.hangang.domain.criteria;
 
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
-import org.springframework.stereotype.Component;
 
-@Component
 public class Criteria {
     @ApiParam(required = false, defaultValue = "1")
     private Integer page = 1;
