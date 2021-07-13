@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,6 +27,12 @@ public class CloudFrontUtil {
     String keyPath;
 
     public String generateSignedUrl() throws InvalidKeySpecException, IOException {
+
+        Path relativePath = Paths.get("");
+        String path = relativePath.toAbsolutePath().toString();
+        return path;
+
+        /*
         //프로토콜
         SignerUtils.Protocol protocol = SignerUtils.Protocol.http;
         //CloudFront private key file
@@ -48,6 +56,8 @@ public class CloudFrontUtil {
                 s3ObjectKey, keyPairId, expireDate);
 
         //generate, expire 시간, ip주소까지 적용된 url
+
+         */
         /*
         String url2 = CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
                 protocol, distributionDomain, privateKeyFile,
@@ -66,9 +76,8 @@ public class CloudFrontUtil {
                 protocol, distributionDomain, privateKeyFile,
                 s3ObjectKey, keyPairId, dateLessThan,
                 dateGreaterThan, ipRange);
-         */
 
         return url;
-
+        */
     }
 }
