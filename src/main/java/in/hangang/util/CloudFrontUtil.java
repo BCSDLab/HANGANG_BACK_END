@@ -28,11 +28,6 @@ public class CloudFrontUtil {
 
     public String generateSignedUrl() throws InvalidKeySpecException, IOException {
 
-        Path relativePath = Paths.get("");
-        String path = relativePath.toAbsolutePath().toString();
-        return path;
-
-        /*
         //프로토콜
         SignerUtils.Protocol protocol = SignerUtils.Protocol.http;
         //CloudFront private key file
@@ -55,9 +50,9 @@ public class CloudFrontUtil {
                 protocol, distributionDomain, privateKeyFile,
                 s3ObjectKey, keyPairId, expireDate);
 
-        //generate, expire 시간, ip주소까지 적용된 url
+        return url;
 
-         */
+        //generate, expire 시간, ip주소까지 적용된 url
         /*
         String url2 = CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
                 protocol, distributionDomain, privateKeyFile,
