@@ -6,6 +6,7 @@ import com.amazonaws.services.cloudfront.util.SignerUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,12 +27,13 @@ public class CloudFrontUtil {
     @Value("${cloudfront.key.path}")
     String keyPath;
 
+    @Resource
+    File privateKeyFile;
+
     public String generateSignedUrl() throws InvalidKeySpecException, IOException {
 
         //프로토콜
         SignerUtils.Protocol protocol = SignerUtils.Protocol.http;
-        //CloudFront private key file
-        File privateKeyFile = new File(keyPath);
         //접근 가능 ip 주소
         String ipRange = "0.0.0.0/0";
         //S3 파일명
