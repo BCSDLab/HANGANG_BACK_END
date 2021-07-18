@@ -1,17 +1,18 @@
 package in.hangang.util;
 
-
+import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
 import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
+import com.amazonaws.services.s3.internal.ServiceUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -54,27 +55,40 @@ public class CloudFrontUtil {
 
         return url;
 
-        //generate, expire 시간, ip주소까지 적용된 url
-        /*
+        /*** generate, expire 시간, ip주소까지 적용된 url
         String url2 = CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
                 protocol, distributionDomain, privateKeyFile,
                 s3ObjectKey, keyPairId, expireDate,
                 generateDate, ipRange);
-         */
-        /*
-        기존 레퍼런스가 사용하던 방법
-        Date dateLessThan = DateUtils.parseISO8601Date("2021-11-14T22:20:00.000Z");
-        Date dateGreaterThan = DateUtils.parseISO8601Date("2021-11-14T22:20:00.000Z");
-        String url1 = CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
-                protocol, distributionDomain, privateKeyFile,
-                s3ObjectKey, keyPairId, dateLessThan);
-
-        String url2 = CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
-                protocol, distributionDomain, privateKeyFile,
-                s3ObjectKey, keyPairId, dateLessThan,
-                dateGreaterThan, ipRange);
-
-        return url;
-        */
+         ***/
     }
+
+
+    public void generateSignedCookie(HttpServletResponse response) throws ParseException, InvalidKeySpecException, IOException {
+
+        String s3ObjectKey = "reference.jpg";
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        //expire 시간 설정
+        calendar.add(Calendar.HOUR, 1);
+        Date expireDate = calendar.getTime();
+
+        CloudFrontCookieSigner.CookiesForCannedPolicy cookies = CloudFrontCookieSigner.getCookiesForCannedPolicy(
+                SignerUtils.Protocol.http,
+                distributionDomain,
+                privateKeyFile,
+                s3ObjectKey,
+                keyPairId,
+                expireDate
+        );
+        Cookie keyPairId = new Cookie(cookies.getKeyPairId().getKey(), cookies.getKeyPairId().getValue());
+        Cookie expire = new Cookie(cookies.getExpires().getKey(), cookies.getExpires().getValue());
+        Cookie signature = new Cookie(cookies.getSignature().getKey(), cookies.getSignature().getValue());
+
+        response.addCookie(keyPairId);
+        response.addCookie(expire);
+        response.addCookie(signature);
+    }
+
 }
