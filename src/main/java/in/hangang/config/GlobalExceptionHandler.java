@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
 		if (e instanceof MethodArgumentNotValidException){
 			baseException = new BaseException(e.getClass().getSimpleName(), ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
-			//validation error message에서 본인이 domain에 작성한 default message만 가져오도록 하는 code
+			//validation error message에서 본인이 domain에 작성한 default message만 가져오도록 하는
 			List<ObjectError> messageList = ((MethodArgumentNotValidException) e).getBindingResult().getAllErrors();
 			String message = "";
 			for(int i=0; i<messageList.size(); i++){
