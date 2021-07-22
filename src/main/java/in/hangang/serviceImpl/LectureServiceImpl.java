@@ -9,6 +9,7 @@ import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureMapper;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.LectureService;
+import in.hangang.service.SemesterService;
 import in.hangang.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,9 @@ public class LectureServiceImpl implements LectureService {
 
     @Resource
     private TimetableMapper timetableMapper;
+
+    @Resource(name = "semesterServiceImpl")
+    private SemesterService semesterService;
 
     @Override
     public Map<String, Object> getLectureList(LectureCriteria lectureCriteria) throws Exception {
@@ -101,7 +105,7 @@ public class LectureServiceImpl implements LectureService {
         if(!lectureMapper.checkLectureExists(id))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
-        ArrayList<ClassTimeMap> resultList = lectureMapper.getClassByLectureId(id);
+        ArrayList<ClassTimeMap> resultList = lectureMapper.getClassByLectureId(id, semesterService.getCurrentSemesterDate(1L).getId());
         for(int i = 0; i<resultList.size(); i++){
             resultList.get(i).setSelectedTableId(timetableMapper.getTimeTableIdByLecture(userId, resultList.get(i).getId()));
         }

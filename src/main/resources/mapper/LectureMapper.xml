@@ -238,7 +238,7 @@
         SELECT id, class, target, professor, class_time, name FROM lecture_timetable
         WHERE name = (SELECT name FROM lecture WHERE id = #{lecture_id})
           AND professor = (SELECT professor FROM lecture WHERE id = #{lecture_id})
-          AND semester_date = 5
+          AND semester_date = #{semesterDateId}
         ORDER BY class
     </select>
 

@@ -5,7 +5,7 @@
         SELECT SD.id, SD.semester, SDD.start_time, SDD.is_regular FROM semester_date SD
         LEFT JOIN semester_date_division SDD
         ON SD.id = SDD.semester_date_id
-        WHERE SDD.start_time <![CDATA[<=]]> #{currentTime}
+        WHERE SDD.start_time <![CDATA[<=]]> now()
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(isRegular)">
             AND SDD.is_regular = #{isRegular}
         </if>

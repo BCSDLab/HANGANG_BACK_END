@@ -29,6 +29,6 @@ public interface LectureMapper {
     void updateTotalRatingById(Long id);
     void updateReviewCount();
     String getNameById(Long id);
-    ArrayList<ClassTimeMap> getClassByLectureId(Long lecture_id);
+    ArrayList<ClassTimeMap> getClassByLectureId(Long lecture_id, Long semesterDateId);
     Lecture getLecture(Long id, @Param("user") User user);
 }
