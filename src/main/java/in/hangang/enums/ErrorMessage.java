@@ -58,7 +58,8 @@ public enum ErrorMessage {
 	KEYWORD_INVALID(53,"키워드는 최신순과 좋아요순만 가능합니다.", HttpStatus.BAD_REQUEST),
 	URL_INVALID(54,"URL의 값이 INVALID합니다.",HttpStatus.BAD_REQUEST),
 	DELETED_FILE(55,"이미 삭제된 파일입니다", HttpStatus.BAD_REQUEST),
-	DELETE_MAIN_TIMETABLE(56, "메인 시간표는 삭제가 불가능합니다.", HttpStatus.BAD_REQUEST);
+	DELETE_MAIN_TIMETABLE(56, "메인 시간표는 삭제가 불가능합니다.", HttpStatus.BAD_REQUEST),
+	TOO_FAST_REQUEST(57, "요청이 중복되었습니다.", HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;
