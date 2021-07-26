@@ -8,5 +8,5 @@ import java.util.Map;
 
 @Repository
 public interface SemesterMapper {
-    Semester getCurrentSemester(Timestamp currentTime, Long isRegular);
+    Semester getCurrentSemester(Long isRegular);
 }

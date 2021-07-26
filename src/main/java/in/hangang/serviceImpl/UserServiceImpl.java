@@ -23,6 +23,7 @@ import in.hangang.util.SesSender;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,8 +139,11 @@ public class UserServiceImpl implements UserService {
 
         // 암호화
         user.setPassword( BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()) );
-        userMapper.signUp(user); // 회원가입
-
+        try {
+            userMapper.signUp(user); // 회원가입
+        } catch (DataIntegrityViolationException exception) {
+            throw new RequestInputException(ErrorMessage.TOO_FAST_REQUEST);
+        }
         //portal 계정으로 들어온 인증 이력을 만료 + soft delete
         this.invalidateAllAuthNumberByPortal(user.getPortal_account());
 

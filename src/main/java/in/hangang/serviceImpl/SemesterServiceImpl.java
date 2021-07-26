@@ -16,7 +16,6 @@ public class SemesterServiceImpl implements SemesterService {
 
     @Override
     public Semester getCurrentSemesterDate(Long isRegular) {
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        return semesterMapper.getCurrentSemester(currentTime, isRegular);
+        return semesterMapper.getCurrentSemester(isRegular);
     }
 }
