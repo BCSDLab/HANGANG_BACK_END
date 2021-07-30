@@ -7,6 +7,7 @@ import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.mapper.LectureMapper;
+import in.hangang.mapper.MajorMapper;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.LectureService;
 import in.hangang.service.SemesterService;
@@ -29,6 +30,9 @@ public class LectureServiceImpl implements LectureService {
     @Resource
     private TimetableMapper timetableMapper;
 
+    @Resource
+    private MajorMapper majorMapper;
+
     @Resource(name = "semesterServiceImpl")
     private SemesterService semesterService;
 
@@ -40,8 +44,11 @@ public class LectureServiceImpl implements LectureService {
             throw new RequestInputException(ErrorMessage.VALIDATION_FAIL_EXCEPTION);
 
         // 학부 검색 검사 ( 최대 2개까지 선택 )
-        if(lectureCriteria.getDepartment()!=null && lectureCriteria.getDepartment().size()>2)
-            throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
+        //if(lectureCriteria.getDepartment()!=null && lectureCriteria.getDepartment().size()>2)
+        //    throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
+        if(lectureCriteria.getDepartmentId()!=null) {
+            lectureCriteria.setDepartment(majorMapper.getMajorFromId(lectureCriteria));
+        }
 
         Map<String, Object> map = new HashMap<>();
         map.put("count", lectureMapper.getCountLectureList(lectureCriteria));
