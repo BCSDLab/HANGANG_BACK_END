@@ -1,14 +1,17 @@
 package in.hangang.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import in.hangang.annotation.ValidationGroups;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Lecture {
+    @NotNull(groups = {ValidationGroups.scrapLecture.class}, message = "스크랩할 강의 id는 비워둘 수 없습니다.")
     @ApiModelProperty(hidden = true)
     private Long id;
     @ApiModelProperty(hidden = true)
