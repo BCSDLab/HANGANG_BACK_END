@@ -47,7 +47,7 @@ public class LectureServiceImpl implements LectureService {
         //if(lectureCriteria.getDepartment()!=null && lectureCriteria.getDepartment().size()>2)
         //    throw new RequestInputException(ErrorMessage.LECTURE_CRITERIA_LIMIT_DEPARTMENT);
         if(lectureCriteria.getDepartmentId()!=null) {
-            lectureCriteria.setDepartment(majorMapper.getMajorFromId(lectureCriteria));
+            lectureCriteria.setDepartment(majorMapper.getMajorId(lectureCriteria));
         }
 
         Map<String, Object> map = new HashMap<>();

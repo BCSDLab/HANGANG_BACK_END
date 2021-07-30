@@ -5,6 +5,7 @@ import in.hangang.enums.ErrorMessage;
 import in.hangang.exception.RequestInputException;
 import in.hangang.exception.TimeTableException;
 import in.hangang.mapper.LectureMapper;
+import in.hangang.mapper.MajorMapper;
 import in.hangang.mapper.TimetableMapper;
 import in.hangang.service.TimetableService;
 import in.hangang.service.UserService;
@@ -21,6 +22,9 @@ public class TimetableServiceImpl implements TimetableService {
     TimetableMapper timetableMapper;
 
     @Resource
+    MajorMapper majorMapper;
+
+    @Resource
     LectureMapper lectureMapper;
 
     @Resource(name = "userServiceImpl")
@@ -31,6 +35,10 @@ public class TimetableServiceImpl implements TimetableService {
         //학기 정보가 비어있으면 예외 처리
         if(timeTableCriteria.getSemesterDateId()==null)
             throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
+
+        if(timeTableCriteria.getDepartmentId()!=null) {
+            timeTableCriteria.setDepartment(majorMapper.getMajorId(timeTableCriteria));
+        }
 
         Map<String, Object> map = new HashMap<>();
         map.put("count", timetableMapper.getCountLectureList(timeTableCriteria));

@@ -1,6 +1,8 @@
 package in.hangang.domain.criteria;
 
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 
 
@@ -10,6 +12,7 @@ public class TimeTableCriteria extends Criteria {
     private ArrayList<String> classification;
     private Long semesterDateId;
     private ArrayList<String> department;
+    private ArrayList<Integer> departmentId;
 
     public String getCriteria() {
         return criteria;
@@ -49,5 +52,13 @@ public class TimeTableCriteria extends Criteria {
 
     public void setDepartment(ArrayList<String> department) {
         this.department = department;
+    }
+
+    public ArrayList<Integer> getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(ArrayList<Integer> departmentId) {
+        this.departmentId = departmentId;
     }
 }

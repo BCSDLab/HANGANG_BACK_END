@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="in.hangang.mapper.MajorMapper">
-    <select id="getMajorFromId" resultType="String">
+    <select id="getMajorId" resultType="String">
         SELECT major FROM major_id WHERE id IN
-        <foreach collection="lectureCriteria.departmentId" item="id" open="(" close=")" separator=",">
+        <foreach collection="Criteria.departmentId" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
     </select>
