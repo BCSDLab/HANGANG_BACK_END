@@ -39,6 +39,7 @@
 
     <update id="updateTop3HashTag">
         DELETE FROM hash_tag_top3;
+        ALTER TABLE hash_tag_top3 AUTO_INCREMENT = 1;
         INSERT INTO hangang.hash_tag_top3(lecture_id, hash_tag_id, count)
         SELECT a.lecture_id, a.hash_tag_id, a.count FROM
         ( SELECT lecture_id, hash_tag_id, count ,
