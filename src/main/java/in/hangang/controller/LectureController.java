@@ -1,6 +1,7 @@
 package in.hangang.controller;
 
 import in.hangang.annotation.Auth;
+import in.hangang.annotation.ValidationGroups;
 import in.hangang.domain.Lecture;
 import in.hangang.domain.criteria.LectureCriteria;
 import in.hangang.response.BaseResponse;
@@ -9,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,7 +40,7 @@ public class LectureController {
     @Auth
     @ApiOperation(value = "강의 스크랩", notes = "강의 id가 필요합니다.\n해당 강의를 스크랩합니다.", authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/scrap/lecture", method = RequestMethod.POST)
-    public ResponseEntity scrapLecture(@RequestBody Lecture lecture) throws Exception{
+    public ResponseEntity scrapLecture(@RequestBody @Validated(ValidationGroups.scrapLecture.class) Lecture lecture) throws Exception{
         lectureService.scrapLecture(lecture);
         return new ResponseEntity( new BaseResponse("강의를 정상적으로 스크랩했습니다.", HttpStatus.OK), HttpStatus.OK);
     }

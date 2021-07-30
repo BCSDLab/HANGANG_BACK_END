@@ -27,10 +27,10 @@ public final class ValidationGroups {
     public interface updateUserTimeTable extends Default{};
     public interface createMemo extends Default{};
     public interface updateUser extends Default{};
+    public interface scrapLecture extends Default{};
     // Admin groups
     public interface CreateAdmin extends Default {};
     public interface UpdateAdmin extends Default {};
-
     //LectureBank
     public interface PostLectureBank extends Default  {};
     public interface PostLectureBankComment extends Default  {};

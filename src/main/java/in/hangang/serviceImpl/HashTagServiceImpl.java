@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 @Service
 public class HashTagServiceImpl implements HashTagService {
 
-    @Resource
+    @Resource(name = "hashTagMapper")
     private HashTagMapper hashtagMapper;
 
     @Override

@@ -8,6 +8,7 @@ public class LectureCriteria extends Criteria{
     private ArrayList<String> classification;
     private ArrayList<Long> hashtag;
     private ArrayList<String> department;
+    private ArrayList<Integer> departmentId;
     private String sort;
 
     public String getKeyword() {
@@ -48,5 +49,13 @@ public class LectureCriteria extends Criteria{
 
     public void setSort(String sort) {
         this.sort = sort;
+    }
+
+    public ArrayList<Integer> getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(ArrayList<Integer> departmentId) {
+        this.departmentId = departmentId;
     }
 }
