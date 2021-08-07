@@ -5,7 +5,7 @@
     <select id="getReviewList" resultMap="review">
         SELECT *
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
-            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
+            ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) AS is_liked
         </if>
         FROM hangang.review R WHERE R.is_deleted = 0 LIMIT #{criteria.cursor}, #{criteria.limit}
     </select>
@@ -19,7 +19,7 @@
         <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(user)">
             ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.user_id = #{user.id} AND RL.is_deleted = 0) as is_liked
         </if>
-        ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.is_deleted = 0) as like_count
+        ,(SELECT count(*) FROM review_like RL WHERE RL.review_id = R.id AND RL.is_deleted = 0) AS like_count
         FROM hangang.review R WHERE R.lecture_id = #{id} AND R.is_deleted = 0
         <if test="lectureCriteria.sort!=null">
             <if test='(lectureCriteria.sort eq "좋아요 순".toString())'>
@@ -54,9 +54,30 @@
         UPDATE hangang.lecture SET total_rating = IFNULL(ROUND((SELECT AVG(rating) FROM hangang.review WHERE lecture_id = #{id} AND is_deleted = 0), 2), 0) WHERE id=#{id};
     </update>
 
-    <delete id="deleteReviewById">
-        UPDATE hangang.review SET is_deleted = 1
-    </delete>
+    <select id="getNickNameByUserId" resultType="String">
+        SELECT nickname FROM hangang.user WHERE id = #{id}
+    </select>
+
+    <select id="getReviewByUserIdAndLectureId" resultType="Long">
+        SELECT id FROM hangang.review WHERE lecture_id = #{lecture_id} AND user_id = #{user_id}
+    </select>
+
+    <select id="getAssignmentByReviewId" resultType="in.hangang.domain.Assignment">
+        SELECT id, name FROM hangang.assignment
+        WHERE id = (SELECT assignment_id FROM hangang.review_assignment WHERE review_id = #{reviewId});
+    </select>
+
+    <insert id="createReviewAssignment">
+        INSERT INTO hangang.review_assignment(review_id, assignment_id)
+        VALUES
+        <foreach item="assignment" collection="assignment" separator=",">
+            (#{reviewId}, #{assignment.id})
+        </foreach>
+    </insert>
+
+    <select id="isExistsReview" resultType="Boolean">
+        SELECT EXISTS (SELECT * FROM hangang.review WHERE id = #{reviewId} AND is_deleted = 0)
+    </select>
 
     <resultMap id="review" type="in.hangang.domain.Review">
         <result column="id" property="id"/>
@@ -75,71 +96,14 @@
         <collection property="likes" javaType="Long" column="{review_id=id}" ofType="Long"
                     select="in.hangang.mapper.LikesMapper.getLikesByReviewId">
         </collection>
-        <collection property="hash_tags" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.HashTag"
+        <collection property="hash_tags" javaType="java.util.ArrayList" column="{reviewId=id}" ofType="in.hangang.domain.HashTag"
                     select="in.hangang.mapper.HashTagMapper.getHashTagByReviewId">
         </collection>
         <collection property="nickname" javaType="String" column="{id=user_id}"
                     select="getNickNameByUserId">
         </collection>
-        <collection property="assignment" javaType="java.util.ArrayList" column="id" ofType="in.hangang.domain.Assignment"
+        <collection property="assignment" javaType="java.util.ArrayList" column="{reviewId=id}" ofType="in.hangang.domain.Assignment"
                     select="in.hangang.mapper.ReviewMapper.getAssignmentByReviewId">
         </collection>
     </resultMap>
-
-    <select id="getNickNameByUserId" resultType="String">
-        SELECT nickname FROM hangang.user WHERE id = #{id}
-    </select>
-
-    <select id="getReviewByUserIdAndLectureId" resultType="Long">
-        SELECT id FROM hangang.review WHERE lecture_id = #{lecture_id} AND user_id = #{user_id}
-    </select>
-
-    <select id="getAssignmentByReviewId" resultType="in.hangang.domain.Assignment">
-        SELECT id, name FROM hangang.assignment
-        WHERE id = any(SELECT assignment_id
-                       FROM( SELECT assignment_id FROM hangang.review_assignment WHERE review_id = #{review_id}) as temp);
-    </select>
-
-    <insert id="createReviewAssignment">
-        INSERT INTO hangang.review_assignment(review_id, assignment_id)
-        VALUES
-        <foreach item="assignment" collection="assignment" separator=",">
-            (#{reviewId}, #{assignment.id})
-        </foreach>
-    </insert>
-
-    <select id="getLectureIdByReviewId" resultType="Long">
-        SELECT lecture_id FROM hangang.review WHERE id = #{id}
-    </select>
-
-
-    <!-- 스크랩 기능 -->
-    <insert id="createScrap">
-        INSERT INTO hangang.scrap(user_id, review_id) VALUES(#{userId}, #{reviewId})
-    </insert>
-
-    <select id="getScrapReviewList" resultMap="review">
-        SELECT * FROM hangang.review WHERE id = ANY(SELECT review_id FROM hangang.scrap WHERE user_id = #{userId} AND is_deleted = 0) AND is_deleted = 0
-    </select>
-
-    <select id="getScrapCountByUserId" resultType="Long">
-        SELECT count(*) FROM hangang.scrap WHERE user_id = #{userId} AND is_deleted = 0
-    </select>
-
-    <update id="deleteScrapReview">
-        UPDATE hangang.scrap SET is_deleted = 1 WHERE user_id = #{userId} AND review_id = #{reviewId}
-    </update>
-
-    <!-- 삭제 여부 확인 -->
-    <select id="isExistsReview" resultType="Long">
-        SELECT id FROM hangang.review WHERE id = #{reviewId} AND is_deleted = 0
-    </select>
-
-    <select id="isExistsScrap" resultType="Long">
-        SELECT id FROM hangang.scrap WHERE user_id = #{userId} AND review_id = #{reviewId} AND is_deleted = 0
-    </select>
-
-    <select id="getReviewByTimeTableLecture" resultType="in.hangang.domain.Lecture">
-        SELECT * FROM lecture WHERE (name, professor) IN (SELECT name, professor FROM lecture_timetable WHERE id = #{lectureId})
-    </select>
 </mapper>
