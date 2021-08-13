@@ -21,17 +21,7 @@ public interface ReviewMapper {
     ArrayList<Review> getReviewByLectureId(@Param("id") Long id, @Param("lectureCriteria") LectureCriteria lectureCriteria, @Param("user") User user);
     Long getCountReviewByLectureId(Long id);
     Long getReviewByUserIdAndLectureId(Long lecture_id, Long user_id);
-    ArrayList<Assignment> getAssignmentByReviewId(Long review_id);
-    void deleteReviewById(Long id);
+    ArrayList<Assignment> getAssignmentByReviewId(Long reviewId);
     void createReviewAssignment(Long reviewId, @Param("assignment") List<Assignment> assignment);
-    Long getLectureIdByReviewId(Long lecture_id);
-    void createScrap(Long userId, Long reviewId);
-    ArrayList<Review> getScrapReviewList(Long userId);
-    Long getScrapCountByUserId(Long userId);
-    void deleteScrapReview(Long userId, Long reviewId);
-    Long isExistsReview(Long reviewId);
-    Long isExistsScrap(Long userId, Long reviewId);
-    Lecture getReviewByTimeTableLecture(Long lectureId);
-
-
+    Boolean isExistsReview(Long reviewId);
 }

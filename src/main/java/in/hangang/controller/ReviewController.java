@@ -71,7 +71,7 @@ public class ReviewController {
     @ApiOperation( value = "강의 후기 추천", notes = "강의 후기 추천 기능입니다. 파라미터로 reviewID를 주면 됩니다.",
             authorizations = @Authorization(value = "Bearer +accessToken"))
     @RequestMapping(value = "/review/recommend", method = RequestMethod.POST)
-    public ResponseEntity createLikesReview(@RequestBody Review review) throws Exception{
+    public ResponseEntity createLikesReview(@RequestBody @Validated(ValidationGroups.likeReview.class) Review review) throws Exception{
         reviewService.likesReview(review);
         return new ResponseEntity(new BaseResponse("정상적으로 추천되었습니다.", HttpStatus.OK), HttpStatus.OK);
     }

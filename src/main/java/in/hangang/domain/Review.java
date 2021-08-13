@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 public class Review {
     @ApiModelProperty(hidden = true)
+    @NotNull(groups = {ValidationGroups.likeReview.class}, message = "추천할 강의후기 id가 없습니다.")
     private Long id;
     @NotNull(groups = {ValidationGroups.createReview.class}, message = "선택된 강의가 없습니다.")
     private Long lecture_id;

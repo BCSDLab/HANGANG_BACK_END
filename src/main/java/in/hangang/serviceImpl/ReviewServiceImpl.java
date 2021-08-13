@@ -61,9 +61,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review getReview(Long id) throws Exception {
+        if(id == null)
+            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
         Review review = reviewMapper.getReviewById(id);
         if(review == null)
-            throw new RequestInputException(ErrorMessage.INVALID_ACCESS_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.REVIEW_NOT_EXIST);
         else
             return review;
     }
@@ -82,6 +84,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Map<String, Object> getReviewByLectureId(Long id, LectureCriteria lectureCriteria) throws Exception {
         User user = userService.getLoginUser();
+        //TODO : MAP 방식 아닌 DOMAIN 사용
         Map<String, Object> map = new HashMap<>();
         map.put("count", reviewMapper.getCountReviewByLectureId(id));
         map.put("result", reviewMapper.getReviewByLectureId(id, lectureCriteria, user));
@@ -100,9 +103,9 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userService.getLoginUser();
         Long lectureId = review.getLecture_id();
 
-        //NOTE : 중복 작성 방지
-        //if(reviewMapper.getReviewByUserIdAndLectureId(review.getLecture_id(), user.getId())!= null)
-        //    throw new RequestInputException(ErrorMessage.PROHIBITED_ATTEMPT);
+        //중복 작성 방지
+        if(reviewMapper.getReviewByUserIdAndLectureId(review.getLecture_id(), user.getId())!= null)
+            throw new RequestInputException(ErrorMessage.PROHIBITED_ATTEMPT);
 
         //작성자, 수강 학기 설정
         review.setUser_id(user.getId());
@@ -131,10 +134,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void likesReview(Review review) throws Exception {
         Long reviewId = review.getId();
-        //id가 비어있는지 확인
-        if(reviewId == null)
-            throw new RequestInputException(ErrorMessage.REQUEST_INVALID_EXCEPTION);
-        if(reviewMapper.isExistsReview(reviewId)==null)
+
+        if(!reviewMapper.isExistsReview(reviewId))
             throw new RequestInputException(ErrorMessage.CONTENT_NOT_EXISTS);
 
         User user = userService.getLoginUser();
@@ -152,8 +153,7 @@ public class ReviewServiceImpl implements ReviewService {
             likesMapper.createLikesReview(userId, reviewId);
         else if (isLiked == 1)
             likesMapper.deleteLikesReview(userId, reviewId);
-        //어떠한 이유로든 추천이 두번 이상 되었는지 확인.
-        else
+        else //어떠한 이유로든 추천이 두번 이상 되었는지 확인.
             throw new RequestInputException(ErrorMessage.INVALID_RECOMMENDATION);
     }
 
