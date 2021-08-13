@@ -36,7 +36,7 @@ public class ReviewController {
     public ResponseEntity getReviewList(@ModelAttribute Criteria criteria) throws Exception {
         return new ResponseEntity (reviewService.getReviewList(criteria), HttpStatus.OK);
     }
-
+    // 사용되지 않고 있는 컨트롤러
     // 강의 후기 개별 READ
     @ApiOperation( value = "강의 후기 읽기", notes = "하나의 강의 후기를 확인할 수 있습니다. 강의 후기 ID를 파라미터로 주면 됩니다.",
             authorizations = @Authorization(value = "Bearer +accessToken"))
