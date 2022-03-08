@@ -10,6 +10,7 @@ import in.hangang.exception.CriticalException;
 import in.hangang.exception.NonCriticalException;
 import in.hangang.exception.TimeTableException;
 import in.hangang.util.Parser;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -93,6 +94,9 @@ public class GlobalExceptionHandler {
 			baseException.setErrorTrace(e.getStackTrace()[0].toString());
 			slack = true;
 		}
+
+		if (e instanceof ClientAbortException)
+			slack = false;
 
 		if(slack.equals(true)){
 			sendSlackNoti(e,handlerMethod);
